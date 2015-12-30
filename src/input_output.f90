@@ -443,9 +443,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     if (weighting(i) <= 0.d0) call my_stop("weighting must be > 0.")
     if (trim(optimization_type(i)) /= 'min-drag' .and.                         &
       trim(optimization_type(i)) /= 'max-glide' .and.                          &
-      trim(optimization_type(i)) /= 'min-sink')                                &
-      call my_stop("optimization_type must be 'min-drag', 'max-glide', or "//  &
-                   "min-sink'.")
+      trim(optimization_type(i)) /= 'min-sink' .and.                           &
+      trim(optimization_type(i)) /= 'max-lift')                                &
+      call my_stop("optimization_type must be 'min-drag', 'max-glide', "//     &
+                   "min-sink', or 'max-lift'.")
   end do
 
 ! Constraints

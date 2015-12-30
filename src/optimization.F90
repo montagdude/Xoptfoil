@@ -887,15 +887,14 @@ subroutine initial_designs(dv, objval, fevals, objfunc, xmin, xmax, use_x0,    &
 
       if ((initcount > attempts) .and. (objval(i) >= feasible_limit)) then
         write(*,*) ' Design '//trim(text2)//' is infeasible and was not'//     &
-                   ' fixed within '//trim(text1)
-        write(*,*) '   re-initialization attempts.'
+                   ' fixed within '//trim(text1)//' reinitialization attempts.'
       elseif ((initcount <= attempts) .and. (initcount > 0) .and.              &
               (objval(i) < feasible_limit)) then
         write(text3,*) initcount
         text3 = adjustl(text3)
         write(*,*) ' Design '//trim(text2)//' was initially infeasible but'//  &
-                   ' was fixed after '//trim(text3)
-        write(*,*) '   re-initialization attempts.'
+                   ' was fixed after '//trim(text3)//                          &
+                   ' reinitialization attempts.'
       else
         write(*,*) ' Design '//trim(text2)//' is feasible.' 
       end if

@@ -349,20 +349,34 @@ function aero_objective_function(designvars)
       if (lift(i) > 0.d0) then
         increment = drag(i)/lift(i)**1.5d0*scale_factor(i)
       else
-        increment = 1.E9   ! Big penalty for lift <= 0
+        increment = 1.D9   ! Big penalty for lift <= 0
       end if
 
     elseif (trim(optimization_type(i)) == 'max-glide') then
 
 !     Maximize Cl/Cd
 
-      increment = drag(i)/lift(i)*scale_factor(i)
+      if (lift(i) > 0.d0) then
+        increment = drag(i)/lift(i)*scale_factor(i)
+      else
+        increment = 1.D9   ! Big penalty for lift <= 0
+      end if
 
     elseif (trim(optimization_type(i)) == 'min-drag') then
 
 !     Minimize Cd
 
       increment = drag(i)*scale_factor(i)
+
+    elseif (trim(optimization_type(i)) == 'max-lift') then
+
+!     Maximize Cl (at given angle of attack)
+
+      if (lift(i) > 0.d0) then
+        increment = scale_factor(i)/lift(i)
+      else
+        increment = 1.D9   ! Big penalty for lift <= 0
+      end if
 
     else
 

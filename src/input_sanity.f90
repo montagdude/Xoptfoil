@@ -185,6 +185,28 @@ subroutine check_seed()
 
   end if
 
+! Check for bad combinations of operating conditions and optimization types
+
+  do i = 1, noppoint
+    write(text,*) i
+    text = adjustl(text)
+
+    if ((op_point(i) == 0.d0) .and. (op_mode(i) == 'spec-cl') .and.            &
+        (trim(optimization_type(i)) /= 'min-drag')) then
+      write(*,*) "Error: operating points "//trim(text)//" is at Cl = 0. "//   &
+                 "Need to use 'min-drag' optimization type in this case."
+      write(*,*) 
+      stop
+    elseif ((op_mode(i) == 'spec-cl') .and.                                    &
+            (trim(optimization_type(i)) == 'max-lift')) then
+      write(*,*) "Error: Cl is specified for operating point "//trim(text)//   &
+                 ". Cannot use 'max-lift' optimization type in this case."
+      write(*,*) 
+      stop
+    end if
+
+  end do
+
 ! Analyze airfoil at requested operating conditions with Xfoil
 
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
@@ -211,20 +233,6 @@ subroutine check_seed()
       call my_stop("Seed airfoil violates min_moment constraint.", stoptype)
   end if
 
-! Check for Cl = 0.0 operating point and not 'min-drag' optimization
-
-  do i = 1, noppoint
-    if ((op_point(i) == 0.d0) .and. (op_mode(i) == 'spec-cl') .and.            &
-        (trim(optimization_type(i)) /= 'min-drag')) then
-      write(text,*) i
-      text = adjustl(text)
-      write(*,*) "Error: operating points "//trim(text)//" is at Cl = 0. "//   &
-                 "Need to use 'min-drag' optimization type in this case."
-      write(*,*) 
-      stop
-    end if
-  end do
-
 ! Evaluate objectives to establish scale factors for each point
 
   do i = 1, noppoint
@@ -243,6 +251,8 @@ subroutine check_seed()
       checkval = drag(i)/lift(i)
     elseif (trim(optimization_type(i)) == 'min-drag') then
       checkval = drag(i)
+    elseif (trim(optimization_type(i)) == 'max-lift') then
+      checkval = 1.d0/lift(i)
     else
       write(*,*)
       write(*,*) "Error: requested optimization_type for operating point "//   &
