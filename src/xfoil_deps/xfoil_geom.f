@@ -1792,6 +1792,159 @@ C
 
 C===================================================================70
 C
+C     Returns arc length points S1,S2 at flap surface break
+C     locations.  S1 is on fixed airfoil part, S2 is on flap.
+C     The points are defined according to two cases:
+C
+C
+C     If DEL > 0:  Surface will be eliminated in S1 < s < S2
+C
+C     Returns the arc length values S1,S2 of the endpoints
+C     of the airfoil surface segment which "disappears" as a
+C     result of the flap deflection.  The line segments between
+C     these enpoints and the flap hinge point (XBF,YBF) have
+C     an included angle of DEL.  DEL is therefore the flap
+C     deflection which will join up the points at S1,S2.
+C     SS is an approximate arc length value near S1 and S2.
+C     It is used as an initial guess for the Newton loop 
+C     for S1 and S2.
+C
+C
+C     If DEL = 0:  Surface will be created at s = S1 = S2
+C
+C     If DEL=0, then S1,S2 will cooincide, and will be located
+C     on the airfoil surface where the segment joining the
+C     point at S1,S2 and the hinge point is perpendicular to
+C     the airfoil surface.  This will be the point where the
+C     airfoil surface must be broken to permit a gap to open
+C     as a result of the flap deflection.
+C
+C===================================================================70
+      SUBROUTINE SSS(SS,S1,S2,DEL,XBF,YBF,X,XP,Y,YP,S,N,ISIDE,
+     &               SILENT_MODE)
+      DIMENSION X(*),XP(*),Y(*),YP(*),S(*)
+C
+C---- convergence epsilon
+      DATA EPS / 1.0E-5 /
+C
+      STOT = ABS( S(N) - S(1) )
+C
+      SIND = SIN(0.5*ABS(DEL))
+C
+      SSGN = 1.0
+      IF(ISIDE.EQ.1) SSGN = -1.0
+C
+C---- initial guesses for S1, S2
+      RSQ = (SEVAL(SS,X,XP,S,N)-XBF)**2 + (SEVAL(SS,Y,YP,S,N)-YBF)**2
+      S1 = SS - (SIND*SQRT(RSQ) + EPS*STOT)*SSGN
+      S2 = SS + (SIND*SQRT(RSQ) + EPS*STOT)*SSGN
+C
+C---- Newton iteration loop
+      DO 10 ITER=1, 10
+        X1  = SEVAL(S1,X,XP,S,N)
+        X1P = DEVAL(S1,X,XP,S,N)
+        Y1  = SEVAL(S1,Y,YP,S,N)
+        Y1P = DEVAL(S1,Y,YP,S,N)
+C
+        X2  = SEVAL(S2,X,XP,S,N)
+        X2P = DEVAL(S2,X,XP,S,N)
+        Y2  = SEVAL(S2,Y,YP,S,N)
+        Y2P = DEVAL(S2,Y,YP,S,N)
+C
+        R1SQ = (X1-XBF)**2 + (Y1-YBF)**2
+        R2SQ = (X2-XBF)**2 + (Y2-YBF)**2
+        R1 = SQRT(R1SQ)
+        R2 = SQRT(R2SQ)
+C
+        RRSQ = (X1-X2)**2 + (Y1-Y2)**2
+        RR = SQRT(RRSQ)
+C
+        IF(R1.LE.EPS*STOT .OR. R2.LE.EPS*STOT) THEN
+         S1 = SS
+         S2 = SS
+         RETURN
+        ENDIF
+C
+        R1_S1 = (X1P*(X1-XBF) + Y1P*(Y1-YBF))/R1
+        R2_S2 = (X2P*(X2-XBF) + Y2P*(Y2-YBF))/R2
+C
+        IF(SIND.GT.0.01) THEN
+C
+         IF(RR.EQ.0.0) RETURN
+C
+         RR_S1 =  (X1P*(X1-X2) + Y1P*(Y1-Y2))/RR
+         RR_S2 = -(X2P*(X1-X2) + Y2P*(Y1-Y2))/RR
+C
+C------- Residual 1: set included angle via dot product
+         RS1 = ((XBF-X1)*(X2-X1) + (YBF-Y1)*(Y2-Y1))/RR - SIND*R1
+         A11 = ((XBF-X1)*( -X1P) + (YBF-Y1)*( -Y1P))/RR
+     &       + ((  -X1P)*(X2-X1) + (  -Y1P)*(Y2-Y1))/RR
+     &       - ((XBF-X1)*(X2-X1) + (YBF-Y1)*(Y2-Y1))*RR_S1/RRSQ
+     &       - SIND*R1_S1
+         A12 = ((XBF-X1)*(X2P  ) + (YBF-Y1)*(Y2P  ))/RR
+     &       - ((XBF-X1)*(X2-X1) + (YBF-Y1)*(Y2-Y1))*RR_S2/RRSQ
+C
+C------- Residual 2: set equal length segments
+         RS2 = R1 - R2
+         A21 = R1_S1
+         A22 =    - R2_S2
+C
+        ELSE
+C
+C------- Residual 1: set included angle via small angle approximation
+         RS1 = (R1+R2)*SIND + (S1 - S2)*SSGN
+         A11 =  R1_S1 *SIND + SSGN
+         A12 =  R2_S2 *SIND - SSGN
+C
+C------- Residual 2: set vector sum of line segments beteen the 
+C-       endpoints and flap hinge to be perpendicular to airfoil surface.
+         X1PP = D2VAL(S1,X,XP,S,N)
+         Y1PP = D2VAL(S1,Y,YP,S,N)
+         X2PP = D2VAL(S2,X,XP,S,N)
+         Y2PP = D2VAL(S2,Y,YP,S,N)
+C
+         XTOT = X1+X2 - 2.0*XBF
+         YTOT = Y1+Y2 - 2.0*YBF
+C
+         RS2 = XTOT*(X1P+X2P) + YTOT*(Y1P+Y2P)
+         A21 =  X1P*(X1P+X2P) +  Y1P*(Y1P+Y2P) + XTOT*X1PP + YTOT*Y1PP
+         A22 =  X2P*(X1P+X2P) +  Y2P*(Y1P+Y2P) + XTOT*X2PP + YTOT*Y2PP
+C
+        ENDIF
+C
+        DET =   A11*A22 - A12*A21
+        DS1 = -(RS1*A22 - A12*RS2) / DET
+        DS2 = -(A11*RS2 - RS1*A21) / DET
+C
+        DS1 = MIN( DS1 , 0.01*STOT )
+        DS1 = MAX( DS1 , -.01*STOT )
+        DS2 = MIN( DS2 , 0.01*STOT )
+        DS2 = MAX( DS2 , -.01*STOT )
+C
+        S1 = S1 + DS1
+        S2 = S2 + DS2
+        IF(ABS(DS1)+ABS(DS2) .LT. EPS*STOT ) GO TO 11
+   10 CONTINUE
+C     DP mod: added option for SILENT_MODE
+      IF (.NOT. SILENT_MODE) THEN
+        WRITE(*,*) 'SSS: failed to converge subtending angle points'
+      ENDIF
+      S1 = SS
+      S2 = SS
+C
+   11 CONTINUE
+C
+C---- make sure points are identical if included angle is zero.
+      IF(DEL.EQ.0.0) THEN
+       S1 = 0.5*(S1+S2)
+       S2 = S1
+      ENDIF
+C
+      RETURN
+      END
+
+C===================================================================70
+C
 C     Modifies buffer airfoil for a deflected flap.
 C     Points may be added/subtracted in the flap
 C     break vicinity to clean things up.
@@ -1800,7 +1953,7 @@ C===================================================================70
       SUBROUTINE FLAP(XBF,YBF,DDEF,SILENT_MODE)
 
 C FIXME: Before using, make sure XB, XBP, YB, YBP, SB, NB are set
-C properly
+C properly from airfoil generated by PANGEN.
       use xfoil_inc
 
       LOGICAL LCHANGE
@@ -1864,8 +2017,11 @@ C-------- flap hinge is below airfoil
       ENDIF
 C
 C---- find upper and lower surface break arc length values...
-      CALL SSS(TOPS,ST1,ST2,ATOP,XBF,YBF,XB,XBP,YB,YBP,SB,NB,1)
-      CALL SSS(BOTS,SB1,SB2,ABOT,XBF,YBF,XB,XBP,YB,YBP,SB,NB,2)
+C     DP mod: added option for SILENT_MODE
+      CALL SSS(TOPS,ST1,ST2,ATOP,XBF,YBF,XB,XBP,YB,YBP,SB,NB,1,
+     &         SILENT_MODE)
+      CALL SSS(BOTS,SB1,SB2,ABOT,XBF,YBF,XB,XBP,YB,YBP,SB,NB,2,
+     &         SILENT_MODE)
 C
 C---- ... and x,y coordinates
       XT1 = SEVAL(ST1,XB,XBP,SB,NB)
@@ -1878,8 +2034,11 @@ C---- ... and x,y coordinates
       YB2 = SEVAL(SB2,YB,YBP,SB,NB)
 C
 C
-      WRITE(*,1100) XT1, YT1, XT2, YT2,
-     &              XB1, YB1, XB2, YB2
+C     DP mod: added option for SILENT_MODE
+      IF (.NOT. SILENT_MODE) THEN
+        WRITE(*,1100) XT1, YT1, XT2, YT2,
+     &                XB1, YB1, XB2, YB2
+      ENDIF
  1100 FORMAT(/' Top breaks: x,y =  ', 2F9.5, 4X, 2F9.5
      &       /' Bot breaks: x,y =  ', 2F9.5, 4X, 2F9.5)
 C
@@ -2154,6 +2313,7 @@ C
       LGSAME = .FALSE.
 C
 C
+C     DP note: got here
 C---- check new geometry for splinter segments 
       STOL = 0.2
       CALL SCHECK(XB,YB,NB, STOL, LCHANGE)
