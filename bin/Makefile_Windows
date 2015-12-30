@@ -1,0 +1,118 @@
+####### General Compiler Flags ######################################
+
+FCFLAGS=-g -O3
+
+#####################################################################
+
+####### GNU Compiler Flags ##########################################
+
+FC=gfortran
+#OMP_FLAG=-fopenmp -lpthread -lgomp
+XFOIL_REAL8_FLAG=-fdefault-real-8
+
+#####################################################################
+
+####### Intel Compiler Flags ########################################
+
+#FC=ifort
+#OMP_FLAG=-openmp
+#XFOIL_REAL8_FLAG=-r8
+
+#####################################################################
+
+####### Preprocessor variables ######################################
+
+ifeq ($(FC), ifort)
+  PREPROC=-Dintel_compilers -Dairfoil_optimization
+else
+  PREPROC=-Uintel_compilers -Dairfoil_optimization
+endif
+
+####### Definitions, rules, targets #################################
+
+OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o optimization_driver.o main.o
+EXE=xoptfoil
+XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o xfoil_only.o
+XEXE=xfoil_only
+VOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o optimization_driver.o design_plotter.o
+VEXE=design_plotter
+DIR=../src
+
+all: $(EXE) $(XEXE) $(VEXE)
+
+remake: clean all
+
+$(EXE): $(OBJ)
+	$(FC) $(FCFLAGS) $(OMP_FLAG) -o $(EXE) $(OBJ)
+
+$(XEXE): $(XOBJ)
+	$(FC) $(FCFLAGS) $(OMP_FLAG) -o $(XEXE) $(XOBJ)
+
+$(VEXE): $(VOBJ)
+	$(FC) $(FCFLAGS) $(OMP_FLAG) -o $(VEXE) $(VOBJ)
+
+clean: 
+	del *.mod *.o
+
+math_deps.o: $(DIR)/math_deps.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/math_deps.f90
+
+vardef.o: $(DIR)/vardef.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/vardef.f90
+
+xfoil_inc.o: $(DIR)/xfoil_inc.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_inc.f90
+
+xfoil_math.o: $(DIR)/xfoil_deps/xfoil_math.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_math.f
+
+my_equivalence.o: $(DIR)/xfoil_deps/my_equivalence.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_deps/my_equivalence.f90
+
+xfoil_geom.o: $(DIR)/xfoil_deps/xfoil_geom.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_geom.f
+
+blpar_inc.o: $(DIR)/xfoil_deps/blpar_inc.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_deps/blpar_inc.f90
+
+xbl_inc.o: $(DIR)/xfoil_deps/xbl_inc.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_deps/xbl_inc.f90
+
+xfoil_bl.o: $(DIR)/xfoil_deps/xfoil_bl.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_bl.f
+
+xfoil_aero.o: $(DIR)/xfoil_deps/xfoil_aero.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_aero.f
+
+xfoil_driver.o: $(DIR)/xfoil_driver.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_driver.f90
+
+parameterization.o: $(DIR)/parameterization.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/parameterization.f90
+
+airfoil_operations.o: $(DIR)/airfoil_operations.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/airfoil_operations.f90
+
+airfoil_evaluation.o: $(DIR)/airfoil_evaluation.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/airfoil_evaluation.f90
+
+optimization.o: $(DIR)/optimization.F90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(PREPROC) $(DIR)/optimization.F90
+
+input_output.o: $(DIR)/input_output.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/input_output.f90
+
+input_sanity.o: $(DIR)/input_sanity.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/input_sanity.f90
+
+optimization_driver.o: $(DIR)/optimization_driver.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/optimization_driver.f90
+
+main.o: $(DIR)/main.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/main.f90
+
+xfoil_only.o: $(DIR)/xfoil_only.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_only.f90
+
+design_plotter.o: $(DIR)/design_plotter.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/design_plotter.f90
