@@ -685,7 +685,7 @@ C===================================================================70
 C
 C     DP mod: added SILENT_MODE option
       IF(NB.LT.2) THEN
-       IF (.NOT. SILENT_MODE)
+       IF (.NOT. silent_mode)
      &   WRITE(*,*) 'PANGEN: Buffer airfoil not available.'
        N = 0
        RETURN
@@ -723,7 +723,7 @@ C---- set up curvature array
       ENDDO
 C
 C---- locate LE point arc length value and the normalized curvature there
-      CALL LEFIND(SBLE,XB,XBP,YB,YBP,SB,NB,SILENT_MODE)
+      CALL LEFIND(SBLE,XB,XBP,YB,YBP,SB,NB,silent_mode)
       CVLE = ABS( CURV(SBLE,XB,XBP,YB,YBP,SB,NB) ) * SBREF
 C
 C---- check for doubled point (sharp corner) at LE
@@ -732,7 +732,7 @@ C---- check for doubled point (sharp corner) at LE
         IF(SBLE.EQ.SB(I) .AND. SBLE.EQ.SB(I+1)) THEN
          IBLE = I
 C        DP mod: added SILENT_MODE option
-         IF (.NOT. SILENT_MODE) THEN
+         IF (.NOT. silent_mode) THEN
            WRITE(*,*)
            WRITE(*,*) 'Sharp leading edge'
          ENDIF
@@ -1040,7 +1040,7 @@ CCC        IF(RLX.NE.1.0) WRITE(*,*) DMAX,'    RLX =',RLX
         IF(ABS(DMAX).LT.1.E-3) GO TO 11
    10 CONTINUE
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. SILENT_MODE) 
+      IF (.NOT. silent_mode) 
      &  WRITE(*,*) 'Paneling convergence failed.  Continuing anyway...'
 C
    11 CONTINUE
@@ -1109,7 +1109,7 @@ C
       CALL SCALC(X,Y,S,N)
       CALL SEGSPL(X,XP,S,N)
       CALL SEGSPL(Y,YP,S,N)
-      CALL LEFIND(SLE,X,XP,Y,YP,S,N,SILENT_MODE)
+      CALL LEFIND(SLE,X,XP,Y,YP,S,N,silent_mode)
 C
       XLE = SEVAL(SLE,X,XP,S,N)
       YLE = SEVAL(SLE,Y,YP,S,N)
@@ -1159,16 +1159,16 @@ C---- calculate panel angles for panel routines
 C
 C     DP mod: added SILENT_MODE option
       IF(SHARP) THEN
-       IF (.NOT. SILENT_MODE) WRITE(*,1090) 'Sharp trailing edge'
+       IF (.NOT. silent_mode) WRITE(*,1090) 'Sharp trailing edge'
       ELSE
        GAP = SQRT((X(1)-X(N))**2 + (Y(1)-Y(N))**2)
-       IF (.NOT. SILENT_MODE) 
+       IF (.NOT. silent_mode) 
      &   WRITE(*,1090) 'Blunt trailing edge.  Gap =', GAP
       ENDIF
  1090 FORMAT(/1X,A,F9.5)
 C
 C     DP mod: added SILENT_MODE option
-      IF(SHOPAR .AND. .NOT. SILENT_MODE) 
+      IF(SHOPAR .AND. .NOT. silent_mode) 
      &           WRITE(*,1100) NPAN, CVPAR, CTERAT, CTRRAT,
      &                         XSREF1, XSREF2, XPREF1, XPREF2
  1100 FORMAT(/' Paneling parameters used...'
@@ -1180,7 +1180,7 @@ C     DP mod: added SILENT_MODE option
      &       /'   Bottom side refined area x/c limits ' , 2F6.3)
 
 C     DP mod: added thickness and camber calculations here
-      CALL TCCALC(X,XP,Y,YP,S,N,SILENT_MODE,
+      CALL TCCALC(X,XP,Y,YP,S,N,silent_mode,
      &            THICKB,XTHICKB,THICKM,XTHICKM,CAMBR,XCAMBR)
 C
 C     DP mod: added panel corner angle calculations here
@@ -1268,20 +1268,20 @@ C===================================================================70
       use xfoil_inc
 C
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. SILENT_MODE)
+      IF (.NOT. silent_mode)
      &  WRITE(*,*) 'Calculating wake trajectory ...'
 C
 C---- number of wake points
       NW = N/8 + 2
       IF(NW.GT.IWX) THEN
 C      DP mod: added SILENT_MODE option
-       IF (.NOT. SILENT_MODE) WRITE(*,*)
+       IF (.NOT. silent_mode) WRITE(*,*)
      &  'Array size (IWX) too small.  Last wake point index reduced.'
        NW = IWX
       ENDIF
 C
       DS1 = 0.5*(S(2) - S(1) + S(N) - S(N-1))
-      CALL SETEXP(SNEW(N+1),DS1,WAKLEN*CHORD,NW,SILENT_MODE)
+      CALL SETEXP(SNEW(N+1),DS1,WAKLEN*CHORD,NW,silent_mode)
 C
       XTE = 0.5*(X(1)+X(N))
       YTE = 0.5*(Y(1)+Y(N))
@@ -1539,7 +1539,7 @@ C===================================================================70
       use xfoil_inc
 C
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. SILENT_MODE)
+      IF (.NOT. silent_mode)
      &  WRITE(*,*) 'Calculating source influence matrix ...'
 C
       IF(.NOT.LADIJ) THEN
@@ -1700,7 +1700,7 @@ C===================================================================70
       SUBROUTINE SINVRT(SI,XI,X,XS,S,N,SILENT_MODE)
 
       DIMENSION X(N), XS(N), S(N)
-      LOGICAL :: SILENT_MODE
+      LOGICAL SILENT_MODE
 C
       SISAV = SI
 C
@@ -1728,6 +1728,8 @@ C
 C===================================================================70
       SUBROUTINE GETXYF(X,XP,Y,YP,S,N, TOPS,BOTS,XF,YF,SILENT_MODE)
       DIMENSION X(N),XP(N),Y(N),YP(N),S(N)
+      
+      LOGICAL SILENT_MODE
 C
 C      DP mod: XF is specified
 C      IF(XF .EQ. -999.0)
@@ -1823,6 +1825,8 @@ C===================================================================70
       SUBROUTINE SSS(SS,S1,S2,DEL,XBF,YBF,X,XP,Y,YP,S,N,ISIDE,
      &               SILENT_MODE)
       DIMENSION X(*),XP(*),Y(*),YP(*),S(*)
+
+      LOGICAL SILENT_MODE
 C
 C---- convergence epsilon
       DATA EPS / 1.0E-5 /
@@ -1945,19 +1949,189 @@ C
 
 C===================================================================70
 C
+C     Removes points from an x,y spline contour wherever 
+C     the size of a segment between nodes falls below a 
+C     a specified threshold of the adjacent segments.  
+C     The two node points defining the short segment are
+C     replaced with a single node at their midpoint.
+C     Note that the number of nodes may be altered by 
+C     this routine.
+C
+C     Intended for eliminating odd "micro" panels 
+C     that occur when blending a flap to a foil.
+C     If LCHANGE is set on return the airfoil definition 
+C     has been changed and resplining should be done.
+C
+C     The recommended value for STOL is 0.05 (meaning 
+C     segments less than 5% of the length of either adjoining 
+C     segment are removed).  4/24/01 HHY
+C
+C===================================================================70
+      SUBROUTINE SCHECK(X,Y,N,STOL,LCHANGE,SILENT_MODE)
+      REAL*8 X(*), Y(*)
+      LOGICAL LCHANGE
+      LOGICAL SILENT_MODE
+C
+      LCHANGE = .FALSE.
+C--- Check STOL for sanity
+      IF(STOL.GT.0.3) THEN
+C      DP mod: added SILENT_MODE option
+       IF (.NOT. SILENT_MODE) THEN
+         WRITE(*,*) 'SCHECK:  Bad value for small panels (STOL > 0.3)'
+       ENDIF
+       RETURN
+      ENDIF
+C
+ 10   DO 20 I = 2, N-2
+        IM1 = I-1
+        IP1 = I+1
+        IP2 = I+2
+C
+        DXM1 = X(I) - X(I-1)
+        DYM1 = Y(I) - Y(I-1)
+        DSM1 = SQRT(DXM1*DXM1 + DYM1*DYM1)
+C
+        DXP1 = X(I+1) - X(I)
+        DYP1 = Y(I+1) - Y(I)
+        DSP1 = SQRT(DXP1*DXP1 + DYP1*DYP1)
+C
+        DXP2 = X(I+2) - X(I+1)
+        DYP2 = Y(I+2) - Y(I+1)
+        DSP2 = SQRT(DXP2*DXP2 + DYP2*DYP2)
+C
+C------- Don't mess with doubled points (slope breaks)
+        IF(DSP1.EQ.0.0) GO TO 20
+C
+        IF(DSP1.LT.STOL*DSM1 .OR. DSP1.LT.STOL*DSP2) THEN
+C------- Replace node I with average of I and I+1
+         X(I) = 0.5*(X(I)+X(I+1))
+         Y(I) = 0.5*(Y(I)+Y(I+1))
+C------- Remove node I+1
+         DO L = I+1, N
+           X(L) = X(L+1)
+           Y(L) = Y(L+1)
+         END DO         
+         N = N - 1
+         LCHANGE = .TRUE.
+C        DP mod: added SILENT_MODE option
+         IF (.NOT. SILENT_MODE) THEN
+           WRITE(*,*) 'SCHECK segment removed at ',I
+         ENDIF
+         GO TO 10
+        ENDIF
+C
+ 20   CONTINUE
+C
+      RETURN
+      END ! SCHECK
+
+C===================================================================70
+C
+C Copies buffer airfoil to current airfoil
+C
+C===================================================================70
+      SUBROUTINE ABCOPY(LCONF)
+
+      use xfoil_inc
+
+      LOGICAL LCONF
+C
+C     DP mod: only error for too many points
+C      IF(NB.LE.1) THEN
+C       WRITE(*,*) 'ABCOPY: Buffer airfoil not available.'
+C       RETURN
+C      ELSEIF(NB.GT.IQX-5) THEN
+      IF(NB.GT.IQX-5) THEN
+       WRITE(*,*) 'Maximum number of panel nodes  : ',IQX-5
+       WRITE(*,*) 'Number of buffer airfoil points: ',NB
+       WRITE(*,*) 'Current airfoil cannot be set.'
+C       WRITE(*,*) 'Try executing PANE at Top Level instead.'
+       WRITE(*,*) 'Please increase IQX in xfoil_inc.f90 and '//
+     &            ' recompile or decrease npan in your input file.'
+C       RETURN
+       STOP
+      ENDIF
+      IF(N.NE.NB) LBLINI = .FALSE.
+C
+      N = NB
+      DO 101 I=1, N
+        X(I) = XB(I)
+        Y(I) = YB(I)
+  101 CONTINUE
+C      DP mod: not needed
+C      LGSAME = .TRUE.
+C
+C      DP mod: flap hinge moment not computed
+C      IF(LBFLAP) THEN
+C       XOF = XBF
+C       YOF = YBF
+C       LFLAP = .TRUE.
+C      ENDIF
+C
+C---- strip out doubled points
+      I = 1
+ 102  CONTINUE
+      I = I+1
+      IF(X(I-1).EQ.X(I) .AND. Y(I-1).EQ.Y(I)) THEN
+        DO 104 J=I, N-1
+          X(J) = X(J+1)
+          Y(J) = Y(J+1)
+ 104    CONTINUE
+        N = N-1
+      ENDIF
+      IF(I.LT.N) GO TO 102
+C
+      CALL SCALC(X,Y,S,N)
+      CALL SEGSPL(X,XP,S,N)
+      CALL SEGSPL(Y,YP,S,N)
+
+      CALL NCALC(X,Y,S,N,NX,NY)
+
+      CALL LEFIND(SLE,X,XP,Y,YP,S,N,silent_mode)
+      XLE = SEVAL(SLE,X,XP,S,N)
+      YLE = SEVAL(SLE,Y,YP,S,N)
+      XTE = 0.5*(X(1)+X(N))
+      YTE = 0.5*(Y(1)+Y(N))
+      CHORD  = SQRT( (XTE-XLE)**2 + (YTE-YLE)**2 )
+
+      CALL TECALC
+      CALL APCALC
+C
+C     DP mod: comment out unused flags
+      LGAMU = .FALSE.
+C      LQINU = .FALSE.
+      LWAKE = .FALSE.
+      LQAIJ = .FALSE.
+      LADIJ = .FALSE.
+      LWDIJ = .FALSE.
+      LIPAN = .FALSE.
+      LVCONV = .FALSE.
+C      LSCINI = .FALSE.
+CCC      LBLINI = .FALSE.
+C
+C     DP mod: added SILENT_MODE option
+      IF(LCONF .AND. (.NOT. silent_mode)) WRITE(*,1200) N
+ 1200 FORMAT(/' Current airfoil nodes set from buffer airfoil nodes (',
+     &        I4,' )')
+C
+      RETURN
+      END ! ABCOPY
+
+C===================================================================70
+C
 C     Modifies buffer airfoil for a deflected flap.
 C     Points may be added/subtracted in the flap
 C     break vicinity to clean things up.
 C
 C===================================================================70
-      SUBROUTINE FLAP(XBF,YBF,DDEF,SILENT_MODE)
+      SUBROUTINE FLAP(XBF,YBF,DDEF)
 
 C FIXME: Before using, make sure XB, XBP, YB, YBP, SB, NB are set
 C properly from airfoil generated by PANGEN.
       use xfoil_inc
 
       LOGICAL LCHANGE
-      DIMENSION RINPUT(*)
+      REAL*8 :: XBF, YBF, DDEF
 C
       LOGICAL INSID
       LOGICAL INSIDE
@@ -1976,11 +2150,11 @@ C       YBF = -999.0
 C      ENDIF
 C
 C     DP mod: added SILENT_MODE option
-      CALL GETXYF(XB,XBP,YB,YBP,SB,NB, TOPS,BOTS,XBF,YBF,SILENT_MODE)
+      CALL GETXYF(XB,XBP,YB,YBP,SB,NB, TOPS,BOTS,XBF,YBF,silent_mode)
       INSID = INSIDE(XB,YB,NB,XBF,YBF)
 C
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. SILENT_MODE) THEN
+      IF (.NOT. silent_mode) THEN
         WRITE(*,1050) XBF, YBF
       ENDIF
  1050 FORMAT(/' Flap hinge: x,y =', 2F9.5 )
@@ -2019,9 +2193,9 @@ C
 C---- find upper and lower surface break arc length values...
 C     DP mod: added option for SILENT_MODE
       CALL SSS(TOPS,ST1,ST2,ATOP,XBF,YBF,XB,XBP,YB,YBP,SB,NB,1,
-     &         SILENT_MODE)
+     &         silent_mode)
       CALL SSS(BOTS,SB1,SB2,ABOT,XBF,YBF,XB,XBP,YB,YBP,SB,NB,2,
-     &         SILENT_MODE)
+     &         silent_mode)
 C
 C---- ... and x,y coordinates
       XT1 = SEVAL(ST1,XB,XBP,SB,NB)
@@ -2035,7 +2209,7 @@ C---- ... and x,y coordinates
 C
 C
 C     DP mod: added option for SILENT_MODE
-      IF (.NOT. SILENT_MODE) THEN
+      IF (.NOT. silent_mode) THEN
         WRITE(*,1100) XT1, YT1, XT2, YT2,
      &                XB1, YB1, XB2, YB2
       ENDIF
@@ -2310,73 +2484,78 @@ C
       ENDIF
    45 CONTINUE
 C
-      LGSAME = .FALSE.
+C      DP mod: not needed
+C      LGSAME = .FALSE.
 C
 C
-C     DP note: got here
 C---- check new geometry for splinter segments 
       STOL = 0.2
-      CALL SCHECK(XB,YB,NB, STOL, LCHANGE)
+C     DP mod: added SILENT_MODE option
+      CALL SCHECK(XB,YB,NB,STOL,LCHANGE,silent_mode)
 C
 C---- spline new geometry
       CALL SCALC(XB,YB,SB,NB)
       CALL SEGSPL(XB,XBP,SB,NB)
       CALL SEGSPL(YB,YBP,SB,NB)
+
+C     DP mod: call ABCOPY here to set buffer -> current airfoil
+      CALL ABCOPY(.TRUE.)
 C
-      CALL GEOPAR(XB,XBP,YB,YBP,SB,NB,W1,
-     &            SBLE,CHORDB,AREAB,RADBLE,ANGBTE,
-     &            EI11BA,EI22BA,APX1BA,APX2BA,
-     &            EI11BT,EI22BT,APX1BT,APX2BT,
-     &            THICKB,CAMBRB )
-C
-      LBFLAP = .TRUE.
-C
-      IF(LGSYM) THEN
-       WRITE(*,*)
-       WRITE(*,*) 'Disabling symmetry enforcement'
-       LGSYM = .FALSE.
-      ENDIF
-C
-C
-      IF(.NOT.LPLOT) THEN
-       CALL PLTINI
-      ENDIF
-C
-C---- save current color and set new color
-      CALL GETCOLOR(ICOL0)
-C
-      CALL NEWCOLORNAME('green')
-      CALL PLOT((XBF-XOFF)*XSF,(YBF-YOFF)*YSF,3)
-      CALL PLOT((XT1-XOFF)*XSF,(YT1-YOFF)*YSF,2)
-      CALL PLOT((XBF-XOFF)*XSF,(YBF-YOFF)*YSF,3)
-      CALL PLOT((XB1-XOFF)*XSF,(YB1-YOFF)*YSF,2)
-C
-      IF(ATOP .EQ. 0.0) THEN
-        XBAR = XT1 - XBF
-        YBAR = YT1 - YBF
-        XT1C = XBF  +  XBAR*COSD + YBAR*SIND
-        YT1C = YBF  -  XBAR*SIND + YBAR*COSD
-        CALL PLOT((XBF -XOFF)*XSF,(YBF -YOFF)*YSF,3)
-        CALL PLOT((XT1C-XOFF)*XSF,(YT1C-YOFF)*YSF,2)
-      ENDIF
-C
-      IF(ABOT .EQ. 0.0) THEN
-        XBAR = XB1 - XBF
-        YBAR = YB1 - YBF
-        XB1C = XBF  +  XBAR*COSD + YBAR*SIND
-        YB1C = YBF  -  XBAR*SIND + YBAR*COSD
-        CALL PLOT((XBF -XOFF)*XSF,(YBF -YOFF)*YSF,3)
-        CALL PLOT((XB1C-XOFF)*XSF,(YB1C-YOFF)*YSF,2)
-      ENDIF
-C
-      CALL NEWCOLORNAME('red')
-      CALL PLSYMB((XBF-XOFF)*XSF,(YBF-YOFF)*YSF,0.5*SHT,1,0.0,0)
-C
-      CALL PLTAIR(XB,XBP,YB,YBP,SB,NB, XOFF,XSF,YOFF,YSF,'magenta')
-      CALL PLNEWP('magenta')
-C
-      LGEOPL = .FALSE.
-C
-      CALL NEWCOLOR(ICOL0)
+C      DP mod: skip all the stuff below (not needed)
+C      CALL GEOPAR(XB,XBP,YB,YBP,SB,NB,W1,
+C     &            SBLE,CHORDB,AREAB,RADBLE,ANGBTE,
+C     &            EI11BA,EI22BA,APX1BA,APX2BA,
+C     &            EI11BT,EI22BT,APX1BT,APX2BT,
+C     &            THICKB,CAMBRB )
+CC
+C      LBFLAP = .TRUE.
+CC
+C      IF(LGSYM) THEN
+C       WRITE(*,*)
+C       WRITE(*,*) 'Disabling symmetry enforcement'
+C       LGSYM = .FALSE.
+C      ENDIF
+CC
+CC
+C      IF(.NOT.LPLOT) THEN
+C       CALL PLTINI
+C      ENDIF
+CC
+CC---- save current color and set new color
+C      CALL GETCOLOR(ICOL0)
+CC
+C      CALL NEWCOLORNAME('green')
+C      CALL PLOT((XBF-XOFF)*XSF,(YBF-YOFF)*YSF,3)
+C      CALL PLOT((XT1-XOFF)*XSF,(YT1-YOFF)*YSF,2)
+C      CALL PLOT((XBF-XOFF)*XSF,(YBF-YOFF)*YSF,3)
+C      CALL PLOT((XB1-XOFF)*XSF,(YB1-YOFF)*YSF,2)
+CC
+C      IF(ATOP .EQ. 0.0) THEN
+C        XBAR = XT1 - XBF
+C        YBAR = YT1 - YBF
+C        XT1C = XBF  +  XBAR*COSD + YBAR*SIND
+C        YT1C = YBF  -  XBAR*SIND + YBAR*COSD
+C        CALL PLOT((XBF -XOFF)*XSF,(YBF -YOFF)*YSF,3)
+C        CALL PLOT((XT1C-XOFF)*XSF,(YT1C-YOFF)*YSF,2)
+C      ENDIF
+CC
+C      IF(ABOT .EQ. 0.0) THEN
+C        XBAR = XB1 - XBF
+C        YBAR = YB1 - YBF
+C        XB1C = XBF  +  XBAR*COSD + YBAR*SIND
+C        YB1C = YBF  -  XBAR*SIND + YBAR*COSD
+C        CALL PLOT((XBF -XOFF)*XSF,(YBF -YOFF)*YSF,3)
+C        CALL PLOT((XB1C-XOFF)*XSF,(YB1C-YOFF)*YSF,2)
+C      ENDIF
+CC
+C      CALL NEWCOLORNAME('red')
+C      CALL PLSYMB((XBF-XOFF)*XSF,(YBF-YOFF)*YSF,0.5*SHT,1,0.0,0)
+CC
+C      CALL PLTAIR(XB,XBP,YB,YBP,SB,NB, XOFF,XSF,YOFF,YSF,'magenta')
+C      CALL PLNEWP('magenta')
+CC
+C      LGEOPL = .FALSE.
+CC
+C      CALL NEWCOLOR(ICOL0)
       RETURN
       END ! FLAP
