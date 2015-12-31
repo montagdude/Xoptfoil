@@ -132,6 +132,24 @@ end subroutine smooth_paneling
 
 !=============================================================================80
 !
+! Subroutine to apply a flap deflection to the buffer airfoil and set it as the
+! current airfoil.  For best results, this should be called after PANGEN.
+!
+!=============================================================================80
+subroutine xfoil_apply_flap_deflection(xflap, yflap, degrees)
+
+  use xfoil_inc
+ 
+  double precision xflap, yflap, degrees
+
+! Apply flap deflection
+
+  call FLAP(xflap, yflap, degrees)
+
+end subroutine xfoil_apply_flap_deflection
+
+!=============================================================================80
+!
 ! Subroutine to get Cl, Cd, Cm for an airfoil from Xfoil at given operating
 ! conditions.  Reynolds numbers and mach numbers should be specified for each
 ! operating point.  Additionally, op_mode determines whether each point is run
@@ -147,8 +165,8 @@ end subroutine smooth_paneling
 !
 !=============================================================================80
 subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
-                     reynolds_numbers, mach_numbers, xfoil_options, lift, drag,&
-                     moment, viscrms)
+                     reynolds_numbers, mach_numbers, use_flap, x_flap, y_flap, &
+                     flap_degrees, xfoil_options, lift, drag, moment, viscrms)
 
   use xfoil_inc
   use vardef,    only : airfoil_type
@@ -156,7 +174,10 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
   type(airfoil_type), intent(in) :: foil
   type(xfoil_geom_options_type), intent(in) :: geom_options
   double precision, dimension(:), intent(in) :: operating_points,              &
-                                                reynolds_numbers, mach_numbers
+                                                reynolds_numbers, mach_numbers,&
+                                                flap_degrees
+  double precision, intent(in) :: x_flap, y_flap
+  logical, intent(in) :: use_flap
   character(7), dimension(:), intent(in) :: op_modes
   type(xfoil_options_type), intent(in) :: xfoil_options
   double precision, dimension(size(operating_points,1)), intent(out) ::        &
@@ -207,6 +228,12 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 ! Run xfoil for requested operating points
 
   run_oppoints: do i = 1, noppoint
+
+!   Apply flap deflection
+
+    if (use_flap) then
+      call xfoil_apply_flap_deflection(x_flap, y_flap, flap_degrees(i))
+    end if
 
     REINF1 = reynolds_numbers(i)
     MINF1 = mach_numbers(i)
@@ -504,6 +531,7 @@ subroutine xfoil_defaults(xfoil_options)
 
   type(xfoil_options_type), intent(in) :: xfoil_options
 
+  N = 0
   SILENT_MODE = xfoil_options%silent_mode
   PI = 4.d0*atan(1.d0)
   HOPI = 0.5d0/PI

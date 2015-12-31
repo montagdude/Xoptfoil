@@ -685,7 +685,7 @@ C===================================================================70
 C
 C     DP mod: added SILENT_MODE option
       IF(NB.LT.2) THEN
-       IF (.NOT. silent_mode)
+       IF (.NOT. SILENT_MODE)
      &   WRITE(*,*) 'PANGEN: Buffer airfoil not available.'
        N = 0
        RETURN
@@ -723,7 +723,7 @@ C---- set up curvature array
       ENDDO
 C
 C---- locate LE point arc length value and the normalized curvature there
-      CALL LEFIND(SBLE,XB,XBP,YB,YBP,SB,NB,silent_mode)
+      CALL LEFIND(SBLE,XB,XBP,YB,YBP,SB,NB,SILENT_MODE)
       CVLE = ABS( CURV(SBLE,XB,XBP,YB,YBP,SB,NB) ) * SBREF
 C
 C---- check for doubled point (sharp corner) at LE
@@ -732,7 +732,7 @@ C---- check for doubled point (sharp corner) at LE
         IF(SBLE.EQ.SB(I) .AND. SBLE.EQ.SB(I+1)) THEN
          IBLE = I
 C        DP mod: added SILENT_MODE option
-         IF (.NOT. silent_mode) THEN
+         IF (.NOT. SILENT_MODE) THEN
            WRITE(*,*)
            WRITE(*,*) 'Sharp leading edge'
          ENDIF
@@ -1040,7 +1040,7 @@ CCC        IF(RLX.NE.1.0) WRITE(*,*) DMAX,'    RLX =',RLX
         IF(ABS(DMAX).LT.1.E-3) GO TO 11
    10 CONTINUE
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. silent_mode) 
+      IF (.NOT. SILENT_MODE) 
      &  WRITE(*,*) 'Paneling convergence failed.  Continuing anyway...'
 C
    11 CONTINUE
@@ -1109,7 +1109,7 @@ C
       CALL SCALC(X,Y,S,N)
       CALL SEGSPL(X,XP,S,N)
       CALL SEGSPL(Y,YP,S,N)
-      CALL LEFIND(SLE,X,XP,Y,YP,S,N,silent_mode)
+      CALL LEFIND(SLE,X,XP,Y,YP,S,N,SILENT_MODE)
 C
       XLE = SEVAL(SLE,X,XP,S,N)
       YLE = SEVAL(SLE,Y,YP,S,N)
@@ -1159,16 +1159,16 @@ C---- calculate panel angles for panel routines
 C
 C     DP mod: added SILENT_MODE option
       IF(SHARP) THEN
-       IF (.NOT. silent_mode) WRITE(*,1090) 'Sharp trailing edge'
+       IF (.NOT. SILENT_MODE) WRITE(*,1090) 'Sharp trailing edge'
       ELSE
        GAP = SQRT((X(1)-X(N))**2 + (Y(1)-Y(N))**2)
-       IF (.NOT. silent_mode) 
+       IF (.NOT. SILENT_MODE) 
      &   WRITE(*,1090) 'Blunt trailing edge.  Gap =', GAP
       ENDIF
  1090 FORMAT(/1X,A,F9.5)
 C
 C     DP mod: added SILENT_MODE option
-      IF(SHOPAR .AND. .NOT. silent_mode) 
+      IF(SHOPAR .AND. .NOT. SILENT_MODE) 
      &           WRITE(*,1100) NPAN, CVPAR, CTERAT, CTRRAT,
      &                         XSREF1, XSREF2, XPREF1, XPREF2
  1100 FORMAT(/' Paneling parameters used...'
@@ -1180,7 +1180,7 @@ C     DP mod: added SILENT_MODE option
      &       /'   Bottom side refined area x/c limits ' , 2F6.3)
 
 C     DP mod: added thickness and camber calculations here
-      CALL TCCALC(X,XP,Y,YP,S,N,silent_mode,
+      CALL TCCALC(X,XP,Y,YP,S,N,SILENT_MODE,
      &            THICKB,XTHICKB,THICKM,XTHICKM,CAMBR,XCAMBR)
 C
 C     DP mod: added panel corner angle calculations here
@@ -1268,20 +1268,20 @@ C===================================================================70
       use xfoil_inc
 C
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. silent_mode)
+      IF (.NOT. SILENT_MODE)
      &  WRITE(*,*) 'Calculating wake trajectory ...'
 C
 C---- number of wake points
       NW = N/8 + 2
       IF(NW.GT.IWX) THEN
 C      DP mod: added SILENT_MODE option
-       IF (.NOT. silent_mode) WRITE(*,*)
+       IF (.NOT. SILENT_MODE) WRITE(*,*)
      &  'Array size (IWX) too small.  Last wake point index reduced.'
        NW = IWX
       ENDIF
 C
       DS1 = 0.5*(S(2) - S(1) + S(N) - S(N-1))
-      CALL SETEXP(SNEW(N+1),DS1,WAKLEN*CHORD,NW,silent_mode)
+      CALL SETEXP(SNEW(N+1),DS1,WAKLEN*CHORD,NW,SILENT_MODE)
 C
       XTE = 0.5*(X(1)+X(N))
       YTE = 0.5*(Y(1)+Y(N))
@@ -1539,7 +1539,7 @@ C===================================================================70
       use xfoil_inc
 C
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. silent_mode)
+      IF (.NOT. SILENT_MODE)
      &  WRITE(*,*) 'Calculating source influence matrix ...'
 C
       IF(.NOT.LADIJ) THEN
@@ -2087,7 +2087,7 @@ C
 
       CALL NCALC(X,Y,S,N,NX,NY)
 
-      CALL LEFIND(SLE,X,XP,Y,YP,S,N,silent_mode)
+      CALL LEFIND(SLE,X,XP,Y,YP,S,N,SILENT_MODE)
       XLE = SEVAL(SLE,X,XP,S,N)
       YLE = SEVAL(SLE,Y,YP,S,N)
       XTE = 0.5*(X(1)+X(N))
@@ -2110,12 +2110,34 @@ C      LSCINI = .FALSE.
 CCC      LBLINI = .FALSE.
 C
 C     DP mod: added SILENT_MODE option
-      IF(LCONF .AND. (.NOT. silent_mode)) WRITE(*,1200) N
+      IF(LCONF .AND. (.NOT. SILENT_MODE)) WRITE(*,1200) N
  1200 FORMAT(/' Current airfoil nodes set from buffer airfoil nodes (',
      &        I4,' )')
 C
       RETURN
       END ! ABCOPY
+
+C===================================================================70
+C
+C  Copies current airfoil to buffer airfoil
+C
+C===================================================================70
+      SUBROUTINE GSET
+
+      use xfoil_inc
+
+      NB = N
+      DO I=1, NB
+        XB(I) = X(I)
+        YB(I) = Y(I)
+      ENDDO
+
+      CALL SCALC(XB,YB,SB,NB)
+      CALL SEGSPL(XB,XBP,SB,NB)
+      CALL SEGSPL(YB,YBP,SB,NB)
+
+      RETURN
+      END ! GSET
 
 C===================================================================70
 C
@@ -2126,8 +2148,6 @@ C
 C===================================================================70
       SUBROUTINE FLAP(XBF,YBF,DDEF)
 
-C FIXME: Before using, make sure XB, XBP, YB, YBP, SB, NB are set
-C properly from airfoil generated by PANGEN.
       use xfoil_inc
 
       LOGICAL LCHANGE
@@ -2149,12 +2169,17 @@ C       XBF = -999.0
 C       YBF = -999.0
 C      ENDIF
 C
+C     DP mod: set current airfoil to buffer airfoil if available
+      IF (N /= 0) THEN
+        CALL GSET
+      ENDIF
+ 
 C     DP mod: added SILENT_MODE option
-      CALL GETXYF(XB,XBP,YB,YBP,SB,NB, TOPS,BOTS,XBF,YBF,silent_mode)
+      CALL GETXYF(XB,XBP,YB,YBP,SB,NB, TOPS,BOTS,XBF,YBF,SILENT_MODE)
       INSID = INSIDE(XB,YB,NB,XBF,YBF)
 C
 C     DP mod: added SILENT_MODE option
-      IF (.NOT. silent_mode) THEN
+      IF (.NOT. SILENT_MODE) THEN
         WRITE(*,1050) XBF, YBF
       ENDIF
  1050 FORMAT(/' Flap hinge: x,y =', 2F9.5 )
@@ -2193,9 +2218,9 @@ C
 C---- find upper and lower surface break arc length values...
 C     DP mod: added option for SILENT_MODE
       CALL SSS(TOPS,ST1,ST2,ATOP,XBF,YBF,XB,XBP,YB,YBP,SB,NB,1,
-     &         silent_mode)
+     &         SILENT_MODE)
       CALL SSS(BOTS,SB1,SB2,ABOT,XBF,YBF,XB,XBP,YB,YBP,SB,NB,2,
-     &         silent_mode)
+     &         SILENT_MODE)
 C
 C---- ... and x,y coordinates
       XT1 = SEVAL(ST1,XB,XBP,SB,NB)
@@ -2209,7 +2234,7 @@ C---- ... and x,y coordinates
 C
 C
 C     DP mod: added option for SILENT_MODE
-      IF (.NOT. silent_mode) THEN
+      IF (.NOT. SILENT_MODE) THEN
         WRITE(*,1100) XT1, YT1, XT2, YT2,
      &                XB1, YB1, XB2, YB2
       ENDIF
@@ -2491,7 +2516,7 @@ C
 C---- check new geometry for splinter segments 
       STOL = 0.2
 C     DP mod: added SILENT_MODE option
-      CALL SCHECK(XB,YB,NB,STOL,LCHANGE,silent_mode)
+      CALL SCHECK(XB,YB,NB,STOL,LCHANGE,SILENT_MODE)
 C
 C---- spline new geometry
       CALL SCALC(XB,YB,SB,NB)

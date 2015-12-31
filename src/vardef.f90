@@ -41,7 +41,10 @@ module vardef
   double precision, dimension(:), allocatable :: xseedt, xseedb, zseedt, zseedb
   character(7), dimension(max_op_points) :: op_mode
   double precision, dimension(max_op_points) :: op_point, reynolds, mach,      &
-                                                weighting, scale_factor
+                                                flap_degrees, weighting,       &
+                                                scale_factor 
+  double precision :: x_flap, y_flap
+  logical :: use_flap
   character(9), dimension(max_op_points) :: optimization_type
 
   type(airfoil_type) :: curr_foil

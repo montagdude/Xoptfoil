@@ -21,7 +21,8 @@ program xfoil_only
 ! Doesn't do any transformations or scaling on the input airfoil
 
   use vardef,             only : airfoil_type, max_op_points, noppoint,        &
-                                 op_mode, op_point, reynolds, mach
+                                 op_mode, op_point, reynolds, mach, use_flap,  &
+                                 x_flap, y_flap, flap_degrees
   use input_output,       only : read_inputs_xfoil_only
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
   use airfoil_operations, only : load_airfoil, deallocate_airfoil
@@ -54,6 +55,7 @@ program xfoil_only
 
   call run_xfoil(foil, xfoil_geom_options, op_point(1:noppoint),               &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
+                 use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
                  xfoil_options, lift, drag, moment, viscrms)
 
 ! Deallocate xfoil variables
