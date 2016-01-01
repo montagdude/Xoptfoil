@@ -742,6 +742,39 @@ C
 
 C===================================================================70
 C
+C Sets MINF from input
+C
+C===================================================================70
+      SUBROUTINE MINFSET(MACH_INPUT)
+
+      use xfoil_inc
+
+      REAL*8 MACH_INPUT
+
+      IF(MINF1.GE.1.0) THEN
+        WRITE(*,*) 'Supersonic freestream not allowed'
+        STOP
+      ENDIF
+      MINF1 = MACH_INPUT
+
+      CALL MRCL(1.0,MINF_CL,REINF_CL)
+      CALL COMSET
+
+      IF ( (MINF.GT.0.0) .AND. (.NOT. SILENT_MODE) ) 
+     &   WRITE(*,1300) CPSTAR, QSTAR/QINF
+ 1300 FORMAT(/' Sonic Cp =', F10.2, '      Sonic Q/Qinf =', F10.3/)
+
+      CALL CPCALC(N,QINV,QINF,MINF,CPI,SILENT_MODE)
+      IF(LVISC) CALL CPCALC(N+NW,QVIS,QINF,MINF,CPV,SILENT_MODE)
+      CALL CLCALC(N,X,Y,GAM,GAM_A,ALFA,MINF,QINF, XCMREF,YCMREF,
+     &             CL,CM,CDP, CL_ALF,CL_MSQ)
+      CALL CDCALC
+      LVCONV = .FALSE.
+
+      END ! MINFSET
+
+C===================================================================70
+C
 C     Converges to specified alpha.
 C
 C===================================================================70
@@ -1027,6 +1060,7 @@ C
    25 CONTINUE
 C
       NBL(IS) = IBLTE(IS) + NW
+C     DP note: stopped here
 C
 C---- upper wake pointers (for plotting only)
       DO 35 IW=1, NW
@@ -1488,9 +1522,9 @@ C       DP mod: added SILENT_MODE options
      &   WRITE(*,2000) ITER, RMSBL, RMXBL, VMXBL,IMXBL,ISMXBL,RLX
         IF(.NOT. SILENT_MODE .AND. RLX.EQ.1.0) 
      &   WRITE(*,2010) ITER, RMSBL, RMXBL, VMXBL,IMXBL,ISMXBL
-         CDP = CD - CDF
+         CDPDIF = CD - CDF
          IF(.NOT. SILENT_MODE)
-     &     WRITE(*,2020) ALFA/DTOR, CL, CM, CD, CDF, CDP
+     &     WRITE(*,2020) ALFA/DTOR, CL, CM, CD, CDF, CDPDIF
 C
         IF(RMSBL .LT. EPS1) THEN
          LVCONV = .TRUE.

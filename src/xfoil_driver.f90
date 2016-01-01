@@ -240,8 +240,7 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
     end if
 
     REINF1 = reynolds_numbers(i)
-    MINF1 = mach_numbers(i)
-    MVISC = MINF1
+    call MINFSET(mach_numbers(i))
 
     if (xfoil_options%reinitialize) then
       LIPAN = .false.

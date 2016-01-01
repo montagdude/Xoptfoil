@@ -1272,7 +1272,9 @@ C     DP mod: added SILENT_MODE option
      &  WRITE(*,*) 'Calculating wake trajectory ...'
 C
 C---- number of wake points
-      NW = N/8 + 2
+C     DP mod: change to be the same as in Xfoil_6.99
+C      NW = N/8 + 2
+      NW = N/12 + 10*INT(WAKLEN)
       IF(NW.GT.IWX) THEN
 C      DP mod: added SILENT_MODE option
        IF (.NOT. SILENT_MODE) WRITE(*,*)

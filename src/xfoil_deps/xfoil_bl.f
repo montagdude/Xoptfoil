@@ -258,7 +258,7 @@ C===================================================================70
 C===================================================================70
       SUBROUTINE HKIN( H, MSQ, HK, HK_H, HK_MSQ )
 
-      REAL*8 :: MSQ
+      REAL*8 MSQ
 C
 C---- calculate kinematic shape parameter (assuming air)
 C     (from Whitfield )
@@ -279,6 +279,8 @@ C===================================================================70
       use blpar_inc
       use xbl_inc
       IMPLICIT REAL(M)
+
+C     DP mod: set explicitly (otherwise initialized as 0 here)
       HVRAT = 0.0
 C
 C---- set edge Mach number ** 2
@@ -1256,7 +1258,7 @@ C===================================================================70
 C---- Laminar skin friction function  ( Cf )    ( from Falkner-Skan )
 C===================================================================70
       SUBROUTINE CFL( HK, RT, MSQ, CF, CF_HK, CF_RT, CF_MSQ )
-      REAL*8 :: MSQ
+      REAL*8 MSQ
 C
       IF(HK.LT.5.5) THEN
        TMP = (5.5-HK)**3 / (HK+1.0)
@@ -2715,8 +2717,8 @@ C===================================================================70
       use blpar_inc
       use xbl_inc
 
-      LOGICAL :: DIRECT
-      REAL*8 :: MSQ
+      LOGICAL DIRECT
+      REAL*8 MSQ
 C
 C---- shape parameters for separation criteria
       HLMAX = 3.8
@@ -2726,6 +2728,8 @@ C
 C
 C     DP mod: added SILENT_MODE option
       IF (.NOT. SILENT_MODE) WRITE(*,*) '   side ', IS, ' ...'
+
+      AMCRIT = ACRIT
 C
 C---- set forced transition arc length position
       CALL XIFSET(IS)
@@ -2887,8 +2891,9 @@ C---------- limit specified Hk to something reasonable
             ENDIF
 C
 C           DP mod: added SILENT_MODE option
+C           DP mod: change write precision
             IF (.NOT. SILENT_MODE) WRITE(*,1300) IBL, HTARG
- 1300       FORMAT(' MRCHUE: Inverse mode at', I4, '     Hk =', F8.3)
+ 1300       FORMAT(' MRCHUE: Inverse mode at', I4, '     Hk =', F15.12)
 C
 C---------- try again with prescribed Hk
             GO TO 100
@@ -3061,7 +3066,7 @@ C===================================================================70
       use xbl_inc
 
       REAL*8 :: VTMP(4,5), VZTMP(4)
-      REAL*8 :: MSQ
+      REAL*8 MSQ
 ccc   REAL MDI
 C
       DATA DEPS / 5.0E-6 /
@@ -3071,6 +3076,8 @@ C-    from the specified value.
       SENSWT = 1000.0
 C
       DO 2000 IS=1, 2
+
+      AMCRIT = ACRIT
 C
 C---- set forced transition arc length position
       CALL XIFSET(IS)
@@ -3417,12 +3424,14 @@ C===================================================================70
       use blpar_inc
       use xbl_inc
 
-      REAL*8 :: USAV(IVX,2)
+      REAL*8 USAV(IVX,2)
       REAL*8 :: U1_M(2*IVX), U2_M(2*IVX)
       REAL*8 :: D1_M(2*IVX), D2_M(2*IVX)
       REAL*8 :: ULE1_M(2*IVX), ULE2_M(2*IVX)
       REAL*8 :: UTE1_M(2*IVX), UTE2_M(2*IVX)
       REAL*8 :: MA_CLMR, MSQ_CLMR, MDI
+
+C     DP mod: set explicitly (otherwise initialized as 0 here)
       HVRAT = 0.0
 C
 C---- set the CL used to define Mach, Reynolds numbers
@@ -3464,7 +3473,6 @@ C
       REYBL_RE =         SQRT(HERAT**3) * (1.0+HVRAT)/(HERAT+HVRAT)
       REYBL_MS = REYBL * (1.5/HERAT - 1.0/(HERAT+HVRAT))*HERAT_MS
 C
-      AMCRIT = ACRIT
 !FIXME: IDAMP always set to 0 here.  In xfoil, can be set to 1 by user.
       IDAMPV = IDAMP
 C
@@ -3532,6 +3540,10 @@ C---- set LE and TE Ue sensitivities wrt all m values
 C
       ULE1_A = UINV_A(2,1)
       ULE2_A = UINV_A(2,2)
+
+C      DP mod: TINDEX not used (it is for storing polars in Xfoil)
+C      TINDEX(1) = 0.0
+C      TINDEX(2) = 0.0
 C
 C**** Go over each boundary layer/wake
       DO 2000 IS=1, 2
@@ -3553,6 +3565,8 @@ C
 C---- similarity station pressure gradient parameter  x/u du/dx
       IBL = 2
       BULE = 1.0
+C
+      AMCRIT = ACRIT
 C
 C---- set forced transition arc length position
       CALL XIFSET(IS)
@@ -3881,6 +3895,15 @@ C
 C
       DUE1 = DUE2
       DDS1 = DDS2
+C
+C      DP mod: TINDEX not needed (used for storing polars in Xfoil)
+C      IF(IBL .EQ. ITRAN(IS) .AND. X2 .GT. X1) THEN
+C       IF(IS.EQ.1) THEN
+C        TINDEX(IS) = FLOAT(IST-ITRAN(IS)+3) - (XT-X1)/(X2-X1)
+C       ELSE
+C        TINDEX(IS) = FLOAT(IST+ITRAN(IS)-2) + (XT-X1)/(X2-X1)
+C       ENDIF
+C      ENDIF
 C      
 C---- set BL variables for next station
 C     DP mod: to remove need for EQUIVALENCE COM1, COM2, and COMMON
@@ -3893,13 +3916,14 @@ C---- next streamwise station
  1000 CONTINUE
 C 
 C     DP mod: added SILENT_MODE option
+C     DP mod: change write precision
       IF (.NOT. SILENT_MODE) THEN
         IF(TFORCE(IS)) THEN
          WRITE(*,9100) IS,XOCTR(IS),ITRAN(IS)
- 9100    FORMAT(1X,'Side',I2,' forced transition at x/c = ',F7.4,I5)
+ 9100    FORMAT(1X,'Side',I2,' forced transition at x/c = ',F15.12,I5)
         ELSE
          WRITE(*,9200) IS,XOCTR(IS),ITRAN(IS)
- 9200    FORMAT(1X,'Side',I2,'  free  transition at x/c = ',F7.4,I5)
+ 9200    FORMAT(1X,'Side',I2,'  free  transition at x/c = ',F15.12,I5)
         ENDIF
       ENDIF
 C
@@ -4160,7 +4184,7 @@ C      EQUIVALENCE (VA(1,1,1), UNEW(1,1)) ,
 C     &            (VB(1,1,1), QNEW(1)  )
 C      EQUIVALENCE (VA(1,1,IVX), U_AC(1,1)) ,
 C     &            (VB(1,1,IVX), Q_AC(1)  )
-      REAL*8 :: MSQ
+      REAL*8 MSQ
 C
 C---- max allowable alpha changes per iteration
       DALMAX =  0.5*DTOR
