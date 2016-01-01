@@ -13,7 +13,7 @@ C  GNU General Public License for more details.
 C  You should have received a copy of the GNU General Public License
 C  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-C  Copyright (C) 2014 -- 2015 Daniel Prosser (this modified version of 
+C  Copyright (C) 2014 -- 2016 Daniel Prosser (this modified version of 
 C  XFoil code)
 C  Original copyright (C) 2000 Mark Drela (original XFoil code)
 
@@ -766,9 +766,6 @@ C===================================================================70
 
       CALL CPCALC(N,QINV,QINF,MINF,CPI,SILENT_MODE)
       IF(LVISC) CALL CPCALC(N+NW,QVIS,QINF,MINF,CPV,SILENT_MODE)
-      CALL CLCALC(N,X,Y,GAM,GAM_A,ALFA,MINF,QINF, XCMREF,YCMREF,
-     &             CL,CM,CDP, CL_ALF,CL_MSQ)
-      CALL CDCALC
       LVCONV = .FALSE.
 
       END ! MINFSET

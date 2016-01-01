@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2014 -- 2015 Daniel Prosser
+!  Copyright (C) 2014 -- 2016 Daniel Prosser
 
 module vardef
 

@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2014 -- 2015 Daniel Prosser
+!  Copyright (C) 2014 -- 2016 Daniel Prosser
 
 program design_plotter
 
@@ -43,7 +43,7 @@ program design_plotter
 
   write(*,*)
   write(*,*) 'Design plotter: writes airfoils and polars for designs generated'
-  write(*,*) 'during optimization. Copyright 2014 -- 2015 Daniel Prosser.'
+  write(*,*) 'during optimization. Copyright 2014 -- 2016 Daniel Prosser.'
 
 ! Read command line arguments
 
