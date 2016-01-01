@@ -44,7 +44,9 @@ module optimization
                                   !   initial design
     logical :: write_designs      ! Whether to write best design each time it
                                   !   changes
-
+    logical :: relative_fmin_report
+                                  ! If .true., reports improvement over seed
+                                  !   design. Otherwise, reports fmin itself.
   end type pso_options_type
 
 ! Options type for direct searches
@@ -56,7 +58,9 @@ module optimization
     integer :: maxit              ! Max steps allowed before stopping
     logical :: write_designs      ! Whether to write best design each time it
                                   !   changes
-
+    logical :: relative_fmin_report
+                                  ! If .true., reports improvement over seed
+                                  !   design. Otherwise, reports fmin itself.
   end type ds_options_type
 
   contains
@@ -103,7 +107,7 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
 
   integer :: nvars, i, j, fminloc, designcounter
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, speed,   &
-                      mincurr, denominator
+                      mincurr, denominator, f0
   double precision, dimension(:), allocatable :: minvalstore, errstore, objval,&
                                                  minvals, randvec1, randvec2, x0
   double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
@@ -148,6 +152,10 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
 
 !$omp parallel default(shared) private(i, j, speed)
 
+! Set initial design
+
+  x0 = 0.5d0*(xmin + xmax)
+
 ! To allocate private memory for airfoil optimization on each thread
 
 #ifdef airfoil_optimization
@@ -182,6 +190,17 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
 
   call xfoil_init()
 
+! Set f0 to 1 for airfoil optimization (objective function is scaled to 1 for
+! seed airfoil)
+
+  f0 = 1.d0
+
+#else
+
+! Compute f0
+
+  f0 = objfunc(x0)
+
 #endif
 
 ! Initialize a random seed
@@ -191,8 +210,6 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
 ! Set up initial designs
 
   use_x0 = .true.
-  x0 = 0.5d0*(xmin + xmax) 
-
   call initial_designs(dv, objval, fevals, objfunc, xmin, xmax, use_x0, x0,    &
                        pso_options%feasible_init, pso_options%feasible_limit,  &
                        pso_options%feasible_init_attempts)
@@ -341,8 +358,13 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
 
 !   Display progress
 
-    write(*,*) '  Iteration: ', step, '  % improvement over seed airfoil: ',   &
-               (1.d0/fmin - 1.d0)*100
+    if (pso_options%relative_fmin_report) then
+      write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
+                 (f0 - fmin)/f0*100
+    else
+      write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
+                 fmin
+    end if
     
 !   Evaluate function change for this iteration relative to the last
     
@@ -443,7 +465,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, ds_options)
   double precision, dimension(size(x0,1)+1) :: objvals
   double precision, dimension(size(x0,1)) :: xcen, xr, xe, xc
 
-  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval
+  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0
   integer :: i, j, k, nvars, designcounter, nsame
   logical :: converged, needshrink
 
@@ -485,13 +507,24 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, ds_options)
 
   call xfoil_init()
 
+! Set f0 to 1 for airfoil optimization (objective function is scaled to 1 for
+! seed airfoil)
+
+  f0 = 1.d0
+
+#else
+
+! Compute f0
+
+  f0 = objfunc(x0)
+
 #endif
 
 ! Set up initial simplex
 
   fevals = 0
   nvars = size(x0,1)
-    do j = 1, nvars
+  do j = 1, nvars
     do i = 1, nvars
       if (i == j) then
         if (x0(i) == 0.d0) then
@@ -564,8 +597,13 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, ds_options)
 
 !   Display progress
 
-    write(*,*) '  Iteration: ', step, '  % improvement over seed airfoil: ',   &
-               (1.d0/fmin - 1.d0)*100
+    if (ds_options%relative_fmin_report) then
+      write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
+                 (f0 - fmin)/f0*100
+    else
+      write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
+                 fmin
+    end if
 
 !   Compute the centroid of the best nvals designs
 

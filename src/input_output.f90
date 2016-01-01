@@ -61,7 +61,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
             nfunctions_top, nfunctions_bot, initial_perturb, write_designs
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
-            weighting, optimization_type 
+            use_flap, x_flap, y_flap, flap_degrees, weighting, optimization_type 
   namelist /constraints/ seed_violation_handling, min_thickness, max_thickness,&
                          moment_constraint_type, min_moment, min_te_angle,     &
                          check_curvature, max_curv_reverse, curv_threshold,    &
@@ -87,6 +87,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     stop
   end if
 
+! Option to match seed airfoil to another instead of aerodynamic optimization
+
+  match_foils = .false.
+  read(iunit, nml=matchfoil_options)
+
 ! Set defaults for main namelist options
 
   search_type = 'global_and_local'
@@ -102,15 +107,20 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 ! Read main namelist options
 
+  rewind(iunit)
   read(iunit, nml=optimization_options)
 
 ! Set defaults for operating conditions and constraints
 
   noppoint = 1
+  use_flap = .false.
+  x_flap = 0.75d0
+  y_flap = 0.d0
   op_mode(:) = 'spec-cl'
   op_point(:) = 0.d0
   reynolds(:) = 1.0D+05
-  mach(:) = 0.0
+  mach(:) = 0.d0
+  flap_degrees(:) = 0.d0
   weighting(:) = 1.d0
   optimization_type(:) = 'min-drag'
 
@@ -127,7 +137,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 ! Read operating conditions and constraints
 
+  rewind(iunit)
   read(iunit, nml=operating_conditions)
+  rewind(iunit)
   read(iunit, nml=constraints)
 
 ! Normalize weightings for operating points
@@ -175,6 +187,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 !     Read PSO options and put them into derived type
 
+      rewind(iunit)
       read(iunit, nml=particle_swarm_options)
       pso_options%pop = pop
       pso_options%tol = pso_tol
@@ -185,6 +198,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       pso_options%feasible_limit = pso_feasible_limit
       pso_options%feasible_init_attempts = pso_feasible_init_attempts
       pso_options%write_designs = write_designs
+      if (.not. match_foils) then
+        pso_options%relative_fmin_report = .true.
+      else
+        pso_options%relative_fmin_report = .false.
+      end if
 
     else
 
@@ -205,10 +223,16 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 !     Read simplex search options and put them into derived type
 
+      rewind(iunit)
       read(iunit, nml=simplex_options)
       ds_options%tol = simplex_tol
       ds_options%maxit = simplex_maxit
       ds_options%write_designs = write_designs
+      if (.not. match_foils) then
+        ds_options%relative_fmin_report = .true.
+      else
+        ds_options%relative_fmin_report = .false.
+      end if
 
     else
 
@@ -245,7 +269,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 ! Read xfoil options and put them into derived types
 
+  rewind(iunit)
   read(iunit, nml=xfoil_run_options)
+  rewind(iunit)
   read(iunit, nml=xfoil_paneling_options)
 
   xfoil_options%ncrit = ncrit
@@ -266,11 +292,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   xfoil_geom_options%xsref2 = xsref2
   xfoil_geom_options%xpref1 = xpref1
   xfoil_geom_options%xpref2 = xpref2
-
-! Option to match seed airfoil to another instead of aerodynamic optimization
-
-  match_foils = .false.
-  read(iunit, nml=matchfoil_options)
 
 ! Close the input file
 
@@ -303,6 +324,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   write(*,'(A)') " &operating_conditions"
   write(*,*) " noppoint = ", noppoint
+  write(*,*) " use_flap = ", use_flap
+  write(*,*) " x_flap = ", x_flap
+  write(*,*) " y_flap = ", y_flap
   do i = 1, noppoint
     write(text,*) i
     text = adjustl(text)
@@ -312,6 +336,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     write(*,*) " op_point("//trim(text)//") = ", op_point(i)
     write(*,'(A,es17.8)') "  reynolds("//trim(text)//") = ", reynolds(i)
     write(*,*) " mach("//trim(text)//") = ", mach(i)
+    write(*,*) " flap_degrees("//trim(text)//") = ", flap_degrees(i)
     write(*,*) " weighting("//trim(text)//") = ", weighting(i)
   end do
   write(*,'(A)') " /"
@@ -434,12 +459,16 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Operating points
 
   if (noppoint < 1) call my_stop("noppoint must be > 0.")
+  if ((use_flap) .and. (x_flap <= 0.0)) call my_stop("x_flap must be > 0.")
+  if ((use_flap) .and. (x_flap >= 1.0)) call my_stop("x_flap must be < 1.")
 
   do i = 1, noppoint
     if (trim(op_mode(i)) /= 'spec-cl' .and. trim(op_mode(i)) /= 'spec-al')     &
       call my_stop("op_mode must be 'spec-al' or 'spec-cl'.")
     if (reynolds(i) <= 0.d0) call my_stop("reynolds must be > 0.")
     if (mach(i) < 0.d0) call my_stop("mach must be >= 0.")
+    if (flap_degrees(i) < -90.d0) call my_stop("flap_degrees must be > -90.")
+    if (flap_degrees(i) > 90.d0) call my_stop("flap_degrees must be < 90.")
     if (weighting(i) <= 0.d0) call my_stop("weighting must be > 0.")
     if (trim(optimization_type(i)) /= 'min-drag' .and.                         &
       trim(optimization_type(i)) /= 'max-glide' .and.                          &
@@ -516,7 +545,8 @@ end subroutine read_inputs
 subroutine read_inputs_xfoil_only(airfoil_file)
 
   use vardef,             only : max_op_points, noppoint, op_mode, op_point,   &
-                                 reynolds, mach 
+                                 reynolds, mach, use_flap, x_flap, y_flap,     &
+                                 flap_degrees
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
  
   character(80), intent(out) :: airfoil_file
@@ -529,7 +559,8 @@ subroutine read_inputs_xfoil_only(airfoil_file)
   character(30) :: text
 
   namelist /airfoil_to_load/ airfoil_file
-  namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach
+  namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
+            use_flap, x_flap, y_flap, flap_degrees
   namelist /xfoil_run_options/ ncrit, xtript, xtripb, viscous_mode,            &
             silent_mode, bl_maxit, vaccel, fix_unconverged, reinitialize
   namelist /xfoil_paneling_options/ npan, cvpar, cterat, ctrrat, xsref1,       &
@@ -553,10 +584,14 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 ! Set defaults for operating conditions
 
   noppoint = 1
+  use_flap = .false.
+  x_flap = 0.75d0
+  y_flap = 0.d0
   op_mode(:) = 'spec-cl'
   op_point(:) = 0.d0
   reynolds(:) = 1.0D+05
-  mach(:) = 0.0
+  mach(:) = 0.d0
+  flap_degrees = 0.d0
 
 ! Read operating conditions and constraints
 
@@ -628,6 +663,9 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 
   write(*,'(A)') " &operating_conditions"
   write(*,*) " noppoint = ", noppoint
+  write(*,*) " use_flap = ", use_flap
+  write(*,*) " x_flap = ", x_flap
+  write(*,*) " y_flap = ", y_flap
   do i = 1, noppoint
     write(text,*) i
     text = adjustl(text)
@@ -635,6 +673,7 @@ subroutine read_inputs_xfoil_only(airfoil_file)
     write(*,*) " op_point("//trim(text)//") = ", op_point(i)
     write(*,'(A,es17.8)') "  reynolds("//trim(text)//") = ", reynolds(i)
     write(*,*) " mach("//trim(text)//") = ", mach(i)
+    write(*,*) " flap_degrees("//trim(text)//") = ", flap_degrees(i)
   end do
   write(*,'(A)') " /"
   write(*,*)

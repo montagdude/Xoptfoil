@@ -209,14 +209,16 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
   noppoint = size(operating_points,1)
 
-! Set xfoil airfoil and paneling options
+! Set paneling options
 
-  call xfoil_set_airfoil(foil)
   call xfoil_set_paneling(geom_options)
 
-! Set smooth airfoil paneling and computes airfoil geometry information
+! Set airfoil and smooth paneling
 
-  call PANGEN(.not. SILENT_MODE)
+  if (.not. use_flap) then
+    call xfoil_set_airfoil(foil)
+    call PANGEN(.not. SILENT_MODE)
+  end if
 
 ! Run xfoil for requested operating points
 
@@ -229,9 +231,11 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
   run_oppoints: do i = 1, noppoint
 
-!   Apply flap deflection
+!   Reset airfoil, smooth paneling, and apply flap deflection
 
     if (use_flap) then
+      call xfoil_set_airfoil(foil)
+      call PANGEN(.not. SILENT_MODE)
       call xfoil_apply_flap_deflection(x_flap, y_flap, flap_degrees(i))
     end if
 
