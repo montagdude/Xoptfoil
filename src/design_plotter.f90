@@ -35,7 +35,6 @@ program design_plotter
                    airfoil_file, matchfoil_file
   character(4) :: naca_digits
   character(80) :: input_file, output_file
-  double precision :: initial_perturb
   type(pso_options_type) :: pso_options
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb
@@ -53,8 +52,7 @@ program design_plotter
 
   call read_inputs(input_file, search_type, global_search, local_search,       &
                    seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
-                   nparams_bot, initial_perturb, pso_options, ds_options,      &
-                   matchfoil_file)
+                   nparams_bot, pso_options, ds_options, matchfoil_file)
 
 ! Load seed airfoil into memory, including transformations and smoothing
 

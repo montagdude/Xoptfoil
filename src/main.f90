@@ -35,7 +35,6 @@ program main
                    airfoil_file, matchfoil_file
   character(4) :: naca_digits
   character(80) :: input_file, output_prefix
-  double precision :: initial_perturb
   type(pso_options_type) :: pso_options
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb, steps, fevals, ndvtop, ndvbot
@@ -54,8 +53,7 @@ program main
 
   call read_inputs(input_file, search_type, global_search, local_search,       &
                    seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
-                   nparams_bot, initial_perturb, pso_options, ds_options,      &
-                   matchfoil_file)
+                   nparams_bot, pso_options, ds_options, matchfoil_file)
 
 ! Load seed airfoil into memory, including transformations and smoothing
 
@@ -84,16 +82,15 @@ program main
     ndvbot = nparams_bot*3
   end if
   if (.not. symmetrical) then
-    allocate(optdesign(ndvtop+ndvbot))
+    allocate(optdesign(ndvtop+ndvbot+nflap_optimize))
   else
-    allocate(optdesign(ndvtop))
+    allocate(optdesign(ndvtop+nflap_optimize))
   end if
 
 ! Optimize
   
   call optimize(search_type, global_search, local_search, matchfoil_file,      &
-                initial_perturb, pso_options, ds_options, optdesign, fmin,     &
-                steps, fevals)
+                pso_options, ds_options, optdesign, fmin, steps, fevals)
 
 ! Notify of total number of steps and function evals
 

@@ -7,7 +7,7 @@ FCFLAGS=-g -O3
 ####### GNU Compiler Flags ##########################################
 
 FC=gfortran
-#OMP_FLAG=-fopenmp -lpthread -lgomp
+OMP_FLAG=-fopenmp -lpthread -lgomp
 XFOIL_REAL8_FLAG=-fdefault-real-8
 
 #####################################################################

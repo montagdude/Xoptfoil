@@ -25,7 +25,8 @@ module optimization
 
   type pso_options_type
 
-    logical :: const              ! whether to constrain search between xmin 
+    integer, dimension(:), pointer :: constrained_dvs
+                                  ! Design variables to constrain between xmin
                                   !   and xmax
     integer :: pop                ! particle swarm population size
     double precision :: tol       ! tolerance in best objective function value
@@ -72,8 +73,8 @@ module optimization
 ! refine the optimization.
 !
 !=============================================================================80
-subroutine particleswarm(xopt, fmin, step, fevals,                             &
-                         objfunc, xmin, xmax, pso_options)
+subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
+                         pso_options)
 
   use math_deps,          only : norm_2
 
@@ -102,18 +103,19 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
     end function
   end interface
 
-  double precision, dimension(:), intent(in) :: xmin, xmax
+  double precision, dimension(:), intent(in) :: x0, xmin, xmax
   type (pso_options_type), intent(in) :: pso_options
 
-  integer :: nvars, i, j, fminloc, designcounter
+  integer :: nvars, nconstrained, i, j, fminloc, designcounter, var
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, speed,   &
                       mincurr, denominator, f0
   double precision, dimension(:), allocatable :: minvalstore, errstore, objval,&
-                                                 minvals, randvec1, randvec2, x0
+                                                 minvals, randvec1, randvec2
   double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
   logical :: use_x0, converged
 
   nvars = size(xmin,1)
+  nconstrained = size(pso_options%constrained_dvs,1)
 
 ! PSO tuning variables
 
@@ -143,7 +145,6 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
   allocate(minvals(pso_options%pop))
   allocate(randvec1(nvars))
   allocate(randvec2(nvars))
-  allocate(x0(nvars))
   minvalstore(:) = 0.d0
   errstore(:) = 1.d0 
   dv(:,:) = 0.d0
@@ -151,10 +152,6 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
   objval(:) = 0.d0
 
 !$omp parallel default(shared) private(i, j, speed)
-
-! Set initial design
-
-  x0 = 0.5d0*(xmin + xmax)
 
 ! To allocate private memory for airfoil optimization on each thread
 
@@ -286,19 +283,18 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
 !     Update position and bring back to side constraints if necessary
 
       dv(:,i) = dv(:,i) + vel(:,i)
-      if (pso_options%const) then
-        do j = 1, nvars
-          if (dv(j,i) < xmin(j)) then
-            dv(j,i) = xmin(j)
-            call random_number(speed)
-            vel(j,i) = -speed*vel(j,i)
-          elseif (dv(j,i) > xmax(j)) then
-            dv(j,i) = xmax(j)
-            call random_number(speed)
-            vel(j,i) = -speed*vel(j,i)
-          end if
-        end do
-      end if
+      do j = 1, nconstrained
+        var = pso_options%constrained_dvs(j)
+        if (dv(var,i) < xmin(var)) then
+          dv(var,i) = xmin(var)
+          call random_number(speed)
+          vel(var,i) = -speed*vel(var,i)
+        elseif (dv(var,i) > xmax(var)) then
+          dv(var,i) = xmax(var)
+          call random_number(speed)
+          vel(var,i) = -speed*vel(var,i)
+        end if
+      end do
 
 !     Evaluate objective function and update local best design if appropriate
 
@@ -422,7 +418,6 @@ subroutine particleswarm(xopt, fmin, step, fevals,                             &
   deallocate(minvals)
   deallocate(randvec1)
   deallocate(randvec2)
-  deallocate(x0)
 
 end subroutine particleswarm
 

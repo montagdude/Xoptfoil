@@ -40,16 +40,19 @@ module vardef
   integer, parameter :: max_op_points = 30
   double precision, dimension(:), allocatable :: xseedt, xseedb, zseedt, zseedb
   character(7), dimension(max_op_points) :: op_mode
+  character(8), dimension(max_op_points) :: flap_selection
   double precision, dimension(max_op_points) :: op_point, reynolds, mach,      &
-                                                flap_degrees, weighting,       &
-                                                scale_factor 
+                                           flap_degrees, weighting, scale_factor 
   double precision :: x_flap, y_flap
   logical :: use_flap
   character(9), dimension(max_op_points) :: optimization_type
+  integer :: nflap_optimize          ! Number of operating points where flap 
+                                     !   setting will be optimized
+  integer, dimension(max_op_points) :: flap_optimize_points
 
   type(airfoil_type) :: curr_foil
   double precision :: min_thickness, max_thickness, min_moment, min_te_angle,  &
-                      growth_allowed
+                      growth_allowed, min_flap_degrees, max_flap_degrees
   double precision :: curv_threshold
   integer :: max_curv_reverse
   character(4) :: seed_violation_handling
@@ -62,6 +65,8 @@ module vardef
   logical :: symmetrical
 
   integer :: nparams_top, nparams_bot
+
+  double precision :: initial_perturb
 
 !$omp threadprivate(curr_foil)
 

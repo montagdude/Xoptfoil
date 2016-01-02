@@ -30,8 +30,7 @@ module input_output
 !=============================================================================80
 subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                        seed_airfoil, airfoil_file, naca_digits, nfunctions_top,&
-                       nfunctions_bot, initial_perturb, pso_options,           &
-                       ds_options, matchfoil_file)
+                       nfunctions_bot, pso_options, ds_options, matchfoil_file)
 
   use vardef
   use optimization,       only : pso_options_type, ds_options_type
@@ -43,7 +42,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                                 seed_airfoil, airfoil_file, matchfoil_file
   character(4), intent(out) :: naca_digits
   integer, intent(out) :: nfunctions_top, nfunctions_bot
-  double precision, intent(out) :: initial_perturb
   type(pso_options_type), intent(out) :: pso_options
   type(ds_options_type), intent(out) :: ds_options
 
@@ -54,18 +52,19 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   double precision :: pso_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
   double precision :: pso_feasible_limit
-  integer :: i, iunit, ioerr
+  integer :: i, iunit, ioerr, counter, idx
   character(30) :: text
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
             nfunctions_top, nfunctions_bot, initial_perturb, write_designs
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
-            use_flap, x_flap, y_flap, flap_degrees, weighting, optimization_type 
+            use_flap, x_flap, y_flap, flap_selection, flap_degrees, weighting, &
+            optimization_type 
   namelist /constraints/ seed_violation_handling, min_thickness, max_thickness,&
                          moment_constraint_type, min_moment, min_te_angle,     &
                          check_curvature, max_curv_reverse, curv_threshold,    &
-                         symmetrical
+                         symmetrical, min_flap_degrees, max_flap_degrees
   namelist /particle_swarm_options/ pop, pso_tol, pso_nstop, pso_maxit,        &
                                     pso_feasible_init, pso_feasible_limit,     &
                                     pso_feasible_init_attempts
@@ -110,6 +109,17 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   rewind(iunit)
   read(iunit, nml=optimization_options)
 
+! Error checking and setting search algorithm options
+
+  if (trim(search_type) /= 'global_and_local' .and. trim(search_type) /=       &
+      'global' .and. trim(search_type) /= 'local') then
+    write(*,*)
+    write(*,*) "Error: search_type must be 'global_and_local', 'global', "//   &
+               "or 'local'."
+    write(*,*)
+    stop
+  end if
+
 ! Set defaults for operating conditions and constraints
 
   noppoint = 1
@@ -118,11 +128,12 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   y_flap = 0.d0
   op_mode(:) = 'spec-cl'
   op_point(:) = 0.d0
+  optimization_type(:) = 'min-drag'
   reynolds(:) = 1.0D+05
   mach(:) = 0.d0
+  flap_selection(:) = 'specify'
   flap_degrees(:) = 0.d0
   weighting(:) = 1.d0
-  optimization_type(:) = 'min-drag'
 
   seed_violation_handling = 'stop'
   min_thickness = 0.06d0
@@ -134,6 +145,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   max_curv_reverse = 3
   curv_threshold = 0.30d0
   symmetrical = .false.
+  min_flap_degrees = -5.d0
+  max_flap_degrees = 15.d0
 
 ! Read operating conditions and constraints
 
@@ -142,20 +155,21 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   rewind(iunit)
   read(iunit, nml=constraints)
 
+! Store operating points where flap setting will be optimized
+
+  nflap_optimize = 0
+  if (use_flap .and. (.not. match_foils)) then
+    do i = 1, noppoint
+      if (flap_selection(i) == 'optimize') then
+        nflap_optimize = nflap_optimize + 1
+        flap_optimize_points(nflap_optimize) = i
+      end if
+    end do
+  end if
+
 ! Normalize weightings for operating points
 
   weighting = weighting/sum(weighting(1:noppoint))
-
-! Error checking and setting search algorithm options
-
-  if (trim(search_type) /= 'global_and_local' .and. trim(search_type) /=       &
-      'global' .and. trim(search_type) /= 'local') then
-    write(*,*)
-    write(*,*) "Error: search_type must be 'global_and_local', 'global', "//   &
-               "or 'local'."
-    write(*,*)
-    stop
-  end if
 
 ! Set default particle swarm options
 
@@ -177,12 +191,41 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   
     if(trim(global_search) == 'particle_swarm') then
 
-!     Set default PSO options
+!     Set design variables with side constraints
 
       if (trim(shape_functions) == 'naca') then
-        pso_options%const = .false.
+
+!       For NACA, we will only constrain the flap deflection
+
+        allocate(pso_options%constrained_dvs(nflap_optimize))
+        counter = 0
+        do i = nfunctions_top + nfunctions_bot + 1,                            &
+               nfunctions_top + nfunctions_bot + nflap_optimize
+          counter = counter + 1
+          pso_options%constrained_dvs(counter) = i
+        end do
+          
       else
-        pso_options%const = .true.
+
+!       For Hicks-Henne, also constrain bump locations and width
+
+        allocate(pso_options%constrained_dvs(2*nfunctions_top +                &
+                                             2*nfunctions_bot + nflap_optimize))
+        counter = 0
+        do i = 1, nfunctions_top + nfunctions_bot
+          counter = counter + 1
+          idx = 3*(i-1) + 2      ! DV index of bump location, shape function i
+          pso_options%constrained_dvs(counter) = idx
+          counter = counter + 1
+          idx = 3*(i-1) + 3      ! Index of bump width, shape function i
+          pso_options%constrained_dvs(counter) = idx
+        end do
+        do i = 3*(nfunctions_top + nfunctions_bot) + 1,                        &
+               3*(nfunctions_top + nfunctions_bot) + nflap_optimize
+          counter = counter + 1
+          pso_options%constrained_dvs(counter) = i
+        end do
+
       end if
 
 !     Read PSO options and put them into derived type
@@ -327,6 +370,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " use_flap = ", use_flap
   write(*,*) " x_flap = ", x_flap
   write(*,*) " y_flap = ", y_flap
+  write(*,*)
   do i = 1, noppoint
     write(text,*) i
     text = adjustl(text)
@@ -336,8 +380,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     write(*,*) " op_point("//trim(text)//") = ", op_point(i)
     write(*,'(A,es17.8)') "  reynolds("//trim(text)//") = ", reynolds(i)
     write(*,*) " mach("//trim(text)//") = ", mach(i)
+    write(*,*) " flap_selection("//trim(text)//") = '"//                       &
+               trim(flap_selection(i))//"'"
     write(*,*) " flap_degrees("//trim(text)//") = ", flap_degrees(i)
     write(*,*) " weighting("//trim(text)//") = ", weighting(i)
+    if (i < noppoint) write(*,*)
   end do
   write(*,'(A)') " /"
   write(*,*)
@@ -355,6 +402,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " max_curv_reverse = ", max_curv_reverse
   write(*,*) " curv_threshold = ", curv_threshold
   write(*,*) " symmetrical = ", symmetrical
+  write(*,*) " min_flap_degrees = ", min_flap_degrees
+  write(*,*) " max_flap_degrees = ", max_flap_degrees
   write(*,'(A)') " /"
   write(*,*)
 
@@ -467,6 +516,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       call my_stop("op_mode must be 'spec-al' or 'spec-cl'.")
     if (reynolds(i) <= 0.d0) call my_stop("reynolds must be > 0.")
     if (mach(i) < 0.d0) call my_stop("mach must be >= 0.")
+    if (trim(flap_selection(i)) /= 'specify' .and.                             &
+        trim(flap_selection(i)) /= 'optimize')                                 &
+      call my_stop("flap_selection must be 'specify' or 'optimize'.")
     if (flap_degrees(i) < -90.d0) call my_stop("flap_degrees must be > -90.")
     if (flap_degrees(i) > 90.d0) call my_stop("flap_degrees must be < 90.")
     if (weighting(i) <= 0.d0) call my_stop("weighting must be > 0.")
@@ -495,6 +547,12 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if (curv_threshold <= 0.d0) call my_stop("curv_threshold must be > 0.")
   if (symmetrical)                                                             &
     write(*,*) "Mirroring top half of seed airfoil for symmetrical constraint."
+  if (min_flap_degrees >= max_flap_degrees)                                    &
+    call my_stop("min_flap_degrees must be less than max_flap_degrees.")
+  if (min_flap_degrees <= -90.d0)                                              &
+    call my_stop("min_flap_degrees must be greater than -90.")
+  if (max_flap_degrees >= 90.d0)                                               &
+    call my_stop("max_flap_degrees must be less than 90.")
     
 ! Particle swarm options
 

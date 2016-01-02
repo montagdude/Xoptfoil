@@ -121,6 +121,8 @@ end subroutine create_shape_functions
 !=============================================================================80
 subroutine create_shape(x, modes, shapetype, shape_function)
 
+  use vardef, only : initial_perturb
+
   double precision, dimension(:), intent(in) :: x, modes
   character(*), intent(in) :: shapetype
   double precision, dimension(:,:), intent(inout) :: shape_function
@@ -182,8 +184,8 @@ subroutine create_shape(x, modes, shapetype, shape_function)
   elseif (trim(shapetype) == 'hicks-henne') then
       
     nmodes = size(modes,1)/3
-    t1fact = 0.05d0
-    t2fact = 0.005d0
+    t1fact = initial_perturb/(1.d0 - 0.001d0)
+    t2fact = initial_perturb/(10.d0 - 0.05d0)
     pi = acos(-1.d0)
 
     do i = 1, nmodes
@@ -276,7 +278,7 @@ subroutine create_airfoil(xt_seed, zt_seed, xb_seed, zb_seed, modest, modesb,  &
       if (trim(shapetype) == 'naca') then
         strength = modesb(i)
       else
-        strength = 1.d0
+        strength = 1.d0   ! Hicks-Henne: strength is part of the shape function
       end if
       zb_new = zb_new + strength*bot_shape_function(i,1:npointsb)
     end do

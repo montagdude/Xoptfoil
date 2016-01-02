@@ -30,13 +30,14 @@ module optimization_driver
 !
 !=============================================================================80
 subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
-                    initial_perturb, pso_options, ds_options, optdesign, fmin, &
-                    steps, fevals)
+                    pso_options, ds_options, optdesign, fmin, steps, fevals)
 
   use vardef,             only : airfoil_type, match_foils, xmatcht, xmatchb,  &
                                  zmatcht, zmatchb, xseedt, xseedb, zseedt,     &
                                  zseedb, growth_allowed, shape_functions,      &
-                                 symmetrical
+                                 symmetrical, nflap_optimize, initial_perturb, &
+                                 min_flap_degrees, max_flap_degrees,           &
+                                 flap_degrees, flap_optimize_points
   use optimization,       only : pso_options_type, ds_options_type,            &
                                  particleswarm, simplex_search
   use airfoil_evaluation, only : objective_function
@@ -48,7 +49,6 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   character(*), intent(in) :: search_type, global_search, local_search,        &
                               matchfoil_file
-  double precision, intent(in) :: initial_perturb
   type(pso_options_type), intent(in) :: pso_options
   type(ds_options_type), intent(in) :: ds_options
   double precision, dimension(:), intent(inout) :: optdesign
@@ -56,11 +56,11 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   integer, intent(out) :: steps, fevals
 
   type(airfoil_type) :: match_foil
-  integer :: pointst, pointsb, counter, nfuncs
+  integer :: pointst, pointsb, counter, nfuncs, ndv
   double precision, dimension(:), allocatable :: zttmp, zbtmp
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
-  double precision :: len1, len2, growth1, growth2, t1fact, t2fact
-  integer :: stepsg, fevalsg, stepsl, fevalsl, i
+  double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
+  integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint
 
 !  Preliminary things for non-aerodynamic optimization
 
@@ -175,6 +175,50 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   stepsl = 0
   fevalsl = 0
 
+  ndv = size(optdesign,1)
+
+! Scale all variables to have a range of initial_perturb
+
+  t1fact = initial_perturb/(1.d0 - 0.001d0)
+  t2fact = initial_perturb/(10.d0 - 0.05d0)
+  ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
+
+! Set initial design
+
+  if (trim(shape_functions) == 'naca') then     
+
+    nfuncs = ndv - nflap_optimize
+
+!   Mode strength = 0 (aka seed airfoil)
+
+    x0(1:nfuncs) = 0.d0
+
+!   Seed flap deflection as specified in input file
+
+    do i = nfuncs + 1, ndv
+      oppoint = flap_optimize_points(i-nfuncs)
+      x0(i) = flap_degrees(oppoint)*ffact
+    end do
+
+  else
+
+    nfuncs = (ndv - nflap_optimize)/3
+
+!   Bump strength = 0 (aka seed airfoil)
+
+    do i = 1, nfuncs
+      counter = 3*(i-1)
+      x0(counter+1) = 0.d0
+      x0(counter+2) = 0.5d0*t1fact
+      x0(counter+3) = 1.d0*t2fact
+    end do
+    do i = 3*nfuncs+1, ndv
+      oppoint = flap_optimize_points(i-3*nfuncs)
+      x0(i) = flap_degrees(oppoint)*ffact
+    end do
+
+  end if
+
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
       'global') then
 
@@ -184,17 +228,16 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       
       if (trim(shape_functions) == 'naca') then
 
-        xmin(:) = -initial_perturb/2.d0
-        xmax(:) = initial_perturb/2.d0
+        nfuncs = ndv - nflap_optimize
+
+        xmin(1:nfuncs) = -0.5d0*initial_perturb
+        xmax(1:nfuncs) = 0.5d0*initial_perturb
+        xmin(nfuncs+1:ndv) = min_flap_degrees*ffact
+        xmax(nfuncs+1:ndv) = max_flap_degrees*ffact
 
       else
 
-        nfuncs = size(optdesign,1)/3
-
-!       Scaling factors for Hicks-Henne bump locations and widths
-
-        t1fact = 0.05d0
-        t2fact = 0.005d0
+        nfuncs = (ndv - nflap_optimize)/3
 
         do i = 1, nfuncs
           counter = 3*(i-1)
@@ -205,13 +248,17 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
           xmin(counter+3) = 0.05d0*t2fact
           xmax(counter+3) = 10.d0*t2fact
         end do
+        do i = 3*nfuncs+1, ndv
+          xmin(i) = min_flap_degrees*ffact
+          xmax(i) = max_flap_degrees*ffact
+        end do
 
       end if
 
 !     Particle swarm optimization
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
-                         xmin, xmax, pso_options)
+                         x0, xmin, xmax, pso_options)
 
     end if
 
@@ -225,23 +272,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 !     Simplex optimization
 
       if (trim(search_type) == 'global_and_local') then
-        x0 = optdesign
-      else
-
-        nfuncs = size(optdesign,1)/3
-
-!       Scaling factors for Hicks-Henne bump locations and widths
-
-        t1fact = 0.05d0
-        t2fact = 0.005d0
-
-        do i = 1, nfuncs
-          counter = 3*(i-1)
-          x0(counter+1) = 0.d0
-          x0(counter+2) = 0.5d0*t1fact
-          x0(counter+2) = 1.d0*t2fact
-        end do
-
+        x0 = optdesign  ! Copy x0 from global search result
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
