@@ -65,8 +65,8 @@ module vardef
   logical :: symmetrical
 
   integer :: nparams_top, nparams_bot
-
   double precision :: initial_perturb
+  double precision :: min_bump_width
 
 !$omp threadprivate(curr_foil)
 

@@ -121,7 +121,7 @@ end subroutine create_shape_functions
 !=============================================================================80
 subroutine create_shape(x, modes, shapetype, shape_function)
 
-  use vardef, only : initial_perturb
+  use vardef, only : initial_perturb, min_bump_width
 
   double precision, dimension(:), intent(in) :: x, modes
   character(*), intent(in) :: shapetype
@@ -185,7 +185,7 @@ subroutine create_shape(x, modes, shapetype, shape_function)
       
     nmodes = size(modes,1)/3
     t1fact = initial_perturb/(1.d0 - 0.001d0)
-    t2fact = initial_perturb/(10.d0 - 0.05d0)
+    t2fact = initial_perturb/(10.d0 - min_bump_width)
     pi = acos(-1.d0)
 
     do i = 1, nmodes

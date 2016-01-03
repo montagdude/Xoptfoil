@@ -57,7 +57,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
-            nfunctions_top, nfunctions_bot, initial_perturb, write_designs
+            nfunctions_top, nfunctions_bot, initial_perturb, min_bump_width,   &
+            write_designs
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
             use_flap, x_flap, y_flap, flap_selection, flap_degrees, weighting, &
             optimization_type 
@@ -98,9 +99,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   local_search = 'simplex'
   seed_airfoil = 'four_digit'
   naca_digits = '0012'
-  shape_functions = 'naca'
-  nfunctions_top = 10
-  nfunctions_bot = 10
+  shape_functions = 'hicks-henne'
+  min_bump_width = 0.5d0
+  nfunctions_top = 4
+  nfunctions_bot = 4
   initial_perturb = 0.025d0
   write_designs = .true.
 
@@ -356,6 +358,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " airfoil_file = '"//trim(airfoil_file)//"'"
   write(*,*) " naca_digits = '"//trim(naca_digits)//"'"
   write(*,*) " shape_functions = '"//trim(shape_functions)//"'"
+  write(*,*) " min_bump_width = ", min_bump_width
   write(*,*) " nfunctions_top = ", nfunctions_top
   write(*,*) " nfunctions_bot = ", nfunctions_bot
   write(*,*) " initial_perturb = ", initial_perturb
@@ -491,19 +494,17 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if (trim(seed_airfoil) /= 'from_file' .and.                                  &
       trim(seed_airfoil) /= 'four_digit')                                      &
     call my_stop("seed_airfoil must be 'from_file' or 'four_digit'.")
-
   if (trim(shape_functions) /= 'hicks-henne' .and.                             &
       trim(shape_functions) /= 'naca')                                         &
     call my_stop("shape_functions must be 'hicks-henne' or 'naca'.")
-
   if (nfunctions_top < 1)                                                      &
     call my_stop("nfunctions_top must be > 0.")
-
   if (nfunctions_bot < 1)                                                      &
     call my_stop("nfunctions_bot must be > 0.")
-
   if (initial_perturb <= 0.d0)                                                 &
     call my_stop("initial_perturb must be > 0.")
+  if (min_bump_width <= 0.d0)                                                  &
+    call my_stop("min_bump_width must be > 0.")
 
 ! Operating points
 

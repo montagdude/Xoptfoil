@@ -37,7 +37,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  zseedb, growth_allowed, shape_functions,      &
                                  symmetrical, nflap_optimize, initial_perturb, &
                                  min_flap_degrees, max_flap_degrees,           &
-                                 flap_degrees, flap_optimize_points
+                                 flap_degrees, flap_optimize_points,           &
+                                 min_bump_width
   use optimization,       only : pso_options_type, ds_options_type,            &
                                  particleswarm, simplex_search
   use airfoil_evaluation, only : objective_function
@@ -180,7 +181,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 ! Scale all variables to have a range of initial_perturb
 
   t1fact = initial_perturb/(1.d0 - 0.001d0)
-  t2fact = initial_perturb/(10.d0 - 0.05d0)
+  t2fact = initial_perturb/(10.d0 - min_bump_width)
   ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
 
 ! Set initial design
@@ -245,7 +246,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
           xmax(counter+1) = initial_perturb/2.d0
           xmin(counter+2) = 0.0001d0*t1fact
           xmax(counter+2) = 1.d0*t1fact
-          xmin(counter+3) = 0.05d0*t2fact
+          xmin(counter+3) = min_bump_width*t2fact
           xmax(counter+3) = 10.d0*t2fact
         end do
         do i = 3*nfuncs+1, ndv
