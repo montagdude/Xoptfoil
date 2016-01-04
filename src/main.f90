@@ -39,6 +39,7 @@ program main
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb, steps, fevals, ndvtop, ndvbot
   double precision, dimension(:), allocatable :: optdesign, modest, modesb
+  integer, dimension(:), allocatable :: constrained_dvs
   double precision :: fmin
 
   write(*,*)
@@ -53,7 +54,8 @@ program main
 
   call read_inputs(input_file, search_type, global_search, local_search,       &
                    seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
-                   nparams_bot, pso_options, ds_options, matchfoil_file)
+                   nparams_bot, constrained_dvs, pso_options, ds_options,      &
+                   matchfoil_file)
 
 ! Load seed airfoil into memory, including transformations and smoothing
 
@@ -90,7 +92,8 @@ program main
 ! Optimize
   
   call optimize(search_type, global_search, local_search, matchfoil_file,      &
-                pso_options, ds_options, optdesign, fmin, steps, fevals)
+                constrained_dvs, pso_options, ds_options, optdesign, fmin,     &
+                steps, fevals)
 
 ! Notify of total number of steps and function evals
 
@@ -118,6 +121,7 @@ program main
   deallocate(modest)
   deallocate(modesb)
   deallocate(optdesign)
+  deallocate(constrained_dvs)
   call deallocate_shape_functions()
 
 end program main

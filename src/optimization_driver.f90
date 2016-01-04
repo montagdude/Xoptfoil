@@ -30,7 +30,8 @@ module optimization_driver
 !
 !=============================================================================80
 subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
-                    pso_options, ds_options, optdesign, fmin, steps, fevals)
+                    constrained_dvs, pso_options, ds_options, optdesign, fmin, &
+                    steps, fevals)
 
   use vardef,             only : airfoil_type, match_foils, xmatcht, xmatchb,  &
                                  zmatcht, zmatchb, xseedt, xseedb, zseedt,     &
@@ -54,6 +55,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   type(ds_options_type), intent(in) :: ds_options
   double precision, dimension(:), intent(inout) :: optdesign
   double precision, intent(out) :: fmin
+  integer, dimension(:), intent(in) :: constrained_dvs
   integer, intent(out) :: steps, fevals
 
   type(airfoil_type) :: match_foil
@@ -61,6 +63,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   double precision, dimension(:), allocatable :: zttmp, zbtmp
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
   double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
+  logical :: given_f0_ref
   integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint
 
 !  Preliminary things for non-aerodynamic optimization
@@ -259,7 +262,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 !     Particle swarm optimization
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
-                         x0, xmin, xmax, pso_options)
+                         x0, xmin, xmax, .false., 1.d0, constrained_dvs,       &
+                         pso_options)
 
     end if
 
@@ -274,10 +278,13 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
       if (trim(search_type) == 'global_and_local') then
         x0 = optdesign  ! Copy x0 from global search result
+        given_f0_ref = .true.
+      else
+        given_f0_ref = .false.
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, ds_options)
+                          x0, given_f0_ref, 1.d0, ds_options)
 
     end if
 

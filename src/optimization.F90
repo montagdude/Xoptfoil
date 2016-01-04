@@ -25,9 +25,6 @@ module optimization
 
   type pso_options_type
 
-    integer, dimension(:), pointer :: constrained_dvs
-                                  ! Design variables to constrain between xmin
-                                  !   and xmax
     integer :: pop                ! particle swarm population size
     double precision :: tol       ! tolerance in best objective function value
                                   !   change before triggering a stop condition
@@ -74,7 +71,7 @@ module optimization
 !
 !=============================================================================80
 subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
-                         pso_options)
+                         given_f0_ref, f0_ref, constrained_dvs, pso_options)
 
   use math_deps,          only : norm_2
 
@@ -104,6 +101,9 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   end interface
 
   double precision, dimension(:), intent(in) :: x0, xmin, xmax
+  double precision, intent(in) :: f0_ref
+  integer, dimension(:), intent(in) :: constrained_dvs
+  logical, intent(in) :: given_f0_ref
   type (pso_options_type), intent(in) :: pso_options
 
   integer :: nvars, nconstrained, i, j, fminloc, designcounter, var
@@ -115,7 +115,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   logical :: use_x0, converged
 
   nvars = size(xmin,1)
-  nconstrained = size(pso_options%constrained_dvs,1)
+  nconstrained = size(constrained_dvs,1)
 
 ! PSO tuning variables
 
@@ -187,18 +187,15 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
   call xfoil_init()
 
-! Set f0 to 1 for airfoil optimization (objective function is scaled to 1 for
-! seed airfoil)
-
-  f0 = 1.d0
-
-#else
-
-! Compute f0
-
-  f0 = objfunc(x0)
-
 #endif
+
+! Get f0 (reference seed design objective function)
+
+  if (given_f0_ref) then
+    f0 = f0_ref
+  else 
+    f0 = objfunc(x0)
+  end if
 
 ! Initialize a random seed
 
@@ -284,7 +281,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
       dv(:,i) = dv(:,i) + vel(:,i)
       do j = 1, nconstrained
-        var = pso_options%constrained_dvs(j)
+        var = constrained_dvs(j)
         if (dv(var,i) < xmin(var)) then
           dv(var,i) = xmin(var)
           call random_number(speed)
@@ -426,7 +423,8 @@ end subroutine particleswarm
 ! Nelder-Mead simplex search algorithm
 !
 !=============================================================================80
-subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, ds_options)
+subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
+                          f0_ref, ds_options)
 
 ! The following are only needed if doing xfoil airfoil optimization
 
@@ -454,6 +452,8 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, ds_options)
   end interface
 
   double precision, dimension(:), intent(in) :: x0
+  double precision, intent(in) :: f0_ref
+  logical, intent(in) :: given_f0_ref
   type (ds_options_type), intent(in) :: ds_options
 
   double precision, dimension(size(x0,1),size(x0,1)+1) :: dv
@@ -502,18 +502,15 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, ds_options)
 
   call xfoil_init()
 
-! Set f0 to 1 for airfoil optimization (objective function is scaled to 1 for
-! seed airfoil)
-
-  f0 = 1.d0
-
-#else
-
-! Compute f0
-
-  f0 = objfunc(x0)
-
 #endif
+
+! Get f0 (reference seed design objective function)
+
+  if (given_f0_ref) then
+    f0 = f0_ref
+  else 
+    f0 = objfunc(x0)
+  end if
 
 ! Set up initial simplex
 

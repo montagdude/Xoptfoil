@@ -38,6 +38,7 @@ program design_plotter
   type(pso_options_type) :: pso_options
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb
+  integer, dimension(:), allocatable :: constrained_dvs
   double precision, dimension(:), allocatable :: modest, modesb
 
   write(*,*)
@@ -52,7 +53,8 @@ program design_plotter
 
   call read_inputs(input_file, search_type, global_search, local_search,       &
                    seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
-                   nparams_bot, pso_options, ds_options, matchfoil_file)
+                   nparams_bot, constrained_dvs, pso_options, ds_options,      &
+                   matchfoil_file)
 
 ! Load seed airfoil into memory, including transformations and smoothing
 

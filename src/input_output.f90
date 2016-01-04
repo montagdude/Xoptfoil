@@ -30,7 +30,8 @@ module input_output
 !=============================================================================80
 subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                        seed_airfoil, airfoil_file, naca_digits, nfunctions_top,&
-                       nfunctions_bot, pso_options, ds_options, matchfoil_file)
+                       nfunctions_bot, constrained_dvs, pso_options,           &
+                       ds_options, matchfoil_file)
 
   use vardef
   use optimization,       only : pso_options_type, ds_options_type
@@ -42,6 +43,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                                 seed_airfoil, airfoil_file, matchfoil_file
   character(4), intent(out) :: naca_digits
   integer, intent(out) :: nfunctions_top, nfunctions_bot
+  integer, dimension(:), allocatable, intent(inout) :: constrained_dvs
   type(pso_options_type), intent(out) :: pso_options
   type(ds_options_type), intent(out) :: ds_options
 
@@ -199,33 +201,33 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 !       For NACA, we will only constrain the flap deflection
 
-        allocate(pso_options%constrained_dvs(nflap_optimize))
+        allocate(constrained_dvs(nflap_optimize))
         counter = 0
         do i = nfunctions_top + nfunctions_bot + 1,                            &
                nfunctions_top + nfunctions_bot + nflap_optimize
           counter = counter + 1
-          pso_options%constrained_dvs(counter) = i
+          constrained_dvs(counter) = i
         end do
           
       else
 
 !       For Hicks-Henne, also constrain bump locations and width
 
-        allocate(pso_options%constrained_dvs(2*nfunctions_top +                &
-                                             2*nfunctions_bot + nflap_optimize))
+        allocate(constrained_dvs(2*nfunctions_top + 2*nfunctions_bot +         &
+                                 nflap_optimize))
         counter = 0
         do i = 1, nfunctions_top + nfunctions_bot
           counter = counter + 1
           idx = 3*(i-1) + 2      ! DV index of bump location, shape function i
-          pso_options%constrained_dvs(counter) = idx
+          constrained_dvs(counter) = idx
           counter = counter + 1
           idx = 3*(i-1) + 3      ! Index of bump width, shape function i
-          pso_options%constrained_dvs(counter) = idx
+          constrained_dvs(counter) = idx
         end do
         do i = 3*(nfunctions_top + nfunctions_bot) + 1,                        &
                3*(nfunctions_top + nfunctions_bot) + nflap_optimize
           counter = counter + 1
-          pso_options%constrained_dvs(counter) = i
+          constrained_dvs(counter) = i
         end do
 
       end if
