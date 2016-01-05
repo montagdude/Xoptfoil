@@ -63,6 +63,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   double precision, dimension(:), allocatable :: zttmp, zbtmp
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
   double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
+  double precision :: f0_ref
   logical :: given_f0_ref
   integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint
 
@@ -262,7 +263,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 !     Particle swarm optimization
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
-                         x0, xmin, xmax, .false., 1.d0, constrained_dvs,       &
+                         x0, xmin, xmax, .false., f0_ref, constrained_dvs,     &
                          pso_options)
 
     end if
@@ -284,7 +285,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, given_f0_ref, 1.d0, ds_options)
+                          x0, given_f0_ref, f0_ref, ds_options)
 
     end if
 
@@ -311,23 +312,30 @@ end subroutine optimize
 ! Writes final airfoil design to a file 
 !
 !=============================================================================80
-subroutine write_final_design(optdesign, shapetype, output_prefix, symmetrical)
+subroutine write_final_design(optdesign, shapetype, output_prefix)
 
-  use vardef,             only : airfoil_type, xseedt, xseedb, zseedt, zseedb
+  use vardef
   use airfoil_operations, only : allocate_airfoil, deallocate_airfoil,         &
                                  airfoil_write
   use parameterization,   only : top_shape_function, bot_shape_function,       &
                                  create_airfoil
+  use airfoil_evaluation, only : xfoil_geom_options, xfoil_options
+  use xfoil_driver,       only : xfoil_init, run_xfoil, xfoil_cleanup
 
   double precision, dimension(:), intent(in) :: optdesign
   character(*), intent(in) :: shapetype, output_prefix
-  logical, intent(in) :: symmetrical
 
   double precision, dimension(size(xseedt,1)) :: zt_new
   double precision, dimension(size(xseedb,1)) :: zb_new
+  double precision, dimension(noppoint) :: lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: actual_flap_degrees
+  double precision :: ffact
   integer :: dvtbnd1, dvtbnd2, dvbbnd1, dvbbnd2, nmodest, nmodesb, nptt, nptb, i
+  integer :: flap_idx, dvcounter, iunit
   type(airfoil_type) :: final_airfoil
-  character(80) :: output_file
+  character(80) :: output_file, aero_file
+  character(30) :: text
+  character(12) :: flapnote
 
   nmodest = size(top_shape_function,1)
   nmodesb = size(bot_shape_function,1)
@@ -372,7 +380,85 @@ subroutine write_final_design(optdesign, shapetype, output_prefix, symmetrical)
    final_airfoil%z(i+nptt) = zb_new(i+1)
   end do
 
-! Write to file
+! Use Xfoil to analyze final design
+
+  if (.not. match_foils) then
+
+!   Get actual flap angles based on design variables
+
+    ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
+    actual_flap_degrees(1:noppoint) = flap_degrees(1:noppoint)
+    dvcounter = dvbbnd2 + 1
+    do i = 1, nflap_optimize
+      flap_idx = flap_optimize_points(i)
+      actual_flap_degrees(flap_idx) = optdesign(dvcounter)/ffact
+      dvcounter = dvcounter + 1
+    end do
+
+!   Allocate xfoil variables
+
+    call xfoil_init()
+
+!   Analyze airfoil at requested operating conditions with Xfoil
+
+    call run_xfoil(final_airfoil, xfoil_geom_options, op_point(1:noppoint),    &
+                   op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),&
+                   use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),  &
+                   xfoil_options, lift, drag, moment, viscrms)
+
+!   Deallocate xfoil variables
+
+    call xfoil_cleanup()
+
+!   Write summary to screen and file
+
+    aero_file = trim(output_prefix)//'_performance_summary.dat'
+    iunit = 13
+    open(unit=iunit, file=aero_file, status='replace')
+
+    write(*,'(A)') " Optimal airfoil performance summary"
+    write(iunit,'(A)') " Optimal airfoil performance summary"
+    write(*,'(A)') " ----------------------------------------------------------"
+    write(iunit,'(A)')                                                         &
+                   " ----------------------------------------------------------"
+    do i = 1, noppoint
+      write(text,*) i
+      text = adjustl(text)
+      if (flap_selection(i) == "specify") then
+        flapnote = " (specified)"
+      else
+        flapnote = " (optimized)"
+      end if
+      write(*,'(A)') " Operating point "//trim(text)
+      write(iunit,'(A)') " Operating point "//trim(text)
+      write(*,'(A18,ES9.3)') " Reynolds number: ", reynolds(i)
+      write(iunit,'(A18,ES9.3)') " Reynolds number: ", reynolds(i)
+      write(*,'(A14,F8.4)') " Mach number: ", mach(i)
+      write(iunit,'(A14,F8.4)') " Mach number: ", mach(i)
+      if (use_flap) then
+        write(*,'(A25,F8.4,A12)') " Flap setting (degrees): ",                 &
+                                  actual_flap_degrees(i), flapnote
+        write(iunit,'(A25,F8.4,A12)') " Flap setting (degrees): ",             &
+                                  actual_flap_degrees(i), flapnote
+      endif
+      write(*,'(A19,F8.4)') " Lift coefficient: ", lift(i)
+      write(iunit,'(A19,F6.4)') " Lift coefficient: ", lift(i)
+      write(*,'(A19,F8.4)') " Drag coefficient: ", drag(i)
+      write(iunit,'(A19,F8.4)') " Drag coefficient: ", drag(i)
+      write(*,'(A21,F8.4)') " Moment coefficient: ", moment(i)
+      write(iunit,'(A21,F8.4)') " Moment coefficient: ", moment(i)
+      if (i /= noppoint) write(*,*)
+    end do
+
+    close(iunit)
+
+    write(*,*)
+    write(*,*) "Optimal airfoil performance summary written to "               &
+               //trim(aero_file)//"."
+
+  end if
+
+! Write airfoil to file
 
   output_file = trim(output_prefix)//'.dat'
   call airfoil_write(output_file, output_prefix, final_airfoil)

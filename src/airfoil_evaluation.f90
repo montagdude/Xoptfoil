@@ -93,11 +93,12 @@ function aero_objective_function(designvars)
   double precision, dimension(noppoint) :: fd_check
   double precision, dimension(noppoint) :: lift, drag, moment, viscrms
   double precision, dimension(noppoint) :: clcheck, cdcheck, cmcheck, rmscheck
+  double precision, dimension(noppoint) :: actual_flap_degrees
   logical, dimension(noppoint) :: checkpt
   double precision :: increment, curv1, curv2
-  integer :: nreversals
-  double precision :: gapallow, maxthick
-  integer :: check_idx
+  integer :: nreversals, ndvs
+  double precision :: gapallow, maxthick, ffact
+  integer :: check_idx, flap_idx, dvcounter
   double precision, parameter :: eps = 1.0D-08
 
   nmodest = size(top_shape_function,1)
@@ -244,7 +245,32 @@ function aero_objective_function(designvars)
 
   end if
 
-! Exit if geometry doesn't check out
+! Check that number of flap optimize points are correct
+
+  ndvs = size(designvars,1)
+  if (nflap_optimize /= (ndvs - dvbbnd2)) then
+    write(*,*) "Wrong number of design variables for flap deflections."
+    write(*,*) "Please report this bug."
+    stop
+  end if
+
+! Get actual flap angles based on design variables
+! Also add a penalty for flap deflections outside the specified bounds
+
+  ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
+  actual_flap_degrees(1:noppoint) = flap_degrees(1:noppoint)
+  dvcounter = dvbbnd2 + 1
+  do i = 1, nflap_optimize
+    flap_idx = flap_optimize_points(i)
+    actual_flap_degrees(flap_idx) = designvars(dvcounter)/ffact
+    penaltyval = penaltyval +                                                  &
+                 max(0.d0,actual_flap_degrees(flap_idx)-max_flap_degrees)
+    penaltyval = penaltyval +                                                  &
+                 max(0.d0,min_flap_degrees-actual_flap_degrees(flap_idx))
+    dvcounter = dvcounter + 1
+  end do
+
+! Exit if geometry and flap angles don't check out
 
   if (penaltyval > eps) then
     aero_objective_function = penaltyval*1.0D+06
@@ -255,7 +281,7 @@ function aero_objective_function(designvars)
 
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
-                 use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
+                 use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
                  xfoil_options, lift, drag, moment, viscrms)
 
 ! Determine if points need to be checked for xfoil consistency
@@ -278,7 +304,7 @@ function aero_objective_function(designvars)
       opm_check(ncheckpt) = op_mode(i)
       opp_check(ncheckpt) = op_point(i)
       ma_check(ncheckpt) = mach(i)
-      fd_check(ncheckpt) = flap_degrees(i)
+      fd_check(ncheckpt) = actual_flap_degrees(i)
 
 !     Perturb Reynolds number slightly to check that XFoil result is 
 !     repeatable

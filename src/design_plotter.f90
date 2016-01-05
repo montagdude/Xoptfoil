@@ -184,8 +184,10 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
   double precision, dimension(size(xseedt,1)) :: zt_new
   double precision, dimension(size(xseedb,1)) :: zb_new
   integer :: nmodest, nmodesb, nptt, nptb, i, dvtbnd1, dvtbnd2, dvbbnd1,       &
-             dvbbnd2
+             dvbbnd2, flap_idx, dvcounter, oppoint, nfuncs
   double precision, dimension(noppoint) :: lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: actual_flap_degrees
+  double precision :: ffact
 
   iunit = 12
   foilunit = 13
@@ -240,6 +242,12 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
 !   Set up seed airfoil written for comparison
 
     designvars(:) = 0.d0
+    nfuncs = nvars - nflap_optimize
+    ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
+    do i = nfuncs + 1, nvars
+      oppoint = flap_optimize_points(i-nfuncs)
+      designvars(i) = flap_degrees(oppoint)*ffact
+    end do
 
 !   Write a message about coordinates being analyzed
 
@@ -289,6 +297,17 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
       write(foilunit,'(2es17.8)') curr_foil%x(i), curr_foil%z(i)
     end do
 
+!   Get actual flap angles based on design variables
+
+    ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
+    actual_flap_degrees(1:noppoint) = flap_degrees(1:noppoint)
+    dvcounter = dvbbnd2 + 1
+    do i = 1, nflap_optimize
+      flap_idx = flap_optimize_points(i)
+      actual_flap_degrees(flap_idx) = designvars(dvcounter)/ffact
+      dvcounter = dvcounter + 1
+    end do
+
 !   For aerodynamic optimization, set up file for polars
 
     if (.not. match_foils) then
@@ -306,8 +325,8 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
       call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),      &
                      op_mode(1:noppoint), reynolds(1:noppoint),                &
                      mach(1:noppoint), use_flap, x_flap, y_flap,               &
-                     flap_degrees(1:noppoint), xfoil_options, lift, drag,      &
-                     moment, viscrms)
+                     actual_flap_degrees(1:noppoint), xfoil_options, lift,     &
+                     drag, moment, viscrms)
 
 !     Write polars to file
 
@@ -388,6 +407,17 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
       write(foilunit,'(2es17.8)') curr_foil%x(i), curr_foil%z(i)
     end do
 
+!   Get actual flap angles based on design variables
+
+    ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
+    actual_flap_degrees(1:noppoint) = flap_degrees(1:noppoint)
+    dvcounter = dvbbnd2 + 1
+    do i = 1, nflap_optimize
+      flap_idx = flap_optimize_points(i)
+      actual_flap_degrees(flap_idx) = designvars(dvcounter)/ffact
+      dvcounter = dvcounter + 1
+    end do
+
 !   Run xfoil if this was an aerodynamic optimization
 
     if (.not. match_foils) then
@@ -399,8 +429,8 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
       call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),      &
                      op_mode(1:noppoint), reynolds(1:noppoint),                &
                      mach(1:noppoint), use_flap, x_flap, y_flap,               &
-                     flap_degrees(1:noppoint), xfoil_options, lift, drag,      &
-                     moment, viscrms)
+                     actual_flap_degrees(1:noppoint), xfoil_options, lift,     &
+                     drag, moment, viscrms)
 
 !     Write polars to file
 

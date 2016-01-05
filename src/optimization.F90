@@ -101,7 +101,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   end interface
 
   double precision, dimension(:), intent(in) :: x0, xmin, xmax
-  double precision, intent(in) :: f0_ref
+  double precision, intent(inout) :: f0_ref
   integer, dimension(:), intent(in) :: constrained_dvs
   logical, intent(in) :: given_f0_ref
   type (pso_options_type), intent(in) :: pso_options
@@ -191,11 +191,15 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! Get f0 (reference seed design objective function)
 
+!$omp master
   if (given_f0_ref) then
     f0 = f0_ref
   else 
     f0 = objfunc(x0)
+    f0_ref = f0
   end if
+!$omp end master
+!$omp barrier
 
 ! Initialize a random seed
 
@@ -452,7 +456,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   end interface
 
   double precision, dimension(:), intent(in) :: x0
-  double precision, intent(in) :: f0_ref
+  double precision, intent(inout) :: f0_ref
   logical, intent(in) :: given_f0_ref
   type (ds_options_type), intent(in) :: ds_options
 
@@ -510,6 +514,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     f0 = f0_ref
   else 
     f0 = objfunc(x0)
+    f0_ref = f0
   end if
 
 ! Set up initial simplex
