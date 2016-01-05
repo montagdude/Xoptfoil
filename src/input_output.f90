@@ -142,8 +142,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   seed_violation_handling = 'stop'
   min_thickness = 0.06d0
   max_thickness = 1000.d0
-  moment_constraint_type = 'use_seed'
-  min_moment = -1.d0
+  moment_constraint_type(:) = 'use_seed'
+  min_moment(:) = -1.d0
   min_te_angle = 5.d0
   check_curvature = .false.
   max_curv_reverse = 3
@@ -400,8 +400,13 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " seed_violation_handling = "//trim(seed_violation_handling)
   write(*,*) " min_thickness = ", min_thickness
   write(*,*) " max_thickness = ", max_thickness
-  write(*,*) " moment_constraint_type = "//trim(moment_constraint_type)
-  write(*,*) " min_moment = ", min_moment
+  do i = 1, noppoint
+    write(text,*) i
+    text = adjustl(text)
+    write(*,*) " moment_constraint_type("//trim(text)//") = "//                &
+               trim(moment_constraint_type(i))
+    write(*,*) " min_moment("//trim(text)//") = ", min_moment(i)
+  end do
   write(*,*) " min_te_angle = ", min_te_angle
   write(*,*) " check_curvature = ", check_curvature
   write(*,*) " max_curv_reverse = ", max_curv_reverse
@@ -540,11 +545,13 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     call my_stop("seed_violation_handling must be 'stop' or 'warn'.")
   if (min_thickness <= 0.d0) call my_stop("min_thickness must be > 0.")
   if (max_thickness <= 0.d0) call my_stop("max_thickness must be > 0.")
-  if (trim(moment_constraint_type) /= 'use_seed' .and.                         &
-      trim(moment_constraint_type) /= 'specify' .and.                          &
-      trim(moment_constraint_type) /= 'none')                                  &
-    call my_stop("moment_constraint_type must be 'use_seed', 'specify', or "// &
-                 "'none'.")
+  do i = 1, noppoint
+    if (trim(moment_constraint_type(i)) /= 'use_seed' .and.                    &
+      trim(moment_constraint_type(i)) /= 'specify' .and.                       &
+      trim(moment_constraint_type(i)) /= 'none')                               &
+      call my_stop("moment_constraint_type must be 'use_seed', 'specify', "//  &
+                 "or 'none'.")
+  end do
   if (min_te_angle <= 0.d0) call my_stop("min_te_angle must be > 0.")
   if (max_curv_reverse < 1) call my_stop("max_curv_reverse must be > 0.")
   if (curv_threshold <= 0.d0) call my_stop("curv_threshold must be > 0.")

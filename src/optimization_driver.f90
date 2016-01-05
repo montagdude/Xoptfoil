@@ -416,6 +416,7 @@ subroutine write_final_design(optdesign, shapetype, output_prefix)
     iunit = 13
     open(unit=iunit, file=aero_file, status='replace')
 
+    write(*,*)
     write(*,'(A)') " Optimal airfoil performance summary"
     write(iunit,'(A)') " Optimal airfoil performance summary"
     write(*,'(A)') " ----------------------------------------------------------"
@@ -433,21 +434,24 @@ subroutine write_final_design(optdesign, shapetype, output_prefix)
       write(iunit,'(A)') " Operating point "//trim(text)
       write(*,'(A18,ES9.3)') " Reynolds number: ", reynolds(i)
       write(iunit,'(A18,ES9.3)') " Reynolds number: ", reynolds(i)
-      write(*,'(A14,F8.4)') " Mach number: ", mach(i)
-      write(iunit,'(A14,F8.4)') " Mach number: ", mach(i)
+      write(*,'(A14,F9.5)') " Mach number: ", mach(i)
+      write(iunit,'(A14,F9.5)') " Mach number: ", mach(i)
       if (use_flap) then
-        write(*,'(A25,F8.4,A12)') " Flap setting (degrees): ",                 &
+        write(*,'(A25,F9.5,A12)') " Flap setting (degrees): ",                 &
                                   actual_flap_degrees(i), flapnote
-        write(iunit,'(A25,F8.4,A12)') " Flap setting (degrees): ",             &
+        write(iunit,'(A25,F9.5,A12)') " Flap setting (degrees): ",             &
                                   actual_flap_degrees(i), flapnote
       endif
-      write(*,'(A19,F8.4)') " Lift coefficient: ", lift(i)
+      write(*,'(A19,F9.5)') " Lift coefficient: ", lift(i)
       write(iunit,'(A19,F6.4)') " Lift coefficient: ", lift(i)
-      write(*,'(A19,F8.4)') " Drag coefficient: ", drag(i)
-      write(iunit,'(A19,F8.4)') " Drag coefficient: ", drag(i)
-      write(*,'(A21,F8.4)') " Moment coefficient: ", moment(i)
-      write(iunit,'(A21,F8.4)') " Moment coefficient: ", moment(i)
-      if (i /= noppoint) write(*,*)
+      write(*,'(A19,F9.5)') " Drag coefficient: ", drag(i)
+      write(iunit,'(A19,F9.5)') " Drag coefficient: ", drag(i)
+      write(*,'(A21,F9.5)') " Moment coefficient: ", moment(i)
+      write(iunit,'(A21,F9.5)') " Moment coefficient: ", moment(i)
+      if (i /= noppoint) then
+        write(*,*)
+        write(iunit,*)
+      end if
     end do
 
     close(iunit)

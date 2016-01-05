@@ -430,11 +430,11 @@ function aero_objective_function(designvars)
 
 ! Add penalty for too low moment
 
-  if (trim(moment_constraint_type) /= 'none') then
-    do i = 1, noppoint
-      penaltyval = penaltyval + max(0.d0,min_moment-moment(i))/0.1d0
-    end do
-  end if
+  do i = 1, noppoint
+    if (trim(moment_constraint_type(i)) /= 'none') then
+      penaltyval = penaltyval + max(0.d0,min_moment(i)-moment(i))/0.1d0
+    end if
+  end do
 
 ! Add penalty for too large panel angles
 

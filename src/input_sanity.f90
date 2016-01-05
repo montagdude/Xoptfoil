@@ -227,12 +227,17 @@ subroutine check_seed()
 
 ! Set moment constraint or check for violation of specified constraint
 
-  if (trim(moment_constraint_type) == 'use_seed') then
-    min_moment = minval(moment)
-  elseif (trim(moment_constraint_type) == 'specify') then
-    if (minval(moment) < min_moment)                                           &
-      call my_stop("Seed airfoil violates min_moment constraint.", stoptype)
-  end if
+  do i = 1, noppoint
+    write(text,*) i
+    text = adjustl(text)
+    if (trim(moment_constraint_type(i)) == 'use_seed') then
+      min_moment(i) = moment(i)
+    elseif (trim(moment_constraint_type(i)) == 'specify') then
+      if (moment(i) < min_moment(i))                                           &
+        call my_stop("Seed airfoil violates min_moment constraint for "//      &
+                     "operating point "//trim(text)//".", stoptype)
+    end if
+  end do
 
 ! Evaluate objectives to establish scale factors for each point
 

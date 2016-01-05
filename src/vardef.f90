@@ -51,12 +51,13 @@ module vardef
   integer, dimension(max_op_points) :: flap_optimize_points
 
   type(airfoil_type) :: curr_foil
-  double precision :: min_thickness, max_thickness, min_moment, min_te_angle,  &
+  double precision :: min_thickness, max_thickness, min_te_angle,              &
                       growth_allowed, min_flap_degrees, max_flap_degrees
   double precision :: curv_threshold
   integer :: max_curv_reverse
   character(4) :: seed_violation_handling
-  character(8) :: moment_constraint_type
+  character(8), dimension(max_op_points) :: moment_constraint_type
+  double precision, dimension(max_op_points) :: min_moment
   character(11) :: shape_functions
   double precision, dimension(:), allocatable :: xmatcht, xmatchb, zmatcht,    &
                                                  zmatchb
