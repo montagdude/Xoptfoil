@@ -40,7 +40,7 @@ program main
   integer :: pointst, pointsb, steps, fevals, nshapedvtop, nshapedvbot 
   double precision, dimension(:), allocatable :: optdesign, modest, modesb
   integer, dimension(:), allocatable :: constrained_dvs
-  double precision :: fmin
+  double precision :: f0, fmin
 
   write(*,*)
   write(*,*) 'This is XoptFoil: airfoil optimization with XFOIL'
@@ -92,7 +92,7 @@ program main
 ! Optimize
   
   call optimize(search_type, global_search, local_search, matchfoil_file,      &
-                constrained_dvs, pso_options, ds_options, optdesign, fmin,     &
+                constrained_dvs, pso_options, ds_options, optdesign, f0, fmin, &
                 steps, fevals)
 
 ! Notify of total number of steps and function evals
@@ -111,7 +111,7 @@ program main
                               first_time = .true.) ! Needed because parallel
                                         ! optimization allocates shape functions 
                                         ! on each thread and then deallocates
-  call write_final_design(optdesign, shape_functions, output_prefix)
+  call write_final_design(optdesign, f0, fmin, shape_functions, output_prefix)
 
 ! Deallocate other memory
 

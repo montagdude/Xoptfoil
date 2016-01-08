@@ -30,8 +30,8 @@ module optimization_driver
 !
 !=============================================================================80
 subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
-                    constrained_dvs, pso_options, ds_options, optdesign, fmin, &
-                    steps, fevals)
+                    constrained_dvs, pso_options, ds_options, optdesign,       &
+                    f0_ref, fmin, steps, fevals)
 
   use vardef,             only : airfoil_type, match_foils, xmatcht, xmatchb,  &
                                  zmatcht, zmatchb, xseedt, xseedb, zseedt,     &
@@ -54,7 +54,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   type(pso_options_type), intent(in) :: pso_options
   type(ds_options_type), intent(in) :: ds_options
   double precision, dimension(:), intent(inout) :: optdesign
-  double precision, intent(out) :: fmin
+  double precision, intent(out) :: f0_ref, fmin
   integer, dimension(:), intent(in) :: constrained_dvs
   integer, intent(out) :: steps, fevals
 
@@ -63,7 +63,6 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   double precision, dimension(:), allocatable :: zttmp, zbtmp
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
   double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
-  double precision :: f0_ref
   logical :: given_f0_ref
   integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint
 
@@ -312,7 +311,7 @@ end subroutine optimize
 ! Writes final airfoil design to a file 
 !
 !=============================================================================80
-subroutine write_final_design(optdesign, shapetype, output_prefix)
+subroutine write_final_design(optdesign, f0, fmin, shapetype, output_prefix)
 
   use vardef
   use airfoil_operations, only : allocate_airfoil, deallocate_airfoil,         &
@@ -324,6 +323,7 @@ subroutine write_final_design(optdesign, shapetype, output_prefix)
 
   double precision, dimension(:), intent(in) :: optdesign
   character(*), intent(in) :: shapetype, output_prefix
+  double precision, intent(in) :: f0, fmin
 
   double precision, dimension(size(xseedt,1)) :: zt_new
   double precision, dimension(size(xseedb,1)) :: zb_new
@@ -453,6 +453,13 @@ subroutine write_final_design(optdesign, shapetype, output_prefix)
         write(iunit,*)
       end if
     end do
+
+    write(*,*)
+    write(*,'(A43F8.4A1)') " Objective function improvement over seed: ",      &
+                           (f0 - fmin)/f0*100.d0, "%" 
+    write(iunit,*)
+    write(iunit,'(A43F8.4A1)') " Objective function improvement over seed: ",  &
+                           (f0 - fmin)/f0*100.d0, "%" 
 
     close(iunit)
 
