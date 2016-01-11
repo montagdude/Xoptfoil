@@ -54,7 +54,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   double precision :: pso_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
   double precision :: pso_feasible_limit
-  integer :: i, iunit, ioerr, counter, idx
+  integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
@@ -92,7 +92,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Option to match seed airfoil to another instead of aerodynamic optimization
 
   match_foils = .false.
-  read(iunit, nml=matchfoil_options)
+  matchfoil_file = 'none'
+  read(iunit, iostat=iostat1, nml=matchfoil_options)
 
 ! Set defaults for main namelist options
 
@@ -111,7 +112,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Read main namelist options
 
   rewind(iunit)
-  read(iunit, nml=optimization_options)
+  read(iunit, iostat=iostat1, nml=optimization_options)
 
 ! Error checking and setting search algorithm options
 
@@ -155,9 +156,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Read operating conditions and constraints
 
   rewind(iunit)
-  read(iunit, nml=operating_conditions)
+  read(iunit, iostat=iostat1, nml=operating_conditions)
   rewind(iunit)
-  read(iunit, nml=constraints)
+  read(iunit, iostat=iostat1, nml=constraints)
 
 ! Store operating points where flap setting will be optimized
 
@@ -235,7 +236,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 !     Read PSO options and put them into derived type
 
       rewind(iunit)
-      read(iunit, nml=particle_swarm_options)
+      read(iunit, iostat=iostat1, nml=particle_swarm_options)
       pso_options%pop = pop
       pso_options%tol = pso_tol
       pso_options%nstop = pso_nstop
@@ -271,7 +272,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 !     Read simplex search options and put them into derived type
 
       rewind(iunit)
-      read(iunit, nml=simplex_options)
+      read(iunit, iostat=iostat1, nml=simplex_options)
       ds_options%tol = simplex_tol
       ds_options%maxit = simplex_maxit
       ds_options%write_designs = write_designs
@@ -317,9 +318,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Read xfoil options and put them into derived types
 
   rewind(iunit)
-  read(iunit, nml=xfoil_run_options)
+  read(iunit, iostat=iostat1, nml=xfoil_run_options)
   rewind(iunit)
-  read(iunit, nml=xfoil_paneling_options)
+  read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
 
   xfoil_options%ncrit = ncrit
   xfoil_options%xtript = xtript
@@ -623,7 +624,7 @@ subroutine read_inputs_xfoil_only(airfoil_file)
   integer :: bl_maxit, npan
   double precision :: ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
-  integer :: i, iunit, ioerr
+  integer :: i, iunit, ioerr, iostat1
   character(30) :: text
 
   namelist /airfoil_to_load/ airfoil_file
@@ -647,7 +648,7 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 
 ! Read airfoil_to_load namelist options
 
-  read(iunit, nml=airfoil_to_load)
+  read(iunit, iostat=iostat1, nml=airfoil_to_load)
 
 ! Set defaults for operating conditions
 
@@ -663,7 +664,7 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 
 ! Read operating conditions and constraints
 
-  read(iunit, nml=operating_conditions)
+  read(iunit, iostat=iostat1, nml=operating_conditions)
 
 ! Set default xfoil aerodynamics and paneling options
 
@@ -688,8 +689,8 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 
 ! Read xfoil options and put them into derived types
 
-  read(iunit, nml=xfoil_run_options)
-  read(iunit, nml=xfoil_paneling_options)
+  read(iunit, iostat=iostat1, nml=xfoil_run_options)
+  read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
 
   xfoil_options%ncrit = ncrit
   xfoil_options%xtript = xtript
