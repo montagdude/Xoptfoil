@@ -456,6 +456,14 @@ function aero_objective_function(designvars)
     end do
   end if
 
+!Bug check
+!if (aero_objective_function < 0.5) then
+!  print *, "penaltyval: ", penaltyval
+!  do i = 1, noppoint
+!    print *, drag(i), checkpt(i)
+!  end do
+!end if
+
 end function aero_objective_function
 
 !=============================================================================80

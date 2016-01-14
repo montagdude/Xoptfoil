@@ -56,6 +56,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   double precision :: pso_feasible_limit
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
+  character(10) :: pso_convergence_profile
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
@@ -69,7 +70,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                          check_curvature, max_curv_reverse, curv_threshold,    &
                          symmetrical, min_flap_degrees, max_flap_degrees
   namelist /particle_swarm_options/ pop, pso_tol, pso_nstop, pso_maxit,        &
-                                    pso_feasible_init, pso_feasible_limit,     &
+                                    pso_convergence_profile, pso_feasible_init,&
+                                    pso_feasible_limit,                        &
                                     pso_feasible_init_attempts
   namelist /simplex_options/ simplex_tol, simplex_maxit
   namelist /xfoil_run_options/ ncrit, xtript, xtripb, viscous_mode,            &
@@ -182,6 +184,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   pso_tol = 1.0D-04
   pso_nstop = 40
   pso_maxit = 300
+  pso_convergence_profile = "standard"
   pso_feasible_init = .true.
   pso_feasible_limit = 5.0D+04
   pso_feasible_init_attempts = 100
@@ -242,6 +245,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       pso_options%nstop = pso_nstop
       pso_options%maxspeed = initial_perturb
       pso_options%maxit = pso_maxit
+      pso_options%convergence_profile = pso_convergence_profile
       pso_options%feasible_init = pso_feasible_init
       pso_options%feasible_limit = pso_feasible_limit
       pso_options%feasible_init_attempts = pso_feasible_init_attempts
@@ -430,6 +434,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       write(*,*) " pso_tol = ", pso_options%tol
       write(*,*) " pso_nstop = ", pso_options%nstop
       write(*,*) " pso_maxit = ", pso_options%maxit
+      write(*,*) " pso_convergence_profile = ", pso_options%convergence_profile
       write(*,*) " pso_feasible_init = ", pso_options%feasible_init
       write(*,*) " pso_feasible_limit = ", pso_options%feasible_limit
       write(*,*) " pso_feasible_init_attempts = ",                             &
@@ -571,6 +576,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if (pso_tol <= 0.d0) call my_stop("pso_tol must be > 0.")
   if (pso_nstop < 1) call my_stop("pso_nstop must be > 0.")
   if (pso_maxit < 1) call my_stop("pso_maxit must be > 0.")  
+  if ( (trim(pso_convergence_profile) /= "standard") .and.                     &
+       (trim(pso_convergence_profile) /= "exhaustive") )                       &
+    call my_stop("pso_convergence_profile must be 'standard' or 'exhaustive'.")
   if ((pso_feasible_limit <= 0.d0) .and. pso_feasible_init)                    &
     call my_stop("pso_feasible_limit must be > 0.")
   if ((pso_feasible_init_attempts < 1) .and. pso_feasible_init)                &

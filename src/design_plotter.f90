@@ -34,7 +34,7 @@ program design_plotter
   character(80) :: search_type, global_search, local_search, seed_airfoil,     &
                    airfoil_file, matchfoil_file
   character(4) :: naca_digits
-  character(80) :: input_file, output_file
+  character(80) :: input_file, output_prefix
   type(pso_options_type) :: pso_options
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb
@@ -47,7 +47,7 @@ program design_plotter
 
 ! Read command line arguments
 
-  call read_clo(input_file, output_file)
+  call read_clo(input_file, output_prefix)
 
 ! Read inputs from namelist file
 
@@ -89,7 +89,7 @@ program design_plotter
 
 ! Create airfoils and polars from designs
 
-  call design_visualize(search_type, global_search, local_search)
+  call design_visualize(search_type, global_search, local_search, output_prefix)
 
 ! Deallocate other memory
 
@@ -108,12 +108,14 @@ end program design_plotter
 ! Driver routine to create airfoils and polars from designs
 !
 !=============================================================================80
-subroutine design_visualize(search_type, global_search, local_search)
+subroutine design_visualize(search_type, global_search, local_search,          &
+                            output_prefix)
 
   use vardef, only : match_foils
 
   implicit none
-  character(*), intent(in) :: search_type, global_search, local_search
+  character(*), intent(in) :: output_prefix, search_type, global_search,       &
+                              local_search
 
   integer :: foilunit, polarunit, designnum
 
@@ -126,7 +128,8 @@ subroutine design_visualize(search_type, global_search, local_search)
 
     if (trim(global_search) == 'particle_swarm') then
 
-      call plotter('particleswarm', 'new', designnum, foilunit, polarunit)
+      call plotter(output_prefix, 'particleswarm', 'new', designnum, foilunit, &
+                   polarunit)
 
     end if
 
@@ -136,7 +139,8 @@ subroutine design_visualize(search_type, global_search, local_search)
 
     if (trim(local_search) == 'simplex') then
 
-      call plotter('simplex', 'new', designnum, foilunit, polarunit)
+      call plotter(output_prefix, 'simplex', 'new', designnum, foilunit,       &
+                   polarunit)
 
     end if
 
@@ -146,7 +150,8 @@ subroutine design_visualize(search_type, global_search, local_search)
 
     if (trim(local_search) == 'simplex') then
 
-      call plotter('simplex', 'old', designnum, foilunit, polarunit)
+      call plotter(output_prefix, 'simplex', 'old', designnum, foilunit,       &
+                   polarunit)
 
     end if
 
@@ -164,7 +169,8 @@ end subroutine design_visualize
 ! Subroutine to create airfoils and polars from design variables
 !
 !=============================================================================80
-subroutine plotter(title, filestat, designnum, foilunit, polarunit)
+subroutine plotter(writetitle, readtitle, filestat, designnum, foilunit,       &
+                   polarunit)
 
   use vardef
   use parameterization,   only : top_shape_function, bot_shape_function,       &
@@ -174,7 +180,7 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
 
   implicit none
-  character(*), intent(in) :: title, filestat
+  character(*), intent(in) :: writetitle, readtitle, filestat
   integer, intent(inout) :: designnum
   integer, intent(out) :: foilunit, polarunit
 
@@ -207,9 +213,14 @@ subroutine plotter(title, filestat, designnum, foilunit, polarunit)
 
 ! Set file names 
 
-  readfile = trim(title)//'_designs.dat'
-  foilfile = 'design_coordinates.dat'
-  polarfile = 'design_polars.dat'
+  readfile = trim(readtitle)//'_designs.dat'
+  if (writetitle == "optfoil") then      ! Probably not specified by the user
+    foilfile = 'design_coordinates.dat'
+    polarfile = 'design_polars.dat'
+  else
+    foilfile = trim(writetitle)//'_design_coordinates.dat'
+    polarfile = trim(writetitle)//'_design_polars.dat'
+  end if
 
 ! Open file and read number of design variables
 

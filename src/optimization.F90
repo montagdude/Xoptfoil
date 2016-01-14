@@ -45,6 +45,9 @@ module optimization
     logical :: relative_fmin_report
                                   ! If .true., reports improvement over seed
                                   !   design. Otherwise, reports fmin itself.
+    character(10) :: convergence_profile
+                                  ! 'standard' or 'exhaustive'; exhaustive takes
+                                  !   longer but finds better solutions 
   end type pso_options_type
 
 ! Options type for direct searches
@@ -119,11 +122,27 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! PSO tuning variables
 
-  c1 = 1.2d0         ! particle-best trust factor
-  c2 = 1.2d0         ! swarm-best trust factor
-  whigh = 1.4d0      ! starting inertial parameter
-  wlow = 0.6d0       ! ending inertial parameter
-  convrate = 0.05d0  ! inertial parameter reduction rate
+  if (trim(pso_options%convergence_profile) == "standard") then
+
+    c1 = 1.2d0         ! particle-best trust factor
+    c2 = 1.2d0         ! swarm-best trust factor
+    whigh = 1.4d0      ! starting inertial parameter
+    wlow = 0.6d0       ! ending inertial parameter
+    convrate = 0.05d0  ! inertial parameter reduction rate
+
+  else if (trim(pso_options%convergence_profile) == "exhaustive") then
+
+    c1 = 1.4d0         ! particle-best trust factor
+    c2 = 1.0d0         ! swarm-best trust factor
+    whigh = 1.8d0      ! starting inertial parameter
+    wlow = 0.8d0       ! ending inertial parameter
+    convrate = 0.02d0  ! inertial parameter reduction rate
+
+  else
+    write(*,*) "Error in particleswarm: convergence mode should be"//          &
+               "'standard' or 'exhaustive'."
+    stop
+  end if
 
 ! Speed limits
 

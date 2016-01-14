@@ -197,8 +197,10 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
 ! Check to make sure xfoil is initialized
 
-  if (.not. allocated(AIJ)) stop(                                              &
-    "Error: xfoil is not initialized!  Call xfoil_init() first.")
+  if (.not. allocated(AIJ)) then
+    write(*,*) "Error: xfoil is not initialized!  Call xfoil_init() first."
+    stop
+  end if
 
 ! Set default Xfoil parameters
 
