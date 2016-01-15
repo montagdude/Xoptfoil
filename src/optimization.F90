@@ -26,10 +26,9 @@ module optimization
   type pso_options_type
 
     integer :: pop                ! particle swarm population size
-    double precision :: tol       ! tolerance in best objective function value
-                                  !   change before triggering a stop condition
-    integer :: nstop              ! number of consecutive steps meeting tol
-                                  !   before stopping
+    double precision :: speed_tol ! tolerance in particle speed, as fraction of
+                                  !   initial max speed, before triggering a
+                                  !   stop condition
     double precision :: maxspeed  ! Max speed allowed for particles
     integer :: maxit              ! Max steps allowed before stopping
     logical :: feasible_init      ! Whether to enforce initially feasible
@@ -110,10 +109,10 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   type (pso_options_type), intent(in) :: pso_options
 
   integer :: nvars, nconstrained, i, j, fminloc, designcounter, var
-  double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, speed,   &
-                      mincurr, denominator, f0
-  double precision, dimension(:), allocatable :: minvalstore, errstore, objval,&
-                                                 minvals, randvec1, randvec2
+  double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
+                      f0
+  double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
+                                                 randvec2, speed
   double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
   logical :: use_x0, converged
 
@@ -155,22 +154,19 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! Memory allocation and initialization
 
-  allocate(minvalstore(pso_options%nstop+1))
-  allocate(errstore(pso_options%nstop))
   allocate(dv(nvars,pso_options%pop))
   allocate(vel(nvars,pso_options%pop))
   allocate(objval(pso_options%pop))
   allocate(bestdesigns(nvars,pso_options%pop))
   allocate(minvals(pso_options%pop))
+  allocate(speed(pso_options%pop))
   allocate(randvec1(nvars))
   allocate(randvec2(nvars))
-  minvalstore(:) = 0.d0
-  errstore(:) = 1.d0 
   dv(:,:) = 0.d0
   vel(:,:) = 0.d0
   objval(:) = 0.d0
 
-!$omp parallel default(shared) private(i, j, speed)
+!$omp parallel default(shared) private(i, j)
 
 ! To allocate private memory for airfoil optimization on each thread
 
@@ -271,15 +267,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 !$omp master
 
-!   Minimum values for the last nstop iterations are stored
-
-    do j = 1, pso_options%nstop
-      minvalstore(j) = minvalstore(j+1)
-      if (j < pso_options%nstop) then
-        errstore(j) = errstore(j+1)
-      end if
-    end do
-
 !   Increase iteration counter
 
     step = step + 1
@@ -295,9 +282,8 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 !     Impose speed limit
 
-      speed = norm_2(vel(:,i))
-      if (speed > maxspeed) then
-        vel(:,i) = maxspeed*vel(:,i)/speed
+      if (speed(i) > maxspeed) then
+        vel(:,i) = maxspeed*vel(:,i)/speed(i)
       end if
 
 !     Update position and bring back to side constraints if necessary
@@ -307,12 +293,12 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
         var = constrained_dvs(j)
         if (dv(var,i) < xmin(var)) then
           dv(var,i) = xmin(var)
-          call random_number(speed)
-          vel(var,i) = -speed*vel(var,i)
+          call random_number(speed(i))
+          vel(var,i) = -speed(i)*vel(var,i)
         elseif (dv(var,i) > xmax(var)) then
           dv(var,i) = xmax(var)
-          call random_number(speed)
-          vel(var,i) = -speed*vel(var,i)
+          call random_number(speed(i))
+          vel(var,i) = -speed(i)*vel(var,i)
         end if
       end do
 
@@ -348,7 +334,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       end if
 
     end if
-    minvalstore(pso_options%nstop+1) = fmin
 
 !$omp end master
 !$omp barrier
@@ -362,6 +347,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       call random_number(randvec2)
       vel(:,i) = wcurr*vel(:,i) + c1*randvec1*(bestdesigns(:,i) - dv(:,i)) +   &
                                   c2*randvec2*(xopt - dv(:,i))
+      speed(i) = norm2(vel(:,i))
     end do
 
 !$omp end do
@@ -382,17 +368,10 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
                  fmin
     end if
     
-!   Evaluate function change for this iteration relative to the last
-    
-    denominator = max(abs(minvalstore(pso_options%nstop)),                     &
-                      abs(minvalstore(pso_options%nstop+1)))
-    errstore(pso_options%nstop) = abs((minvalstore(pso_options%nstop+1) -      &
-                                       minvalstore(pso_options%nstop))) /      &
-                                       denominator
-
 !   Evaluate convergence
 
-    if (maxval(errstore) > pso_options%tol .and. step < pso_options%maxit) then
+    if ( (maxval(speed) > pso_options%speed_tol*maxspeed) .and.                &
+         (step < pso_options%maxit) ) then
       converged = .false.
     else
       converged = .true.
@@ -429,13 +408,12 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! Memory deallocation
 
-  deallocate(minvalstore)
-  deallocate(errstore)
   deallocate(dv)
   deallocate(vel)
   deallocate(objval)
   deallocate(bestdesigns)
   deallocate(minvals)
+  deallocate(speed)
   deallocate(randvec1)
   deallocate(randvec2)
 

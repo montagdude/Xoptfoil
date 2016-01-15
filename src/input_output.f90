@@ -49,9 +49,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   logical :: viscous_mode, silent_mode, fix_unconverged, pso_feasible_init,    &
              reinitialize, write_designs
-  integer :: pop, pso_nstop, pso_maxit, simplex_maxit, bl_maxit,               &
-             npan, pso_feasible_init_attempts
-  double precision :: pso_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
+  integer :: pop, pso_maxit, simplex_maxit, bl_maxit, npan,                    &
+             pso_feasible_init_attempts
+  double precision :: pso_speed_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
   double precision :: pso_feasible_limit
   integer :: i, iunit, ioerr, iostat1, counter, idx
@@ -69,7 +69,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                          moment_constraint_type, min_moment, min_te_angle,     &
                          check_curvature, max_curv_reverse, curv_threshold,    &
                          symmetrical, min_flap_degrees, max_flap_degrees
-  namelist /particle_swarm_options/ pop, pso_tol, pso_nstop, pso_maxit,        &
+  namelist /particle_swarm_options/ pop, pso_speed_tol, pso_maxit,             &
                                     pso_convergence_profile, pso_feasible_init,&
                                     pso_feasible_limit,                        &
                                     pso_feasible_init_attempts
@@ -181,8 +181,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Set default particle swarm options
 
   pop = 40
-  pso_tol = 1.0D-04
-  pso_nstop = 40
+  pso_speed_tol = 0.005D0
   pso_maxit = 300
   pso_convergence_profile = "standard"
   pso_feasible_init = .true.
@@ -241,8 +240,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       rewind(iunit)
       read(iunit, iostat=iostat1, nml=particle_swarm_options)
       pso_options%pop = pop
-      pso_options%tol = pso_tol
-      pso_options%nstop = pso_nstop
+      pso_options%speed_tol = pso_speed_tol
       pso_options%maxspeed = initial_perturb
       pso_options%maxit = pso_maxit
       pso_options%convergence_profile = pso_convergence_profile
@@ -431,8 +429,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
       write(*,'(A)') " &particle_swarm_options"
       write(*,*) " pop = ", pso_options%pop
-      write(*,*) " pso_tol = ", pso_options%tol
-      write(*,*) " pso_nstop = ", pso_options%nstop
+      write(*,*) " pso_speed_tol = ", pso_options%speed_tol
       write(*,*) " pso_maxit = ", pso_options%maxit
       write(*,*) " pso_convergence_profile = ", pso_options%convergence_profile
       write(*,*) " pso_feasible_init = ", pso_options%feasible_init
@@ -573,8 +570,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Particle swarm options
 
   if (pop < 1) call my_stop("pop must be > 0.")
-  if (pso_tol <= 0.d0) call my_stop("pso_tol must be > 0.")
-  if (pso_nstop < 1) call my_stop("pso_nstop must be > 0.")
+  if (pso_speed_tol <= 0.d0) call my_stop("pso_speed_tol must be > 0.")
   if (pso_maxit < 1) call my_stop("pso_maxit must be > 0.")  
   if ( (trim(pso_convergence_profile) /= "standard") .and.                     &
        (trim(pso_convergence_profile) /= "exhaustive") )                       &
