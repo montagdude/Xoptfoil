@@ -15,7 +15,7 @@
 
 !  Copyright (C) 2014 -- 2016 Daniel Prosser
 
-program design_plotter
+program design_converter
 
 ! Reads design variables from optimization and writes them as airfoil
 ! geometry and airfoil polars
@@ -42,7 +42,8 @@ program design_plotter
   double precision, dimension(:), allocatable :: modest, modesb
 
   write(*,*)
-  write(*,*) 'Design plotter: writes airfoils and polars for designs generated'
+  write(*,*) 'Design converter: writes airfoils and polars for designs '//     &
+             //'generated '
   write(*,*) 'during optimization. Copyright 2014 -- 2016 Daniel Prosser.'
 
 ! Read command line arguments
@@ -101,7 +102,7 @@ program design_plotter
   deallocate(modesb)
   call deallocate_shape_functions()
 
-end program design_plotter
+end program design_converter
 
 !=============================================================================80
 !
@@ -128,8 +129,8 @@ subroutine design_visualize(search_type, global_search, local_search,          &
 
     if (trim(global_search) == 'particle_swarm') then
 
-      call plotter(output_prefix, 'particleswarm', 'new', designnum, foilunit, &
-                   polarunit)
+      call converter(output_prefix, 'particleswarm', 'new', designnum,         &
+                     foilunit, polarunit)
 
     end if
 
@@ -139,8 +140,8 @@ subroutine design_visualize(search_type, global_search, local_search,          &
 
     if (trim(local_search) == 'simplex') then
 
-      call plotter(output_prefix, 'simplex', 'new', designnum, foilunit,       &
-                   polarunit)
+      call converter(output_prefix, 'simplex', 'new', designnum, foilunit,     &
+                     foilunit, polarunit)
 
     end if
 
@@ -150,8 +151,8 @@ subroutine design_visualize(search_type, global_search, local_search,          &
 
     if (trim(local_search) == 'simplex') then
 
-      call plotter(output_prefix, 'simplex', 'old', designnum, foilunit,       &
-                   polarunit)
+      call converter(output_prefix, 'simplex', 'old', designnum,               &
+                     foilunit, polarunit)
 
     end if
 
@@ -169,8 +170,8 @@ end subroutine design_visualize
 ! Subroutine to create airfoils and polars from design variables
 !
 !=============================================================================80
-subroutine plotter(writetitle, readtitle, filestat, designnum, foilunit,       &
-                   polarunit)
+subroutine converter(writetitle, readtitle, filestat, designnum, foilunit,     &
+                     polarunit)
 
   use vardef
   use parameterization,   only : top_shape_function, bot_shape_function,       &
@@ -481,4 +482,4 @@ subroutine plotter(writetitle, readtitle, filestat, designnum, foilunit,       &
 
   call xfoil_cleanup()
 
-end subroutine plotter
+end subroutine converter
