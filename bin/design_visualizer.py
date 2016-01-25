@@ -6,15 +6,18 @@ import numpy as np
 # Default plottiong options
 
 plotoptions = dict(show_seed_airfoil = True,
-                   plot_xmin = "auto",
-                   plot_xmax = "auto",
-                   plot_ymin = "auto",
-                   plot_ymax = "auto",
-                   plot_cdmin = "auto",
-                   plot_cdmax = "auto",
-                   plot_clmin = "auto",
-                   plot_clmax = "auto",
-                   save_animation = False)
+                   show_seed_airfoil_only = False,
+                   plot_airfoils = True,
+                   plot_polars = True,
+                   save_animation = False,
+                   axis_xmin = "auto",
+                   axis_xmax = "auto",
+                   axis_ymin = "auto",
+                   axis_ymax = "auto",
+                   axis_cdmin = "auto",
+                   axis_cdmax = "auto",
+                   axis_clmin = "auto",
+                   axis_clmax = "auto")
 
 ################################################################################
 #
@@ -184,84 +187,156 @@ def load_airfoils_from_file(coordfilename, polarfilename):
 ################################################################################
 # Plots an airfoil + polars
 def plot_airfoil(seedfoil, designfoils, plotnum):
+  global plotoptions
 
   # Select requested airfoil
 
-  if (plotnum > 0):
-    foil = designfoils[plotnum-1]
+  foil = designfoils[plotnum-1]
 
   # Set up plot
 
   plt.cla()
   plt.clf()
   plt.close()
-  gs = gridspec.GridSpec(2, 1, height_ratios=[1,2])
-  ax0 = plt.subplot(gs[0])
-  ax1 = plt.subplot(gs[1])
 
-  if (plotnum == 0):
+  if ( (plotoptions["plot_airfoils"]) and (plotoptions["plot_polars"]) ):
+    gs = gridspec.GridSpec(2, 1, height_ratios=[1,2])
+    ax0 = plt.subplot(gs[0])
+    ax1 = plt.subplot(gs[1])
+  elif ( (plotoptions["plot_airfoils"]) and (not plotoptions["plot_polars"]) ):
+    ax0 = plt.subplot(111)
+  elif ( (not plotoptions["plot_airfoils"]) and (plotoptions["plot_polars"]) ):
+    ax1 = plt.subplot(111)
+  else:
+    print("Error: must enable at least one of airfoils plot or polars plot.")
+    return
+
+  if (plotoptions["show_seed_airfoil_only"]):
     xmax = np.max(seedfoil.x)
     xmin = np.min(seedfoil.x)
-  else:
+  elif (plotoptions["show_seed_airfoil"]):
     xmax = max([np.max(seedfoil.x), np.max(foil.x)])
     xmin = min([np.min(seedfoil.x), np.min(foil.x)])
+  else:
+    xmax = np.max(foil.x)
+    xmin = np.min(foil.x)
   xrng = xmax - xmin
   
-  if (plotnum == 0):
+  if (plotoptions["show_seed_airfoil_only"]):
     cdmax = np.max(seedfoil.cd)
     cdmin = np.min(seedfoil.cd)
-  else:
+  elif (plotoptions["show_seed_airfoil"]):
     cdmax = max([np.max(seedfoil.cd), np.max(foil.cd)])
     cdmin = min([np.min(seedfoil.cd), np.min(foil.cd)])
+  else:
+    cdmax = np.max(foil.cd)
+    cdmin = np.min(foil.cd)
   cdrng = cdmax - cdmin
 
   # Plot airfoil coordinates
 
-  if (plotnum == 0):
-    ax0.plot(seedfoil.x, seedfoil.y, '-b')
-  else:
-    ax0.plot(seedfoil.x, seedfoil.y, '-b', foil.x, foil.y, '-r')
-  ax0.set_aspect('equal', 'datalim')
-  ax0.set_xlabel('x')
-  ax0.set_ylabel('y')
-  ax0.set_xlim([xmin-0.05*xrng,xmax+0.05*xrng])
+  if (plotoptions["plot_airfoils"]):
+    if (plotoptions["show_seed_airfoil_only"]):
+      ax0.plot(seedfoil.x, seedfoil.y, '-b')
+    elif (plotoptions["show_seed_airfoil"]):
+      ax0.plot(seedfoil.x, seedfoil.y, '-b', foil.x, foil.y, '-r')
+    else:
+      ax0.plot(foil.x, foil.y, '-r')
+    ax0.set_aspect('equal', 'datalim')
+    ax0.set_xlabel('x')
+    ax0.set_ylabel('y')
+    ax0.set_xlim([xmin-0.05*xrng,xmax+0.05*xrng])
 
   # Plot polars
 
-  if (plotnum == 0):
-    ax1.plot(seedfoil.cd, seedfoil.cl, '-ob')
-  else:
-    ax1.plot(seedfoil.cd, seedfoil.cl, '-ob', foil.cd, foil.cl, '-sr') 
-  ax1.set_xlabel('Drag coefficient')
-  ax1.set_ylabel('Lift coefficient')
-  ax1.set_xlim([cdmin-0.05*cdrng,cdmax+0.05*cdrng])
-  ax1.grid()
+  if (plotoptions["plot_polars"]):
+    if (plotoptions["show_seed_airfoil_only"]):
+      ax1.plot(seedfoil.cd, seedfoil.cl, '-ob')
+    elif (plotoptions["show_seed_airfoil"]):
+      ax1.plot(seedfoil.cd, seedfoil.cl, '-ob', foil.cd, foil.cl, '-sr') 
+    else: 
+      ax1.plot(foil.cd, foil.cl, '-sr') 
+    ax1.set_xlabel('Drag coefficient')
+    ax1.set_ylabel('Lift coefficient')
+    ax1.set_xlim([cdmin-0.05*cdrng,cdmax+0.05*cdrng])
+    ax1.grid()
 
   # Legend
 
-  if (plotnum == 0):
-    ax0.legend(['Seed airfoil'], loc="upper center", bbox_to_anchor=(0.5,1.4))
+  if (plotoptions["plot_airfoils"]): legendax = ax0
+  else: legendax = ax1
+
+  if (plotoptions["show_seed_airfoil_only"]):
+    legendax.legend(['Seed airfoil'], loc="upper center", 
+                    bbox_to_anchor=(0.5,1.4))
+  elif (plotoptions["show_seed_airfoil"]):
+    legendax.legend(['Seed airfoil', 'Design number ' + str(plotnum)], 
+                    loc="upper center", bbox_to_anchor=(0.5,1.4))
   else:
-    ax0.legend(['Seed airfoil', 'Design number ' + str(plotnum)], 
-               loc="upper center", bbox_to_anchor=(0.5,1.4))
+    legendax.legend(['Design number ' + str(plotnum)], loc="upper center",
+                    bbox_to_anchor=(0.5,1.4))
 
   plt.show()
+
+################################################################################
+# Plotting menu
+def plotting_menu(seedfoil, designfoils):
+
+  numfoils = len(designfoils)
+
+  plotting_complete = False
+  validchoice = False
+  while (not validchoice):
+    print()
+    print("There are " + str(numfoils) + " designs.")
+    plotnum = int(input("Enter design to plot (or 0 to return): "))
+
+    # Return to main menu
+
+    if (plotnum == 0): 
+      validchoice = True
+      plotting_complete = True
+
+    # Check for bad index
+
+    elif ( (plotnum < 1) or (plotnum > numfoils) ):
+      validchoice = False
+      print("Error: index out of bounds.")
+
+    # Plot design
+
+    else:
+      validchoice = True
+      plot_airfoil(seedfoil, designfoils, plotnum)
+      plotting_complete = False
+
+  return plotting_complete
+
+################################################################################
+# Gets boolean input from user
+def get_boolean_input(key, keyval):
+
+  validchoice = False
+  while (not validchoice):
+    print("Current value for " + key + ": " + str(keyval))
+    print("Available choices: True, False\n")
+    sel = input("Enter new value: ")
+    if ( (sel == "True") or (sel == "true")):
+      retval = True
+      validchoice = True
+    elif ( (sel == "False") or (sel == "false")):
+      retval = False
+      validchoice = True
+    else:
+      print("Please enter True or False.")
+      validchoice = False
+
+  return retval
 
 ################################################################################
 # Options menu: allows user to change plot options
 def options_menu():
   global plotoptions
-
-  #plotoptions = dict(show_seed_airfoil = "True",
-  #                 plot_xmin = "auto",
-  #                 plot_xmax = "auto",
-  #                 plot_ymin = "auto",
-  #                 plot_ymax = "auto",
-  #                 plot_cdmin = "auto",
-  #                 plot_cdmax = "auto",
-  #                 plot_clmin = "auto",
-  #                 plot_clmax = "auto",
-  #                 save_animation = "False")
 
   # Status variable
 
@@ -272,7 +347,7 @@ def options_menu():
   print()
   print("Available plotting options:")
   print()
-  for key in plotoptions:
+  for key in sorted(plotoptions):
     print(key + " [" + str(plotoptions[key]) + "]")
   print()
 
@@ -280,31 +355,20 @@ def options_menu():
 
   key = input("Enter option to change (or 0 to return): ")
 
-  # Change show_seed_airfoil setting
+  # True/False settings
 
-  if (key == "show_seed_airfoil"):
-    validchoice = False
+  if ( (key == "show_seed_airfoil") or (key == "show_seed_airfoil_only") or
+       (key == "save_animation") or (key == "plot_airfoils") or 
+       (key == "plot_polars") ):
     options_complete = False
-    while (not validchoice):
-      print("Current value for " + key + ": " + str(plotoptions[key]))
-      print("Available choices: True, False\n")
-      sel = input("Enter new value: ")
-      if ( (sel == "True") or (sel == "true")):
-        plotoptions[key] = True
-        validchoice = True
-      elif ( (sel == "False") or (sel == "false")):
-        plotoptions[key] = False
-        validchoice = True
-      else:
-        print("Please enter True or False.")
-        validchoice = False
+    plotoptions[key] = get_boolean_input(key, plotoptions[key])
 
   # Change plot bounds
 
-  elif ( (key == "plot_xmax") or (key == "plot_xmin") or
-         (key == "plot_ymax") or (key == "plot_ymin") or
-         (key == "plot_cdmax") or (key == "plot_cdmin") or
-         (key == "plot_clmax") or (key == "plot_clmin") ):
+  elif ( (key == "axis_xmax") or (key == "axis_xmin") or
+         (key == "axis_ymax") or (key == "axis_ymin") or
+         (key == "axis_cdmax") or (key == "axis_cdmin") or
+         (key == "axis_clmax") or (key == "axis_clmin") ):
     options_complete = False
     sel = input("Enter new value for " + key + " or enter 'auto': ")
     plotoptions[key] = sel 
@@ -313,19 +377,18 @@ def options_menu():
 
   elif (key == "0"): 
     options_complete = True
-    return options_complete
 
   # Error for invalid input
 
   else: 
+    options_complete = False
     print("Unrecognized plot option.")
-    return options_complete
+
+  return options_complete
 
 ################################################################################
-# Plotting menu
-def plotting_menu(seedfoil, designfoils):
-
-  numfoils = len(designfoils)
+# Main menu
+def main_menu(seedfoil, designfoils):
 
   exitchoice = False
   while (not exitchoice):
@@ -345,17 +408,9 @@ def plotting_menu(seedfoil, designfoils):
 
     elif (choice == "1"):
       exitchoice = False
-      validchoice = False
-      while (not validchoice):
-        print()
-        print("There are " + str(numfoils) + " designs.")
-        plotnum = int(input("Enter design to plot (0 for seed only): "))
-        if ( (plotnum < 0) or (plotnum > numfoils) ):
-          validchoice = False
-          print("Error: index out of bounds.")
-        else:
-          validchoice = True
-          plot_airfoil(seedfoil, designfoils, plotnum)
+      plotting_complete = False
+      while (not plotting_complete): plotting_complete = plotting_menu(
+                                                          seedfoil, designfoils)
 
     elif (choice == "3"):
       exitchoice = False
@@ -390,6 +445,6 @@ if __name__ == "__main__":
   seedfoil, designfoils, ioerror = load_airfoils_from_file(
                                                    coordfilename, polarfilename)
 
-  # Call plotting menu
+  # Call main menu
 
-  if (ioerror == 0): plotting_menu(seedfoil, designfoils)
+  if (ioerror == 0): main_menu(seedfoil, designfoils)
