@@ -2,7 +2,7 @@ import argparse
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 import numpy as np
-from time import sleep
+from math import log10, floor
 
 # Default plottiong options
 
@@ -188,7 +188,7 @@ def load_airfoils_from_file(coordfilename, polarfilename):
 
 ################################################################################
 # Plots an airfoil + polars
-def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True):
+def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True, prefix=None):
   global plotoptions
 
   # Select requested airfoil
@@ -393,6 +393,16 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True):
     plt.pause(1./plotoptions["animation_max_fps"])
     fig.canvas.draw()
 
+  # If desired, save image
+
+  if (plotoptions["save_animation_frames"]):
+    if (prefix == None):
+      print("Error: no file prefix specified - cannot save animation frames.")
+    else:
+      imagefname = prefix + '.png'
+      print("Saving image frame to file " + imagefname + ' ...')
+      plt.savefig(imagefname)
+
 ################################################################################
 # Plotting menu
 def plotting_menu(seedfoil, designfoils):
@@ -545,7 +555,7 @@ def options_menu():
 
 ################################################################################
 # Main menu
-def main_menu(seedfoil, designfoils):
+def main_menu(seedfoil, designfoils, prefix):
 
   exitchoice = False
   while (not exitchoice):
@@ -571,9 +581,31 @@ def main_menu(seedfoil, designfoils):
     elif (choice == "2"):
       exitchoice = False
       numfoils = len(designfoils)
-      plot_airfoil(seedfoil, designfoils, 1, firsttime=True)
-      for i in range(1, numfoils):
-        plot_airfoil(seedfoil, designfoils, i+1, firsttime=False)
+      width = floor(log10(float(numfoils))) - 1
+
+      # Loop through designs, updating plot
+
+      for i in range(0, numfoils):
+        if (i == 0): init = True
+        else: init = False
+
+        if (plotoptions["save_animation_frames"]):
+
+          # Determine number of zeroes to pad with
+  
+          currwidth = floor(log10(float(i+1))) - 1
+          numzeroes = width - currwidth
+  
+          # Prefix of images files
+
+          imagepref = prefix + numzeroes*'0' + str(i+1)
+
+        else: imagepref = None
+
+        # Update plot
+
+        plot_airfoil(seedfoil, designfoils, i+1, firsttime=init,
+                     prefix=imagepref)
 
     elif (choice == "3"):
       exitchoice = False
@@ -599,9 +631,11 @@ if __name__ == "__main__":
   if (args.prefix):
     coordfilename = args.prefix + '_design_coordinates.dat'
     polarfilename = args.prefix + '_design_polars.dat'
+    prefix = args.prefix
   else:
     coordfilename = 'design_coordinates.dat'
     polarfilename = 'design_polars.dat'
+    prefix = 'design'
 
   # Read airfoil coordinates and polars
 
@@ -610,4 +644,4 @@ if __name__ == "__main__":
 
   # Call main menu
 
-  if (ioerror == 0): main_menu(seedfoil, designfoils)
+  if (ioerror == 0): main_menu(seedfoil, designfoils, prefix)
