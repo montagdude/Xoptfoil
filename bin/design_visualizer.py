@@ -2,6 +2,7 @@ import argparse
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
 import numpy as np
+from time import sleep
 
 # Default plottiong options
 
@@ -9,7 +10,8 @@ plotoptions = dict(show_seed_airfoil = True,
                    show_seed_airfoil_only = False,
                    plot_airfoils = True,
                    plot_polars = True,
-                   save_animation = False,
+                   save_animation_frames = False,
+                   animation_max_fps = 100.0,
                    axis_xmin = "auto",
                    axis_xmax = "auto",
                    axis_ymin = "auto",
@@ -186,7 +188,7 @@ def load_airfoils_from_file(coordfilename, polarfilename):
 
 ################################################################################
 # Plots an airfoil + polars
-def plot_airfoil(seedfoil, designfoils, plotnum):
+def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True):
   global plotoptions
 
   # Select requested airfoil
@@ -197,16 +199,26 @@ def plot_airfoil(seedfoil, designfoils, plotnum):
 
   plt.cla()
   plt.clf()
-  plt.close()
+  if (firsttime): plt.close()
+
+  if (firsttime):
+    fig = plt.figure()
+  else:
+    fig = plt.gcf()
 
   if ( (plotoptions["plot_airfoils"]) and (plotoptions["plot_polars"]) ):
     gs = gridspec.GridSpec(2, 1, height_ratios=[1,2])
     ax0 = plt.subplot(gs[0])
     ax1 = plt.subplot(gs[1])
-  elif ( (plotoptions["plot_airfoils"]) and (not plotoptions["plot_polars"]) ):
+    numplots = 2
+  elif ( (plotoptions["plot_airfoils"]) and 
+         (not plotoptions["plot_polars"]) ):
     ax0 = plt.subplot(111)
-  elif ( (not plotoptions["plot_airfoils"]) and (plotoptions["plot_polars"]) ):
+    numplots = 1
+  elif ( (not plotoptions["plot_airfoils"]) and 
+         (plotoptions["plot_polars"]) ):
     ax1 = plt.subplot(111)
+    numplots = 1
   else:
     print("Error: must enable at least one of airfoils plot or polars plot.")
     return
@@ -276,7 +288,8 @@ def plot_airfoil(seedfoil, designfoils, plotnum):
   else:
     xmin = xminauto
   if (xmin >= xmax):
-    print("Warning: xmin must be less than xmax. Reverting to auto x bounds.")
+    print("Warning: xmin must be less than xmax. " +
+          "Reverting to auto x bounds.")
     xmin = xminauto
     xmax = xmaxauto
 
@@ -289,7 +302,8 @@ def plot_airfoil(seedfoil, designfoils, plotnum):
   else:
     ymin = yminauto
   if (ymin >= ymax):
-    print("Warning: ymin must be less than ymax. Reverting to auto y bounds.")
+    print("Warning: ymin must be less than ymax. " + 
+          "Reverting to auto y bounds.")
     ymin = yminauto
     ymax = ymaxauto
 
@@ -356,17 +370,28 @@ def plot_airfoil(seedfoil, designfoils, plotnum):
   if (plotoptions["plot_airfoils"]): legendax = ax0
   else: legendax = ax1
 
+  if (numplots == 2):
+    bbox_loc = (0.5, 1.4)
+  else:
+    bbox_loc = (0.5, 1.1)
+
   if (plotoptions["show_seed_airfoil_only"]):
     legendax.legend(['Seed airfoil'], loc="upper center", 
-                    bbox_to_anchor=(0.5,1.4))
+                    bbox_to_anchor=bbox_loc)
   elif (plotoptions["show_seed_airfoil"]):
     legendax.legend(['Seed airfoil', 'Design number ' + str(plotnum)], 
-                    loc="upper center", bbox_to_anchor=(0.5,1.4))
+                    loc="upper center", bbox_to_anchor=bbox_loc)
   else:
     legendax.legend(['Design number ' + str(plotnum)], loc="upper center",
-                    bbox_to_anchor=(0.5,1.4))
+                    bbox_to_anchor=bbox_loc)
 
-  plt.show()
+  # Plot for the first time, or redraw
+
+  if (firsttime):
+    fig.show()
+  else:
+    plt.pause(1./plotoptions["animation_max_fps"])
+    fig.canvas.draw()
 
 ################################################################################
 # Plotting menu
@@ -397,7 +422,7 @@ def plotting_menu(seedfoil, designfoils):
 
     else:
       validchoice = True
-      plot_airfoil(seedfoil, designfoils, plotnum)
+      plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True)
       plotting_complete = False
 
   return plotting_complete
@@ -420,6 +445,41 @@ def get_boolean_input(key, keyval):
     else:
       print("Please enter True or False.")
       validchoice = False
+
+  return retval
+
+################################################################################
+# Gets float input from user subject to mins and maxes
+def get_float_input(key, keyval, minallow=None, maxallow=None):
+
+  validchoice = False
+  while (not validchoice):
+    print("Current value for " + key + ": " + str(keyval) + '\n')
+    sel = input("Enter new value for " + key + ": ")
+    try: 
+      testval = float(sel)
+    except ValueError:
+      print("Error: " + key + " must be a float.")
+      validchoice = False
+      continue
+
+    # Check bounds
+
+    if (minallow != None):
+      if (testval <= minallow):
+        print("Error: " + key + " must be greater than " + str(minallow) + ".")
+        validchoice = False
+      else:
+        retval = testval
+        validchoice = True
+
+    if (maxallow != None):
+      if (testval >= maxallow):
+        print("Error: " + key + " must be less than " + str(maxallow) + ".")
+        validchoice = False
+      else:
+        retval = testval
+        validchoice = True
 
   return retval
 
@@ -448,7 +508,7 @@ def options_menu():
   # True/False settings
 
   if ( (key == "show_seed_airfoil") or (key == "show_seed_airfoil_only") or
-       (key == "save_animation") or (key == "plot_airfoils") or 
+       (key == "save_animation_frames") or (key == "plot_airfoils") or 
        (key == "plot_polars") ):
     options_complete = False
     plotoptions[key] = get_boolean_input(key, plotoptions[key])
@@ -460,8 +520,15 @@ def options_menu():
          (key == "axis_cdmax") or (key == "axis_cdmin") or
          (key == "axis_clmax") or (key == "axis_clmin") ):
     options_complete = False
+    print("Current value for " + key + ": " + str(plotoptions[key]) + '\n')
     sel = input("Enter new value for " + key + " or enter 'auto': ")
     plotoptions[key] = sel 
+
+  # Change max animation framerate
+
+  elif (key == "animation_max_fps"):
+    options_complete = False
+    plotoptions[key] = get_float_input(key, plotoptions[key], minallow=0.0)
 
   # Exit options menu
 
@@ -501,6 +568,12 @@ def main_menu(seedfoil, designfoils):
       plotting_complete = False
       while (not plotting_complete): plotting_complete = plotting_menu(
                                                           seedfoil, designfoils)
+    elif (choice == "2"):
+      exitchoice = False
+      numfoils = len(designfoils)
+      plot_airfoil(seedfoil, designfoils, 1, firsttime=True)
+      for i in range(1, numfoils):
+        plot_airfoil(seedfoil, designfoils, i+1, firsttime=False)
 
     elif (choice == "3"):
       exitchoice = False
