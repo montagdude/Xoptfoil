@@ -1,0 +1,662 @@
+%Compiling guide for XoptFoil
+\documentclass[11pt]{article}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage[left=1.2in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{verbatim}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{XoptFoil User Guide}
+\author{Daniel Prosser}
+\date{\today}
+\maketitle
+
+\tableofcontents
+
+\section{Compiling}
+
+For convenience, precompiled versions of XoptFoil and its related tools are
+located in the bin/x86-64 directory for Windows. These should work as long as
+your CPU architecture is of x86-64 type, but to run the parallel version you will need to
+compile it yourself. If your computer has more than one core, it will be greatly
+beneficial to run the parallel code, so it's highly recommended that you compile it
+yourself (plus it's not hard). The steps below explain how to compile the code.
+
+\subsection{Linux}
+
+Compiling is quite simple on Linux, but you will first need to install the compiler. The
+GNU Fortran compiler, gfortran, is recommended and can be installed via the package
+manager for your distro.  For example, on Ubuntu or Linux Mint, issue the command:
+
+\begin{verbatim}
+sudo apt-get install gfortran
+\end{verbatim}
+
+Next, navigate to the XoptFoil/bin directory.  A Makefile is included for compiling. Issue
+the following command:
+
+\begin{verbatim}
+make -f Makefile_Linux_MacOSX
+\end{verbatim}
+
+This should compile all the source files and then link them into an executable.  If for
+some reason Make isn't included on your system by default, install it using your package 
+manager. If you invoke the command above without specifying a file name, it will 
+automatically look
+for a file called ``Makefile.''  Therefore, by renaming ``Makefile\_Linux\_MacOSX'' as
+``Makefile,'' the make command can be simplified to:
+
+\begin{verbatim}
+make
+\end{verbatim}
+
+The Makefile contains various compiler options.  The default ones should work fine, but
+you can feel free to change them if you want (look up gfortran compiler flags online).
+XoptFoil is written so that it can run in parallel on computers with multiple
+cores/threads.  This option is disabled in the precompiled binary, because it depends on
+the pthreads system library.  You can enable it by compiling XoptFoil yourself.  If you
+want to compile it yourself but don't want to use the parallel version, comment the flag
+called OMP\_FLAG (by placing a \# character in front). Three executables are
+created: xoptfoil, which is the main optimizer, design\_converter, which can be used
+to generate coordinates and polars for all the incrementally-improved airfoils generated
+during the optimization, and xfoil\_only, which can be used to run XFoil by itself for
+an airfoil at a given set of operating conditions.
+
+\subsection{Windows}\label{sec:compile_windows}
+
+The easiest way to get compilers for Windows is the MinGW project, which provides the GNU
+compilers (gcc, g++, gfortran, etc.) and also some other tools such.  The main page for
+MinGW is \url{mingw.org}.  The installation instructions are at
+\url{http://mingw.org/wiki/Getting_Started}.  Follow the instructions under the section
+``Graphical User Interface Installer'' first.  The process is fairly simple.  Once it is
+installed, click Continue to open the MinGW installation manager.  The next step is to
+select the components to install.  You will want to select mingw32-gcc-fortran 
+(which will install gfortran, the Fortran
+compiler used to build XoptFoil) and mingw32-base, which includes some other tools
+which will be needed.  The dialog should look something like the one in Fig.
+\ref{fig:installmingw1}(a) (note the selected items).
+
+\begin{figure}[!h]
+\centering
+   \subfloat[Selecting Fortran compiler]{
+     \includegraphics[width=0.95\textwidth]{manual_figs/selections.png}}
+
+   \subfloat[pthreads library for parallel processing]{
+     \includegraphics[width=0.95\textwidth]{manual_figs/pthreads_mingw.png}}
+   \caption{MinGW Installation Manager showing compilers and libraries to be installed.
+Note the screenshots in (a) and (b) are from different versions of the installer; hence
+the slightly different appearance.}
+\label{fig:installmingw1}
+\end{figure}
+
+In order to compile the parallel version on Windows, you also need to install the pthreads
+library.  To do that, find the three packages labeled mingw32-pthreads-w32.  In the latest
+version of the MinGW package installer, these are listed under the MinGW Libraries
+grouping, as shown in Fig. \ref{fig:installmingw1}(b).  Mark each of these for
+installation as well as the Fortran compiler. After making those selections, select
+\textit{Apply Changes} under the Installation entry on the menu bar.  The installer will 
+download and install the compilers you need.
+
+At this point, the needed compilers are installed.  The next thing you need to do is to
+make sure your computer can find them.  Follow the instructions under ``Environment
+Settings'' on the MinGW Getting Started web page.  You will be modifying the Path
+system environment variable by appending ``;C:$\backslash$MinGW$\backslash$bin''
+to the end (unless you changed the installation directory to something other than
+``C:$\backslash$MinGW'' when you ran the intallation manager).
+
+The next step is to compile XoptFoil. This is process is automated using a program called
+Make.  On MinGW, this tool is called mingw32-make.  To compile XoptFoil using Make, run the
+following command from the command line inside the XoptFoil$\backslash$bin directory:
+
+\begin{verbatim}
+mingw32-make -f Makefile_Windows
+\end{verbatim}
+
+This should compile all the source files and then link them into an executable.  If
+mingw32-make is not found, it is probably either because you didn't install mingw32-base
+from the MinGW installation manager or because you didn't add the MinGW$\backslash$bin
+directory to the Path system environment variable.  Check to make sure that mingw32-make
+is in the MinGW$\backslash$bin directory first.  If it's not, then install it through the
+MinGW installation manager.
+
+If you invoke the command above without specifying a file name, it will automatically look
+for a file called ``Makefile.''  Therefore, by renaming ``Makefile\_Windows'' as
+``Makefile,'' the mingw32-make command can be simplified to:
+
+\begin{verbatim}
+mingw32-make
+\end{verbatim}
+
+The Makefile contains various compiler options.  The default ones should work fine, but
+you can feel free to change them if you want (look up gfortran compiler flags online).
+XoptFoil is written so that it can run in parallel on computers with multiple
+cores/threads.  This option is disabled in the precompiled binary, because it depends on
+the pthreads system library.  You can enable it by compiling XoptFoil yourself.  If you
+want to compile it yourself but don't want to use the parallel version, comment the flag
+called OMP\_FLAG (by placing a \# character in front). Three executables are
+created: xoptfoil.exe, which is the main optimizer, design\_converter.exe, which can be used
+to generate coordinates and polars for all the incrementally-improved airfoils generated
+during the optimization, and xfoil\_only.exe, which can be used to run XFoil by itself for
+an airfoil at a given set of operating conditions.
+
+\subsection{Mac OSX}
+
+In order to compile XoptFoil, you will need a compiler.  It is recommended to use the GNU
+Fortran compiler, gfortran.  On Mac OSX, gfortran binaries are available at 
+\url{http://gcc.gnu.org/wiki/GFortranBinaries#MacOS}.  Follow the instructions on that
+website to install gfortran.  You will also need to install a program called Make.  Make
+is available by installing Xcode developer tools from the App Store, which should
+automatically place the make executable in a directory within your path. Once you have
+gfortran and Make installed, the rest of the compiling process is identical to the Linux
+instructions above.
+
+\section{Running XoptFoil}
+
+XoptFoil is a command-line based program.  Once you have compiled binaries for your
+machine (see the Compiling Guide), running the program is very easy.  Simply open a
+terminal (``Command Prompt'' in Windows) and navigate to the directory where the XoptFoil
+executable resides.  For Windows, a simple batch script is included that will open a
+command prompt in the current directory when you double-click on it.  To run XoptFoil,
+simply type the following at the command prompt:
+
+\begin{verbatim}
+xoptfoil.exe
+\end{verbatim}
+
+\noindent if you are on Windows or:
+
+\begin{verbatim}
+./xoptfoil
+\end{verbatim}
+
+\noindent if you are on Linux or Mac OSX.  This will run XoptFoil in the current working
+directory.  XoptFoil uses an input file called `inputs.txt,' which must also be in the
+working directory.  If the input file is not in the working directory where XoptFoil is
+run, the program will notify you that it can't find the file and then stop.  For that
+reason, it's important that you follow the directions above to run the program to ensure
+that the working directory will be set correctly.  If you double-click on the executable
+instead of running it from the command prompt, it's possible that the working directory
+won't be set to the directory where `inputs.txt' resides, and the program won't be able to
+find it.
+
+By default, XoptFoil writes the final optimized airfoil to an output file called
+`optfoil.dat.'  However, you can change the name of both the input and output file, if
+desired, by supplying command-line options (CLOs) when you run the program.  If only one 
+CLO is present, it is
+taken to be the name of the input file.  If two options are present, the first is taken to
+be the name of the input file and the second as
+the name of the output airfoil (the output file will have `.dat' appended to the name you
+specify). If none are present, the program defaults to the
+original file names.  So, for example, if you are running on Windows and you want to
+use an input file called `case1.txt' and have the final optimized airfoil written to a
+file called 'case1\_coordinates.dat,' you would invoke the command in this way:
+
+\begin{verbatim}
+xoptfoil.exe case1.txt case1_coordinates
+\end{verbatim}
+
+\section{Input file}
+
+XoptFoil reads a Fortran namelist input file called `inputs.txt' (unless a different name
+is specified as a CLO, as described above).  This file stores
+conditions for optimization, such as the optimization type, parameterization settings,
+aerodynamic operating conditions and constraints, the seed airfoil, XFoil options, etc.
+There are a number of categories of inputs, each of which is stored in a separate
+namelist.  A Fortran namelist is formatted as follows:
+
+\begin{verbatim}
+&namelist_title
+  input1 = value1          %Comments are preceeded by a percent sign
+  input2 = value2
+  textinput1 = 'string1'
+  etc.
+/
+\end{verbatim}
+
+Each namelist begins with a `\&' character followed immediately by the title, and it ends with 
+a '/' character.  Variables for each namelist are then listed with their respective
+values.  To change an input, simply change the value to the right of the `=' sign.  Note
+that text-based inputs (for example, the name of the seed airfoil file) need to be
+surrounded by single or double quotes.  The inputs for each of the XoptFoil namelists,
+stored in `inputs.txt,' are explained in the following sections. Sample input files are
+included with XoptFoil.
+
+\subsection{optimization\_options namelist}
+
+In this namelist, high-level optimization and parameterization parameters are set.  Each
+of the inputs is described in the list below.
+
+\begin{enumerate}
+\item{\textbf{search\_type}: May be `global', `local', or `global\_and\_local'.
+A global search is an expensive approach like particle swarm or a genetic algorithm which
+includes many potential designs to attempt to converge on the global best solution.  A
+local search is one that investigates the design space in the vicinity of the initial
+design (the seed airfoil), looking for improvements.  A local search is much faster than
+a global search, but it also usually does not find as good a final solution.  If this
+input is set to `global\_and\_local', a global search is first performed, followed by a
+local search.}
+\item{\textbf{global\_search}: Optimization algorithm for the global search.  Currently,
+the only available option is `particle\_swarm'.}
+\item{\textbf{local\_search}: Optimization algorithm for the local search.  Currently, the
+only available option is `simplex'.}
+\item{\textbf{seed\_airfoil}: Defines how to set the seed airfoil.  Available options are
+(1) `from\_file', whereby the seed airfoil is read from a file, or (2) `four\_digit',
+whereby the seed airfoil is set by a four-digit NACA code.}
+\item{\textbf{airfoil\_file}: File name for the seed airfoil, which is used if
+seed\_airfoil = `from\_file'.  The file must be formatted in XFoil format; it may have a
+label on the first line (though it does not need to) and then the coordinates must be
+arranged in two columns for x and y, forming a closed loop beginning and ending at the
+trailing edge. There should be no blank lines, and you should also not include the number
+of points or any other information besides a header and then the data.  If the file is not 
+in the working directory, you must include the relative path.}
+\item{\textbf{naca\_digits}: Text string specifying four NACA digits to define the seed
+airfoil, which is used if seed\_airfoil = `four\_digit'.  The first digit is for max camber,
+as a percentage of the chord length; the second digit is for location of max camber, in
+tenths of the chord length, and the last two digits are for max thickness, as a percentage
+of chord length.}
+\item{\textbf{shape\_functions}: Identifier for the shape functions used to parameterize
+airfoils in the optimization.  This may be `naca' or `hicks-henne'.  A user-defined number
+of these shape functions are added to the top and bottom surfaces of the seed airfoil to
+create new shapes.  `naca' functions are a family of functions which, when combined in a
+weighted sum, can reproduce many of the NACA airfoils, including four-digit and transonic
+airfoils.  `hicks-henne' are a more general class of functions which place a ``bump'' of
+variable width and location on the airfoil surface.  Each Hicks-Henne shape function,
+therefore, has a strength and also a width and location, whereas each NACA function only
+has a strength.}
+\item{\textbf{nfunctions\_top}: The number of shape functions used to parameterize the top
+surface of the airfoil.  Note that if you are using Hicks-Henne functions, 1/3 the
+number of shape functions will give the same number of design variables and a similar range of
+possible shapes as the NACA functions.  For example, you may use 4 Hicks-Henne functions
+instead of 12 NACA functions to have the same number of total design variables.}
+\item{\textbf{nfunctions\_bot}: The number of shape functions used to parameterize the
+bottom surface of the airfoil.  See the note on nfunction\_top regarding differences
+between NACA and Hicks-Henne functions.}
+\item{\textbf{initial\_perturb}: The maximum strength of the shape functions used when
+generating initial designs.}
+\item{\textbf{write\_designs}: Whether to write design variables to files during the
+optimization.  If this is set to .true., you can run the design\_converter tool on the
+resulting file to reconstruct the coordinates and performance of each subsequent design.}
+\end{enumerate}
+
+\subsection{operating\_conditions namelist}
+
+This namelist specifies aerodynamic operating conditions over which to optimize the
+airfoil.  These are the operating points at which each potential design will be evaluated,
+including angle of attack or lift coefficient, Reynolds number, Mach number, and
+relative weighting of each operating point.
+
+\begin{enumerate}
+\item{\textbf{noppoint}: The total number of operating points at which to evaluate
+potential designs.  A maximum of 30 is allowed.  Including more operating points makes the
+final design more robust.  With only one or two operating points, the final airfoil will
+probably perform quite well at those conditions but do poorly elsewhere.  Including more
+operating points is more expensive, however, because XFoil must be run for each airfoil at
+each operating point.  The inputs below should be specified for each operating point.}
+\item{\textbf{use\_flap}: Whether flap deflections will be applied.}
+\item{\textbf{x\_flap}: Flap hinge point in x (between 0 and 1). Only used if use\_flap is
+enabled.}
+\item{\textbf{y\_flap}: Flap hinge point in y. Only used if use\_flap is enabled.}
+\item{\textbf{op\_mode(\#)} (where \# is an integer ranging from 1 to noppoint): Tells
+XFoil whether the angle of attack or lift coefficient is being specified for this
+operating point.  May be `spec-al' for specified angle of attack or `spec-cl' for
+specified lift coefficient. `spec-cl' is usually more useful, because generally the lift
+coefficient is known as a function of the aircraft weight and flight speed during design.}
+\item{\textbf{op\_point(\#)} (where \# is an integer ranging from 1 to noppoint):
+Specifies either the angle of attack (in degrees) or the lift coefficient for this
+operating point, depending on whether op\_mode is `spec-al' or `spec-cl' for this
+operating point.  Note that XFoil calculations are not accurate above stall, so do not
+specify too large a lift coefficient or angle of attack.}
+\item{\textbf{optimization\_type(\#)}: (where \# is an integer ranging from 1 to
+noppoint): Specifies the optimization objective for this operating point. Current options 
+include `min-drag' (to minimize drag), `max-glide' (to maximize 
+glide slope), `min-sink' (to minimize sink rate), or `max-lift' (to maximize lift at a
+specified angle of attack).}
+\item{\textbf{reynolds(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
+the Reynolds number based on chord for this operating point.}
+\item{\textbf{mach(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
+the Mach number for this operating point.  Note that XFoil calculations are not accurate
+at or above the transonic regime, so do not specify too high a Mach number.}
+\item{\textbf{flap\_degrees(\#)} (where \# is an integer ranging from 1 to noppoint):
+Specifies the flap deflection for this operating point, in degrees, with a positive
+deflection being in the downward direction. Only used if use\_flap is enabled.}
+\item{\textbf{weighting(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
+the weighting for this operating point.  Operating points with a higher weighting are
+given more importance by the optimizer.  Note that the weightings are automatically 
+normalized by the optimizer so that they add up to 1.}
+\end{enumerate}
+
+\subsection{constraints namelist}
+
+Specifies aerodynamic and geometric constraints for the optimization.  Constraints are
+implemented in the optimizer by assigning a large penalty value whenever a constraint is
+violated.  Note that in addition to the user-specified constraints, there are additional
+constraints in the code to ensure convergence of XFoil viscous calculations and to prevent
+unusual designs which XFoil may not be able to handle well.
+
+\begin{enumerate}
+\item{\textbf{seed\_violation\_handling}: What action to take if the seed airfoil violates
+a constraint.  The options are 'stop' or 'warn'.}
+\item{\textbf{min\_thickness}: The minimum allowable max thickness of designs, as a
+fraction of the chord (for example 0.08 means 8\% thickness).  A minimum allowable
+thickness is usually required for structural reasons.  If you don't want to impose this
+constraint, just set it to 0.}
+\item{\textbf{moment\_constraint\_type}: How to implement the pitching moment constraint.
+Either 'none', 'specify', or 'use\_seed'.  If 'none', then no pitching moment constraint
+is applied.  If 'specify', then the user specifies the minimum allowable moment using the 
+min\_moment constraint.  If 'use\_seed', then the minimum moment from the seed airfoil 
+over the specified operating points will be taken as the minimum allowable.}
+\item{\textbf{min\_moment}: The minimum allowable pitching moment coefficient 
+A larger negative pitching moment will require a 
+larger tail.  For flying-wing airfoils, this is usually set to 0.  This input is only used
+if moment\_constraint\_type = 'specify'.  If you don't want to 
+impose this constraint, set moment\_constraint\_type to 'none'.  If you want the minimum
+pitching moment to be no higher than the seed airfoil's, set moment\_constraint\_type to
+'use\_seed'.} 
+\item{\textbf{min\_te\_angle}: The minimum trailing edge wedge angle, in degrees.  Without
+this constraint, the optimizer may converge on airfoils with a very thin cusped aft
+section, which is challenging to build and presents structural problems.  If you don't
+want to impose this constraint, just set it to 0.}
+\item{\textbf{check\_curvature}: Whether to check the curvature for applying a curvature
+reversals constraint.  If you don't want to apply a curvature reversals constraint, set
+this to .false., because checking the curvature adds computational cost.  Set this to
+.true. if you wish to specify a constraint on the number of curvature reversals.}
+\item{\textbf{max\_curv\_reverse}: Maximum allowed number of curvature reversals within a
+specified curvature tolerance.  If you wish to use this constraint, you must enable
+check\_curvature.}
+\item{\textbf{curv\_threshhold}: Curvature thresshold for detecting reversals.  The local
+curvature can be thought of as 1/r, where r is the local radius.  So, for instance, a
+curvature threshhold of 0.2 means that any reversals with a radius greater than 5.0 will
+be ignored.  If you make this value too small, it may be very hard for the optimizer to
+come up with feasible designs.  In my testing, a threshhold of 0.2 seems to work fairly
+well, but you may need to increase pso\_feasible\_init\_attempts and
+simplex\_feasible\_init\_attempts so that most of the initial designs are feasible.}
+\item{\textbf{symmetrical} (.true. or .false.): Whether to only generate symmetrical 
+airfoils.  If true, only the top surface of the seed airfoil will be modified, and the
+bottom surface will be replaced by a mirrored version of the top surface. This option is
+useful if you want to ensure that the final optimized airfoil is symmetrical.  The seed 
+airfoil does not need
+to be symmetrical to use this option (but note that XoptFoil will actually be using a
+symmetrical version of the seed airfoil instead of the actual one).}
+\end{enumerate}
+
+\subsection{particle\_swarm\_options namelist}
+
+This namelist specifies options for particle swarm optimization, which are used if
+search\_type = `global' or search\_type = `global\_and\_local' and global\_search =
+`particle\_swarm'.
+
+\begin{enumerate}
+\item{\textbf{pop}: Number of particles.  These are randomly initialized throughout the
+design space and then use swarming behavior to converge on the global optimimum.  Search
+cost increases linearly with population size.  Usually, around 40 or 50 particles seems to
+work well.}
+\item{\textbf{pso\_speed\_tol}: Tolerance in particle speed before signaling a stopping
+condition.  When every particle's speed is less than this fraction of the initial speed,
+the particle swarm optimization process is considered converged. The default value is
+0.005, or 0.5\% of the initial speed.}
+\item{\textbf{pso\_convergence\_profile}: Either `standard' or `exhaustive'.  This setting
+adjusts some parameters in the particle swarm algorithm which affect how quickly the
+optimization converges.  The standard profile works well and converges quickly.  The
+exhaustive profile usually is able to find a little bit better designs than the standard
+profile, but it also takes much longer to converge (e.g., 700 iterations instead of 150).}
+\item{\textbf{pso\_maxit}: Maximum number of iterations allowed before the particle swarm
+optimization is stopped.  Ensures that the particle swarm optimization does not go on for
+too long before the stopping condition is met. The default value is 300.  Using the 
+`standard' convergence profile, the optimization will usually converge in less than 300 
+iterations.  However, if you use the `exhaustive' profile, this value should be increased
+to 700 or 800 to ensure it doesn't stop early.}
+\item{\textbf{pso\_feasible\_init} (.true. or .false.): If true, attempts to place initial
+designs in the feasible space.  If an initial design violates constraints, a large penalty
+value will be added to the objective function.  pso\_feasible\_init will re-randomize
+designs that initially have too large an objective function value.  A maximum of 100 
+attempts is allowed to make each design feasible. This process increases the overall 
+expense of the optimization but also improves the results because more of the initial 
+designs will be good ones.}
+\item{\textbf{pso\_feasible\_limit}: The objective function value below which initial
+designs are considered feasible.  Designs that violate constraints are added a penalty
+value on the order of $10^6$, so the feasible limit should be large but at least an order
+of magnitude smaller than $10^6$.  The default value is 50,000.}
+\item{\textbf{pso\_feasible\_init\_attempts}: Number of attempts to try to make an initial
+design feasible.  The default is 100, but you may want to increase this if you are using
+tight constraints (especially the curvature reversals constraint).}
+\end{enumerate}
+
+\subsection{simplex\_options namelist}
+
+This namelist specifies options for simplex optimization, which are used if
+search\_type = `local' or search\_type = `global\_and\_local' and local\_search =
+`simplex'.
+
+\begin{enumerate}
+\item{\textbf{simplex\_tol}: Tolerance in simplex diameter before stopping.}
+\item{\textbf{simplex\_maxit}: Maximum number of iterations allowed before the simplex
+optimization is stopped.  Ensures that the simplex optimization does not go on for
+too long before the stopping condition is met.}
+\end{enumerate}
+
+\subsection{xfoil\_run\_options namelist}
+
+This namelist specifies options that control how XFoil calculations are run.
+
+\begin{enumerate}
+\item{\textbf{ncrit}: Transition-triggering parameter.  A higher number represents cleaner
+(less turbulent) freestream conditions.  9 is the default.}
+\item{\textbf{xtript}: Top-surface trip location for turbulent transition.  For free
+transition, set this to 1.  1 is the default.}
+\item{\textbf{xtripb}: Bottom-surface trip location for turbulent transition.  For free
+transition, set this to 1.  1 is the default.}
+\item{\textbf{viscous\_mode} (.true. or .false.): Whether to run XFoil boundary layer
+calculations.  The default is .true., which is recommended.  If it is .false., the pressure
+drag is used as the drag coefficient, which isn't very meaningful for real designs.}
+\item{\textbf{silent\_mode} (.true. or .false.): If .true., suppresses XFoil screen writes.
+This is desirable for optimization, because thousands of designs are tested and there is
+not time to read the XFoil notifications anyway.  For running XFoil alone without
+optimizing, you may want to see the XFoil screen writes.  .true. is the default.}
+\item{\textbf{bl\_maxit}: Max number of iterations for viscous calculations.  100 is the
+default.}
+\item{\textbf{vaccel}: XFoil viscous convergence acceleration parameter.  0.01 is the
+default.}
+\item{\textbf{fix\_unconverged} (.true. or .false.): Whether to try to fix
+unconverged operating points by reinitializing the boundary layer at a different operating
+condition.  .true. is the default.  This will make the optimization a little more
+expensive, but it helps to prevent good designs from getting penalized by
+non-convergence.}
+\item{\textbf{reinitialize} (.true. or .false.): Whether to reinitialize the boundary
+layer at each consecutive operating point.  .true. is the default, which seems to result 
+in a more robust optimization, but you may want to experiment with this.}
+\end{enumerate}
+
+\subsection{xfoil\_paneling\_options namelist}
+
+This namelist controls how XFoil smooths airfoil paneling before running aerodynamic
+calculations.  The options are the same as the PPAR menu in XFoil.
+
+\begin{enumerate}
+\item{\textbf{npan}: Number of airfoil panels.}
+\item{\textbf{cvpar}: Panel bunching parameter.  Increasing this number will cause more
+panels to be bunched in regions of high curvature. 1.0 is the default.}
+\item{\textbf{cterat}: Ratio of trailing-edge to leading-edge panel density.  0.15 is the
+default.}
+\item{\textbf{ctrrat}: Ratio of regular panel density to refined-area panel density.  0.2
+is the default.}
+\item{\textbf{xsref1}: Left top side refinement limit.  1.0 is the default, which means
+there is no refined area on the top side.}
+\item{\textbf{xsref2}: Right top side refinement limit.  1.0 is the default.}
+\item{\textbf{xpref1}: Left bottom side refinement limit.  1.0 is the default, which means
+there is no refined area on the top side.}
+\item{\textbf{xpref2}: Right bottom side refinement limit.  1.0 is the default.}
+\end{enumerate}
+
+\subsection{matchfoil\_options namelist}
+
+This namelist is used for testing new optimization algorithms and parameterization
+schemes.  Instead of running an aerodynamic optimization (which is expensive), this
+namelist allows you to try to match the seed airfoil shape to another known airfoil shape,
+and XFoil is never run.  It's about a million times faster than aerodynamic optimization
+(rough estimate), which makes it good for testing things.
+
+\begin{enumerate}
+\item{\textbf{match\_foils} (.true. or .false.): If .true., the optimizer will try to
+match the seed airfoil shape to another known airfoil shape, and no aerodynamic
+calculations will be performed.  .false. is the default.}
+\item{\textbf{match\_foil\_file}: Text string specifying the file name of the airfoil
+which is to be matched by the optimizer.  The coordinates must be given in XFoil format,
+meaning the first line can be a label (but it doesn't have to be), and then the x and y
+coordinates must follow in two columns arranged in a single loop beginning and ending at
+the trailing edge. If the file is not in the working directory, you must include the
+relative path.}
+\end{enumerate}
+
+\section{Input file for xfoil\_only}
+
+The xfoil\_only tool uses its own namelist input file.  It is the same as the input file
+for xoptfoil, except that only the following namelists are used:
+
+\begin{itemize}
+\item{airfoil\_to\_load}
+\item{operating\_conditions}
+\item{xfoil\_run\_options}
+\item{xfoil\_paneling\_options}
+\end{itemize}
+
+The namelist called airfoil\_to\_load has a single input, called \textbf{airfoil\_file}.
+Enter the name (or relative path, if it's not in the working directory) of the airfoil 
+coordinates file to load here.  The operating\_conditions namelist is the same as the one
+for xoptfoil, except that the \textbf{optimization\_type} and \textbf{weighting} inputs
+are not used. The other namelists are the same as in the input file for xoptfoil.
+
+\section{Output files}
+
+The following files are written out by the program:
+
+\begin{enumerate}
+\item{\textbf{optfoil.dat}: The coordinates of the final optimized design. You can change
+the name of this output file by using command-options (see the first section of this user
+guide).}
+\item{\textbf{particleswarm\_designs.dat}: Values of the design variables for each 
+subsequently better design found by particle swarm optimization.  Will not be written if
+write\_designs is set to .false.}
+\item{\textbf{simplex\_designs.dat}: Same as above, but for the direct search algorithm.}
+\end{enumerate}
+
+The last two files listed above act as inputs for the design\_converter tool; they are not
+actually meant to be viewed graphically by themselves.  The design\_converter tool takes
+these files and uses them to generate airfoil coordinates and polars.  The following files
+are generated when you run design\_converter:
+
+\begin{enumerate}
+\item{\textbf{design\_coordinates.dat}: The the x, y
+coordinates of each subsequently better airfoil design found by the optimizer. They don't
+exactly correspond to optimizer iterations, because during some iterations the airfoil
+design isn't improved. Each new design is identified by the coordinates under one of the
+``zone t=...'' labels.  You can graph these in Excel, Matlab, etc. by copying and pasting
+the coordinates, or you can use them to make a .dat input file for XFoil.}
+\item{\textbf{design\_polars.dat}: The lift and drag coefficients for each subsequently 
+better design found by the optimizer, corresponding to the coordinates in 
+design\_coordinates.dat, at the operating points requested for the optimization.}
+\end{enumerate}
+
+Note that the design\_converter tool can optionally take the same two command line options
+as xoptfoil: the first is the name of the input file (if other than `inputs.txt'), and the
+second is the prefix for the output files.  If an output file prefix is specified, it will
+be appended to the front of the name of design\_coordinates.dat and design\_polars.dat.
+
+\section{Using the design visualizer}
+
+A Python script called design\_visualizer.py is provided to plot and animate airfoil
+designs generated during the optimization process.  In order to use this tool, it is
+necessary to have Python 3 with matplotlib and numpy installed.  On Windows, the easiest
+way to achieve this is to install one of the free packaged Python distributions.  The
+Anaconda Python distribution is recommended because it is easy to install and includes
+up-to-date versions of all the required packages.  Anaconda can be downloaded here:
+\url{https://www.continuum.io/downloads}.  The design visualizer tool is written for
+Python 3, so the installer for Python 3 should be chosen, not Python 2. 
+
+When installing Anaconda (or whichever Python distribution is chosen), be sure to check
+the option to add Python to your system path.  That way, Python can be run from the
+command prompt.  If you are not using Anaconda and the option to modify the system path is
+not offered, you should manually add the appropriate directory with the python executable
+to your path, following a similar method to the one described in Section
+\ref{sec:compile_windows} where MinGW was added to the path.
+
+If you are using Linux, it is likely that you already have Python installed on your
+system.  However, you may have Python 2 installed but not Python 3, and matplotlib and
+numpy are likely not installed by default.  If any of these are missing, install them from
+your distro's software repository.  When installing matplotlib and numpy, be sure to
+install the versions for Python 3, not Python 2.  (For example, on Ubuntu and Linux Mint,
+the matplotlib package for Python 3 is called python3-matplotlib.)
+
+Before running the design visualizer, you must first run an optimization, and then run the
+design\_converter tool to generate airfoil coordinates and polars from the optimization.
+Refer to the previous section for information on how to run design\_converter.  Next, in
+the same directory, run the design visualizer using the following command:
+
+\begin{verbatim}
+python design_visualizer.py
+\end{verbatim}
+
+\noindent Or, if you specified a different output file prefix when you ran xoptfoil and/or
+design\_converter, the same prefix should be passed to design\_visualizer.py like so:
+
+\begin{verbatim}
+python design_visualizer.py prefix
+\end{verbatim}
+
+Note that design\_visualizer.py must be present in the directory where you try to run it,
+or it must be in your system path.  If you have both Python 2 and Python 3 installed on
+your system, it is possible that Python 2 is the default.  In that case, ensure that
+Python 3, matplotlib for Python 3, and numpy for Python 3 are all installed on your
+system, and substitute `python3' for `python' in the above command.  
+
+The design visualizer is menu based.  When it is run, it first attempts to read the
+coordinate and polar files generated by design\_converter, and then a menu is presented.
+The prompt should look like the following:
+
+\begin{verbatim}
+Reading airfoil coordinates from file design_coordinates.dat...
+Found 52 airfoil coordinates plus seed airfoil.
+Reading airfoil polars from file design_polars.dat...
+Found 52 airfoil polars plus seed airfoil.
+
+Options:
+[0] Exit
+[1] Plot a specific design
+[2] Animate all designs
+[3] Change plotting options
+
+Enter a choice [0-3]: 
+\end{verbatim}
+
+Option 1 will offer you the choice to plot any of the airfoils and polars that were
+generated during the optimization.  Option 2 creates the same plot, but it loops through
+all the designs and displays them in sequence.  Plotting options can be changed by
+selecting option 3.  Available plotting options include manual axis bounds for the plots,
+turning on/off various plot elements (such as the seed airfoil, the coordinate plot, and
+the polar plot).  The plotting options menu also allows animation frames to be saved.
+When this option is enabled and then option 2 is selected from the main menu, each frame
+of the animation will be saved to a PNG image file, which can later be combined together
+into a movie by a separate application such as ffmpeg.  By default, the plots generated 
+will look similar to the one shown in Fig. \ref{fig:design_visualizer_plot}.  However, as
+mentioned previously, the different plot elements can be turned on or off via the plot 
+options menu. To quit the design visualizer tool, enter 0 at the main menu.
+
+\begin{figure}
+\centering
+  \includegraphics[width=0.75\textwidth]{manual_figs/design_visualizer_plot.png}
+\caption{Plot generated by design\_visualizer.py.}
+\label{fig:design_visualizer_plot}
+\end{figure}
+
+A future development goal is to modify the design visualizer so that it can be run
+concurrently with xoptfoil and display the optimization progress as it occurs.  This
+functionality will require some modifications to design\_converter as well.  The user
+guide will be updated when that feature is implemented.
+
+\end{document}

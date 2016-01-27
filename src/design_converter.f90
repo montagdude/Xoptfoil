@@ -43,7 +43,7 @@ program design_converter
 
   write(*,*)
   write(*,*) 'Design converter: writes airfoils and polars for designs '//     &
-             //'generated '
+             'generated '
   write(*,*) 'during optimization. Copyright 2014 -- 2016 Daniel Prosser.'
 
 ! Read command line arguments
@@ -140,7 +140,7 @@ subroutine design_visualize(search_type, global_search, local_search,          &
 
     if (trim(local_search) == 'simplex') then
 
-      call converter(output_prefix, 'simplex', 'new', designnum, foilunit,     &
+      call converter(output_prefix, 'simplex', 'new', designnum,               &
                      foilunit, polarunit)
 
     end if
