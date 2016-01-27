@@ -515,4 +515,176 @@ function matchfoil_objective_function(designvars)
 
 end function matchfoil_objective_function
 
+!=============================================================================80
+!
+! Generic function to write design for the seed airfoil. Used due to desire
+! to keep converterfunc in optimization.F90 generic (i.e., only takes
+! designvars as input).
+!
+!=============================================================================80
+function write_function_seed(designvars)
+
+  double precision, dimension(:), intent(in) :: designvars
+  integer :: write_function_seed
+
+  write_function_seed = write_function(designvars, .true.)
+
+end function write_function_seed
+
+!=============================================================================80
+!
+! Generic function to write designs for airfoils other than the seed. Used due
+! to desire to keep converterfunc in optimization.F90 generic (i.e., only takes
+! designvars as input).
+!
+!=============================================================================80
+function write_function_nonseed(designvars)
+
+  double precision, dimension(:), intent(in) :: designvars
+  integer :: write_function_nonseed
+
+  write_function_nonseed = write_function(designvars)
+
+end function write_function_nonseed
+
+!=============================================================================80
+!
+! Generic function to write designs. Selects either 
+! write_airfoil_optimization_progress or write_matchfoil_optimization_progress
+! depending on whether match_foils = .true. or not.
+!
+!=============================================================================80
+function write_function(designvars, isseed)
+
+  double precision, dimension(:), intent(in) :: designvars
+  logical, optional, intent(in) :: isseed
+  integer :: write_function
+
+  if (match_foils) then
+    write_function = write_matchfoil_optimization_progress(designvars, isseed)
+  else
+    write_function = write_airfoil_optimization_progress(designvars, isseed)
+  end if
+
+end function write_function
+
+!=============================================================================80
+!
+! Writes airfoil coordinates and polars to files during optimization
+!
+!=============================================================================80
+function write_airfoil_optimization_progress(designvars, isseed)
+
+  use math_deps,          only : interp_vector 
+  use parameterization,   only : top_shape_function, bot_shape_function,       &
+                                 create_airfoil
+  use xfoil_driver,       only : run_xfoil
+
+  double precision, dimension(:), intent(in) :: designvars
+  logical, optional, intent(in) :: isseed
+  integer :: write_airfoil_optimization_progress
+
+  double precision, dimension(size(xseedt,1)) :: zt_new
+  double precision, dimension(size(xseedb,1)) :: zb_new
+  integer :: nmodest, nmodesb, nptt, nptb, i, dvtbnd1, dvtbnd2, dvbbnd1,       &
+             dvbbnd2 
+  double precision, dimension(noppoint) :: lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: actual_flap_degrees
+  double precision :: ffact
+  integer :: ndvs, flap_idx, dvcounter
+
+  nmodest = size(top_shape_function,1)
+  nmodesb = size(bot_shape_function,1)
+  nptt = size(xseedt,1)
+  nptb = size(xseedb,1)
+
+! Set modes for top and bottom surfaces
+
+  dvtbnd1 = 1
+  if (trim(shape_functions) == 'naca') then
+    dvtbnd2 = nmodest
+    dvbbnd2 = nmodest + nmodesb
+  else
+    dvtbnd2 = nmodest*3
+    dvbbnd2 = nmodest*3 + nmodesb*3
+  end if
+  dvbbnd1 = dvtbnd2 + 1
+
+! Overwrite lower DVs for symmetrical airfoils (they are not used)
+
+  if (symmetrical) then
+    dvbbnd1 = 1
+    dvbbnd2 = dvtbnd2
+  end if
+
+! Create top and bottom surfaces by perturbation of seed airfoil
+
+  call create_airfoil(xseedt, zseedt, xseedb, zseedb,                          &
+                      designvars(dvtbnd1:dvtbnd2), designvars(dvbbnd1:dvbbnd2),&
+                      zt_new, zb_new, shape_functions, symmetrical)
+
+! Format coordinates in a single loop in derived type
+
+  do i = 1, nptt
+    curr_foil%x(i) = xseedt(nptt-i+1)
+    curr_foil%z(i) = zt_new(nptt-i+1)
+  end do
+  do i = 1, nptb-1
+    curr_foil%x(i+nptt) = xseedb(i+1)
+    curr_foil%z(i+nptt) = zb_new(i+1)
+  end do
+
+! Check that number of flap optimize points are correct
+
+  ndvs = size(designvars,1)
+  if (nflap_optimize /= (ndvs - dvbbnd2)) then
+    write(*,*) "Wrong number of design variables for flap deflections."
+    write(*,*) "Please report this bug."
+    stop
+  end if
+
+! Get actual flap angles based on design variables
+
+  ffact = initial_perturb/(max_flap_degrees - min_flap_degrees)
+  actual_flap_degrees(1:noppoint) = flap_degrees(1:noppoint)
+  dvcounter = dvbbnd2 + 1
+  do i = 1, nflap_optimize
+    flap_idx = flap_optimize_points(i)
+    actual_flap_degrees(flap_idx) = designvars(dvcounter)/ffact
+    dvcounter = dvcounter + 1
+  end do
+
+! Analyze airfoil at requested operating conditions with Xfoil
+
+  call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
+                 op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
+                 use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
+                 xfoil_options, lift, drag, moment, viscrms)
+
+! Write coordinates and polars to file
+
+! Set return value (needed for compiler)
+
+  write_airfoil_optimization_progress = 0
+
+end function write_airfoil_optimization_progress
+
+!=============================================================================80
+!
+! Writes airfoil coordinates to foil during optimization to match one airfoil
+! to another.
+!
+!=============================================================================80
+function write_matchfoil_optimization_progress(designvars, isseed)
+
+  double precision, dimension(:), intent(in) :: designvars
+  logical, optional, intent(in) :: isseed
+  integer :: write_matchfoil_optimization_progress
+
+! Set return value (needed for compiler)
+
+  write_matchfoil_optimization_progress = 0
+
+end function write_matchfoil_optimization_progress
+
 end module airfoil_evaluation

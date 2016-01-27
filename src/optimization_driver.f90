@@ -42,7 +42,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  min_bump_width
   use optimization,       only : pso_options_type, ds_options_type,            &
                                  particleswarm, simplex_search
-  use airfoil_evaluation, only : objective_function
+  use airfoil_evaluation, only : objective_function, write_function_seed,      &
+                                 write_function_nonseed
   use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
                                  split_airfoil, allocate_airfoil,              &
                                  deallocate_airfoil, my_stop
@@ -223,6 +224,9 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   end if
 
+! Write seed airfoil coordinates and polars to file if requested
+!FIXME
+
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
       'global') then
 
@@ -263,7 +267,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
                          x0, xmin, xmax, .false., f0_ref, constrained_dvs,     &
-                         pso_options)
+                         pso_options, write_function_nonseed)
 
     end if
 
@@ -284,7 +288,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, given_f0_ref, f0_ref, ds_options)
+                          x0, given_f0_ref, f0_ref, ds_options,                &
+                          write_function_nonseed)
 
     end if
 

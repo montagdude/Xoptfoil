@@ -111,14 +111,14 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
   optional :: converterfunc
   interface
-    double precision function converterfunc(x)
+    integer function converterfunc(x)
       double precision, dimension(:), intent(in) :: x
     end function
   end interface
 
-  integer :: nvars, nconstrained, i, j, fminloc, designcounter, var
+  integer :: nvars, nconstrained, i, j, fminloc, designcounter, var, stat
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
-                      f0, stat
+                      f0 
   double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
                                                  randvec2, speed
   double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
@@ -480,7 +480,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 
   optional :: converterfunc
   interface
-    double precision function converterfunc(x)
+    integer function converterfunc(x)
       double precision, dimension(:), intent(in) :: x
     end function
   end interface
@@ -489,9 +489,8 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   double precision, dimension(size(x0,1)+1) :: objvals
   double precision, dimension(size(x0,1)) :: xcen, xr, xe, xc
 
-  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0, &
-                      stat
-  integer :: i, j, k, nvars, designcounter, nsame
+  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0
+  integer :: i, j, k, nvars, designcounter, nsame, stat
   logical :: converged, needshrink
   character(3) :: filestat
 
