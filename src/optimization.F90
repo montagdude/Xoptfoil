@@ -73,7 +73,8 @@ module optimization
 !
 !=============================================================================80
 subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
-                         given_f0_ref, f0_ref, constrained_dvs, pso_options)
+                         given_f0_ref, f0_ref, constrained_dvs, pso_options,   &
+                         converterfunc)
 
   use math_deps,          only : norm_2
 
@@ -95,22 +96,29 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
   integer, intent(out) :: step, fevals
-  
+
   interface
     double precision function objfunc(x)
       double precision, dimension(:), intent(in) :: x
     end function
   end interface
-
+  
   double precision, dimension(:), intent(in) :: x0, xmin, xmax
   double precision, intent(inout) :: f0_ref
   integer, dimension(:), intent(in) :: constrained_dvs
   logical, intent(in) :: given_f0_ref
   type (pso_options_type), intent(in) :: pso_options
 
+  optional :: converterfunc
+  interface
+    double precision function converterfunc(x)
+      double precision, dimension(:), intent(in) :: x
+    end function
+  end interface
+
   integer :: nvars, nconstrained, i, j, fminloc, designcounter, var
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
-                      f0
+                      f0, stat
   double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
                                                  randvec2, speed
   double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
@@ -246,10 +254,17 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   xopt = dv(:,fminloc)
 
 ! Write design to file if requested
+! converterfunc is an optional function supplied to convert design variables 
+!   into something more useful.  If not supplied, the design variables
+!   themselves are written to a file.
 
   if (pso_options%write_designs) then
     designcounter = 1
-    call write_design('particleswarm_designs.dat', 'new', xopt, designcounter)
+    if (present(converterfunc)) then
+      stat = converterfunc(xopt)
+    else
+      call write_design('particleswarm_designs.dat', 'new', xopt, designcounter)
+    end if
     designcounter = designcounter + 1
   end if
 
@@ -326,13 +341,19 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       fmin = mincurr
 
 !     Write design to file if requested
+!     converterfunc is an optional function supplied to convert design variables
+!       into something more useful.  If not supplied, the design variables
+!       themselves are written to a file.
 
       if (pso_options%write_designs) then
-        call write_design('particleswarm_designs.dat', 'old', xopt,            &
-                          designcounter)
+        if (present(converterfunc)) then
+          stat = converterfunc(xopt)
+        else
+          call write_design('particleswarm_designs.dat', 'old', xopt,          &
+                            designcounter)
+        end if
         designcounter = designcounter + 1
       end if
-
     end if
 
 !$omp end master
@@ -425,7 +446,7 @@ end subroutine particleswarm
 !
 !=============================================================================80
 subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
-                          f0_ref, ds_options)
+                          f0_ref, ds_options, converterfunc)
 
 ! The following are only needed if doing xfoil airfoil optimization
 
@@ -457,13 +478,22 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   logical, intent(in) :: given_f0_ref
   type (ds_options_type), intent(in) :: ds_options
 
+  optional :: converterfunc
+  interface
+    double precision function converterfunc(x)
+      double precision, dimension(:), intent(in) :: x
+    end function
+  end interface
+
   double precision, dimension(size(x0,1),size(x0,1)+1) :: dv
   double precision, dimension(size(x0,1)+1) :: objvals
   double precision, dimension(size(x0,1)) :: xcen, xr, xe, xc
 
-  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0
+  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0, &
+                      stat
   integer :: i, j, k, nvars, designcounter, nsame
   logical :: converged, needshrink
+  character(3) :: filestat
 
 ! Standard Nelder-Mead constants
 
@@ -564,12 +594,23 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     fmin = objvals(1)
 
 !   Write design to file if requested
+!   converterfunc is an optional function supplied to convert design variables
+!     into something more useful.  If not supplied, the design variables
+!     themselves are written to a file.
 
     if (ds_options%write_designs .and. designcounter == 1) then
-      call write_design('simplex_designs.dat', 'new', dv(:,1), designcounter)
-      designcounter = designcounter + 1
-    elseif (ds_options%write_designs .and. nsame == 0) then
-      call write_design('simplex_designs.dat', 'old', dv(:,1), designcounter)
+      filestat = 'new'
+    else 
+      filestat = 'old'
+    end if
+
+    if (ds_options%write_designs) then
+      if (present(converterfunc)) then
+        stat = converterfunc(dv(:,1))
+      else
+        call write_design('simplex_designs.dat', filestat, dv(:,1),            &
+                          designcounter)
+      end if
       designcounter = designcounter + 1
     end if
 
