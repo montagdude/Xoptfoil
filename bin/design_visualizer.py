@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 import numpy as np
 from math import log10, floor
+from sys import version_info
 
 # Default plottiong options
 
@@ -11,7 +12,6 @@ plotoptions = dict(show_seed_airfoil = True,
                    plot_airfoils = True,
                    plot_polars = True,
                    save_animation_frames = False,
-                   animation_max_fps = 100.0,
                    axis_xmin = "auto",
                    axis_xmax = "auto",
                    axis_ymin = "auto",
@@ -188,7 +188,8 @@ def load_airfoils_from_file(coordfilename, polarfilename):
 
 ################################################################################
 # Plots an airfoil + polars
-def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True, prefix=None):
+def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True, 
+                 animation=False, prefix=None):
   global plotoptions
 
   # Select requested airfoil
@@ -387,21 +388,36 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True, prefix=None):
 
   # Plot for the first time, or redraw
 
-  if (firsttime):
-    fig.show()
+  if (not animation): plt.show()
   else:
-    plt.pause(1./plotoptions["animation_max_fps"])
+    if (firsttime): fig.show()
+    else: plt.pause(0.0001)
     fig.canvas.draw()
 
-  # If desired, save image
+  # Save animation frames if requested
 
-  if (plotoptions["save_animation_frames"]):
+  if ( (animation) and (plotoptions["save_animation_frames"]) ):
     if (prefix == None):
       print("Error: no file prefix specified - cannot save animation frames.")
     else:
       imagefname = prefix + '.png'
       print("Saving image frame to file " + imagefname + ' ...')
       plt.savefig(imagefname)
+
+################################################################################
+# Input function that checks python version
+def my_input(message):
+
+  # Check python version
+
+  python_version = version_info[0]
+
+  # Issue correct input command
+
+  if (python_version == 2):
+    return raw_input(message)
+  else:
+    return input(message)
 
 ################################################################################
 # Plotting menu
@@ -412,9 +428,9 @@ def plotting_menu(seedfoil, designfoils):
   plotting_complete = False
   validchoice = False
   while (not validchoice):
-    print()
+    print("")
     print("There are " + str(numfoils) + " designs.")
-    plotnum = int(input("Enter design to plot (or 0 to return): "))
+    plotnum = int(my_input("Enter design to plot (or 0 to return): "))
 
     # Return to main menu
 
@@ -445,7 +461,7 @@ def get_boolean_input(key, keyval):
   while (not validchoice):
     print("Current value for " + key + ": " + str(keyval))
     print("Available choices: True, False\n")
-    sel = input("Enter new value: ")
+    sel = my_input("Enter new value: ")
     if ( (sel == "True") or (sel == "true")):
       retval = True
       validchoice = True
@@ -455,41 +471,6 @@ def get_boolean_input(key, keyval):
     else:
       print("Please enter True or False.")
       validchoice = False
-
-  return retval
-
-################################################################################
-# Gets float input from user subject to mins and maxes
-def get_float_input(key, keyval, minallow=None, maxallow=None):
-
-  validchoice = False
-  while (not validchoice):
-    print("Current value for " + key + ": " + str(keyval) + '\n')
-    sel = input("Enter new value for " + key + ": ")
-    try: 
-      testval = float(sel)
-    except ValueError:
-      print("Error: " + key + " must be a float.")
-      validchoice = False
-      continue
-
-    # Check bounds
-
-    if (minallow != None):
-      if (testval <= minallow):
-        print("Error: " + key + " must be greater than " + str(minallow) + ".")
-        validchoice = False
-      else:
-        retval = testval
-        validchoice = True
-
-    if (maxallow != None):
-      if (testval >= maxallow):
-        print("Error: " + key + " must be less than " + str(maxallow) + ".")
-        validchoice = False
-      else:
-        retval = testval
-        validchoice = True
 
   return retval
 
@@ -504,16 +485,16 @@ def options_menu():
  
   # Print list of plotting options
 
-  print()
+  print("")
   print("Available plotting options:")
-  print()
+  print("")
   for key in sorted(plotoptions):
     print(key + " [" + str(plotoptions[key]) + "]")
-  print()
+  print("")
 
   # Get user input
 
-  key = input("Enter option to change (or 0 to return): ")
+  key = my_input("Enter option to change (or 0 to return): ")
 
   # True/False settings
 
@@ -531,14 +512,8 @@ def options_menu():
          (key == "axis_clmax") or (key == "axis_clmin") ):
     options_complete = False
     print("Current value for " + key + ": " + str(plotoptions[key]) + '\n')
-    sel = input("Enter new value for " + key + " or enter 'auto': ")
+    sel = my_input("Enter new value for " + key + " or enter 'auto': ")
     plotoptions[key] = sel 
-
-  # Change max animation framerate
-
-  elif (key == "animation_max_fps"):
-    options_complete = False
-    plotoptions[key] = get_float_input(key, plotoptions[key], minallow=0.0)
 
   # Exit options menu
 
@@ -560,15 +535,15 @@ def main_menu(seedfoil, designfoils, prefix):
   exitchoice = False
   while (not exitchoice):
     
-    print()
+    print("")
     print("Options:")
     print("[0] Exit")
     print("[1] Plot a specific design")
     print("[2] Animate all designs")
     print("[3] Change plotting options")
-    print()
+    print("")
 
-    choice = input("Enter a choice [0-3]: ")
+    choice = my_input("Enter a choice [0-3]: ")
 
     if (choice == "0"):
       exitchoice = True
@@ -581,7 +556,7 @@ def main_menu(seedfoil, designfoils, prefix):
     elif (choice == "2"):
       exitchoice = False
       numfoils = len(designfoils)
-      width = floor(log10(float(numfoils))) - 1
+      width = int(floor(log10(float(numfoils)))) - 1
 
       # Loop through designs, updating plot
 
@@ -593,7 +568,7 @@ def main_menu(seedfoil, designfoils, prefix):
 
           # Determine number of zeroes to pad with
   
-          currwidth = floor(log10(float(i+1))) - 1
+          currwidth = int(floor(log10(float(i+1)))) - 1
           numzeroes = width - currwidth
   
           # Prefix of images files
@@ -605,7 +580,7 @@ def main_menu(seedfoil, designfoils, prefix):
         # Update plot
 
         plot_airfoil(seedfoil, designfoils, i+1, firsttime=init,
-                     prefix=imagepref)
+                     animation=True, prefix=imagepref)
 
     elif (choice == "3"):
       exitchoice = False
