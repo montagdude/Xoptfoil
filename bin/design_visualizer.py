@@ -1,6 +1,7 @@
 import argparse
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
+from matplotlib import rcParams
 import numpy as np
 from math import log10, floor
 from sys import version_info
@@ -550,6 +551,13 @@ def main_menu(seedfoil, designfoils, prefix):
 
     elif (choice == "1"):
       exitchoice = False
+
+      # Turn on matplotlib toolbar
+
+      rcParams['toolbar'] = 'toolbar2'
+
+      # Go to plotting menu
+
       plotting_complete = False
       while (not plotting_complete): plotting_complete = plotting_menu(
                                                           seedfoil, designfoils)
@@ -557,6 +565,10 @@ def main_menu(seedfoil, designfoils, prefix):
       exitchoice = False
       numfoils = len(designfoils)
       width = int(floor(log10(float(numfoils)))) - 1
+
+      # Turn off matplotlib toolbar
+
+      rcParams['toolbar'] = 'None'
 
       # Loop through designs, updating plot
 
