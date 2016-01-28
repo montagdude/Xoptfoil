@@ -9,7 +9,9 @@ from sys import version_info
 # Default plottiong options
 
 plotoptions = dict(show_seed_airfoil = True,
+                   show_seed_polar = True,
                    show_seed_airfoil_only = False,
+                   show_seed_polar_only = False,
                    plot_airfoils = True,
                    plot_polars = True,
                    save_animation_frames = False,
@@ -20,7 +22,9 @@ plotoptions = dict(show_seed_airfoil = True,
                    axis_cdmin = "auto",
                    axis_cdmax = "auto",
                    axis_clmin = "auto",
-                   axis_clmax = "auto")
+                   axis_clmax = "auto",
+                   color_for_seed = "blue",
+                   color_for_new_designs = "red")
 
 ################################################################################
 #
@@ -253,10 +257,10 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
   ymaxauto = ymax + 0.1*yrng
   yminauto = ymin - 0.1*yrng
   
-  if (plotoptions["show_seed_airfoil_only"]):
+  if (plotoptions["show_seed_polar_only"]):
     cdmax = np.max(seedfoil.cd)
     cdmin = np.min(seedfoil.cd)
-  elif (plotoptions["show_seed_airfoil"]):
+  elif (plotoptions["show_seed_polar"]):
     cdmax = max([np.max(seedfoil.cd), np.max(foil.cd)])
     cdmin = min([np.min(seedfoil.cd), np.min(foil.cd)])
   else:
@@ -266,10 +270,10 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
   cdmaxauto = cdmax + 0.1*cdrng
   cdminauto = cdmin - 0.1*cdrng
 
-  if (plotoptions["show_seed_airfoil_only"]):
+  if (plotoptions["show_seed_polar_only"]):
     clmax = np.max(seedfoil.cl)
     clmin = np.min(seedfoil.cl)
-  elif (plotoptions["show_seed_airfoil"]):
+  elif (plotoptions["show_seed_polar"]):
     clmax = max([np.max(seedfoil.cl), np.max(foil.cl)])
     clmin = min([np.min(seedfoil.cl), np.min(foil.cl)])
   else:
@@ -337,15 +341,21 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
     clmin = clminauto
     clmax = clmaxauto
 
+  # Aliases for colors
+
+  sc = plotoptions["color_for_seed"]
+  nc = plotoptions["color_for_new_designs"]
+
   # Plot airfoil coordinates
 
   if (plotoptions["plot_airfoils"]):
     if (plotoptions["show_seed_airfoil_only"]):
-      ax0.plot(seedfoil.x, seedfoil.y, '-b')
+      ax0.plot(seedfoil.x, seedfoil.y, color=sc)
     elif (plotoptions["show_seed_airfoil"]):
-      ax0.plot(seedfoil.x, seedfoil.y, '-b', foil.x, foil.y, '-r')
+      ax0.plot(seedfoil.x, seedfoil.y, color=sc)
+      ax0.plot(foil.x, foil.y, color=nc)
     else:
-      ax0.plot(foil.x, foil.y, '-r')
+      ax0.plot(foil.x, foil.y, color=nc)
     ax0.set_aspect('equal', 'datalim')
     ax0.set_xlabel('x')
     ax0.set_ylabel('y')
@@ -355,37 +365,82 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
   # Plot polars
 
   if (plotoptions["plot_polars"]):
-    if (plotoptions["show_seed_airfoil_only"]):
-      ax1.plot(seedfoil.cd, seedfoil.cl, '-ob')
-    elif (plotoptions["show_seed_airfoil"]):
-      ax1.plot(seedfoil.cd, seedfoil.cl, '-ob', foil.cd, foil.cl, '-sr') 
+    if (plotoptions["show_seed_polar_only"]):
+      ax1.plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, marker='o')
+    elif (plotoptions["show_seed_polar"]):
+      ax1.plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, marker='o')
+      ax1.plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
     else: 
-      ax1.plot(foil.cd, foil.cl, '-sr') 
+      ax1.plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
     ax1.set_xlabel('Drag coefficient')
     ax1.set_ylabel('Lift coefficient')
     ax1.set_xlim([cdmin,cdmax])
     ax1.set_ylim([clmin,clmax])
     ax1.grid()
 
-  # Legend
+  # Legend 
 
   if (plotoptions["plot_airfoils"]): legendax = ax0
   else: legendax = ax1
+
+  # Legend placement
 
   if (numplots == 2):
     bbox_loc = (0.5, 1.4)
   else:
     bbox_loc = (0.5, 1.1)
 
-  if (plotoptions["show_seed_airfoil_only"]):
-    legendax.legend(['Seed airfoil'], loc="upper center", 
-                    bbox_to_anchor=bbox_loc)
-  elif (plotoptions["show_seed_airfoil"]):
-    legendax.legend(['Seed airfoil', 'Design number ' + str(plotnum)], 
-                    loc="upper center", bbox_to_anchor=bbox_loc)
+  # Fake lines for legend
+
+  lines = []
+  if ( (plotoptions["plot_airfoils"]) and (plotoptions["plot_polars"]) ):
+
+    # Plotting airfoils and polars
+
+    if ( (plotoptions["show_seed_airfoil"]) or 
+         (plotoptions["show_seed_airfoil_only"]) or
+         (plotoptions["show_seed_polar"]) or
+         (plotoptions["show_seed_polar_only"]) ):
+      fakeline = plt.Line2D((0,1),(0,0), color=sc, label="Seed airfoil")
+      lines.append(fakeline)
+    if ( (not plotoptions["show_seed_airfoil_only"]) or
+         (not plotoptions["show_seed_polar_only"]) ):
+      fakeline = plt.Line2D((0,1),(0,0), color=nc, 
+                            label="Design number " + str(plotnum))
+      lines.append(fakeline)
+
+  elif ( (plotoptions["plot_airfoils"]) and (not plotoptions["plot_polars"]) ):
+
+    # Only plotting airfoils
+
+    if ( (plotoptions["show_seed_airfoil"]) or 
+         (plotoptions["show_seed_airfoil_only"]) ):
+      fakeline = plt.Line2D((0,1),(0,0), color=sc, label="Seed airfoil")
+      lines.append(fakeline)
+    if (not plotoptions["show_seed_airfoil_only"]):
+      fakeline = plt.Line2D((0,1),(0,0), color=nc, 
+                            label="Design number " + str(plotnum))
+      lines.append(fakeline)
+
   else:
-    legendax.legend(['Design number ' + str(plotnum)], loc="upper center",
-                    bbox_to_anchor=bbox_loc)
+
+    # Only plotting polars
+
+    if ( (plotoptions["show_seed_polar"]) or 
+         (plotoptions["show_seed_polar_only"]) ):
+      fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=sc, marker='o',
+                            label="Seed airfoil")
+      lines.append(fakeline)
+    if (not plotoptions["show_seed_polar_only"]):
+      fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=nc, marker='s', 
+                            label="Design number " + str(plotnum))
+      lines.append(fakeline)
+
+  # Create legend
+
+  labels = [l.get_label() for l in lines]
+  legendax.legend(lines, labels, loc="upper center", bbox_to_anchor=bbox_loc, 
+                  numpoints=1)
 
   # Plot for the first time, or redraw
 
@@ -476,6 +531,31 @@ def get_boolean_input(key, keyval):
   return retval
 
 ################################################################################
+# Gets color input from user
+def get_color_input(key, keyval):
+
+  colors = ["blue", "green", "red", "cyan", "magenta", "yellow", "black"]
+
+  validchoice = False
+  while (not validchoice):
+    print("Current value for " + key + ": " + str(keyval))
+    print("Available choices: blue, green, red, cyan, magenta, yellow, black\n")
+    sel = my_input("Enter new value: ")
+
+    # Check for valid color
+
+    for c in colors:
+      if (sel == c):
+        validchoice = True
+        retval = sel
+        break
+    if (not validchoice):
+      print("Invalid color specified.  Please enter a valid color.")
+      validchoice = False
+
+  return retval
+
+################################################################################
 # Options menu: allows user to change plot options
 def options_menu():
   global plotoptions
@@ -500,10 +580,17 @@ def options_menu():
   # True/False settings
 
   if ( (key == "show_seed_airfoil") or (key == "show_seed_airfoil_only") or
+       (key == "show_seed_polar") or (key == "show_seed_polar_only") or
        (key == "save_animation_frames") or (key == "plot_airfoils") or 
        (key == "plot_polars") ):
     options_complete = False
     plotoptions[key] = get_boolean_input(key, plotoptions[key])
+
+  # Change colors
+
+  elif ( (key == "color_for_seed") or (key == "color_for_new_designs") ):
+    options_complete = False
+    plotoptions[key] = get_color_input(key, plotoptions[key])
 
   # Change plot bounds
 
@@ -563,6 +650,9 @@ def main_menu(seedfoil, designfoils, prefix):
                                                           seedfoil, designfoils)
     elif (choice == "2"):
       exitchoice = False
+
+      # Number of digits in design counter string
+
       numfoils = len(designfoils)
       width = int(floor(log10(float(numfoils)))) - 1
 
@@ -578,13 +668,10 @@ def main_menu(seedfoil, designfoils, prefix):
 
         if (plotoptions["save_animation_frames"]):
 
-          # Determine number of zeroes to pad with
+          # Determine number of zeroes to pad with and image file prefix
   
           currwidth = int(floor(log10(float(i+1)))) - 1
           numzeroes = width - currwidth
-  
-          # Prefix of images files
-
           imagepref = prefix + numzeroes*'0' + str(i+1)
 
         else: imagepref = None
