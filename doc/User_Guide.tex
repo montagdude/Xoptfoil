@@ -63,11 +63,9 @@ XoptFoil is written so that it can run in parallel on computers with multiple
 cores/threads.  This option is disabled in the precompiled binary, because it depends on
 the pthreads system library.  You can enable it by compiling XoptFoil yourself.  If you
 want to compile it yourself but don't want to use the parallel version, comment the flag
-called OMP\_FLAG (by placing a \# character in front). Three executables are
-created: xoptfoil, which is the main optimizer, design\_converter, which can be used
-to generate coordinates and polars for all the incrementally-improved airfoils generated
-during the optimization, and xfoil\_only, which can be used to run XFoil by itself for
-an airfoil at a given set of operating conditions.
+called OMP\_FLAG (by placing a \# character in front). Two executables are
+created: xoptfoil, which is the main optimizer, and xfoil\_only, which can be used to run 
+XFoil by itself for an airfoil at a given set of operating conditions.
 
 \subsection{Windows}\label{sec:compile_windows}
 
@@ -140,11 +138,9 @@ XoptFoil is written so that it can run in parallel on computers with multiple
 cores/threads.  This option is disabled in the precompiled binary, because it depends on
 the pthreads system library.  You can enable it by compiling XoptFoil yourself.  If you
 want to compile it yourself but don't want to use the parallel version, comment the flag
-called OMP\_FLAG (by placing a \# character in front). Three executables are
-created: xoptfoil.exe, which is the main optimizer, design\_converter.exe, which can be used
-to generate coordinates and polars for all the incrementally-improved airfoils generated
-during the optimization, and xfoil\_only.exe, which can be used to run XFoil by itself for
-an airfoil at a given set of operating conditions.
+called OMP\_FLAG (by placing a \# character in front). Two executables are
+created: xoptfoil.exe, which is the main optimizer, and xfoil\_only.exe, which can be 
+used to run XFoil by itself for an airfoil at a given set of operating conditions.
 
 \subsection{Mac OSX}
 
@@ -157,7 +153,7 @@ automatically place the make executable in a directory within your path. Once yo
 gfortran and Make installed, the rest of the compiling process is identical to the Linux
 instructions above.
 
-\section{Running XoptFoil}
+\section{Running XoptFoil}\label{sec:running}
 
 XoptFoil is a command-line based program.  Once you have compiled binaries for your
 machine (see the Compiling Guide), running the program is very easy.  Simply open a
@@ -280,9 +276,9 @@ bottom surface of the airfoil.  See the note on nfunction\_top regarding differe
 between NACA and Hicks-Henne functions.}
 \item{\textbf{initial\_perturb}: The maximum strength of the shape functions used when
 generating initial designs.}
-\item{\textbf{write\_designs}: Whether to write design variables to files during the
-optimization.  If this is set to .true., you can run the design\_converter tool on the
-resulting file to reconstruct the coordinates and performance of each subsequent design.}
+\item{\textbf{write\_designs}: Whether to write airfoil coordinates and polars to files
+during the optimization.  See section \ref{sec:output_files} for more information on the
+output files generated.}
 \end{enumerate}
 
 \subsection{operating\_conditions namelist}
@@ -532,43 +528,31 @@ coordinates file to load here.  The operating\_conditions namelist is the same a
 for xoptfoil, except that the \textbf{optimization\_type} and \textbf{weighting} inputs
 are not used. The other namelists are the same as in the input file for xoptfoil.
 
-\section{Output files}
+\section{Output files}\label{sec:output_files}
 
 The following files are written out by the program:
 
 \begin{enumerate}
-\item{\textbf{optfoil.dat}: The coordinates of the final optimized design. You can change
-the name of this output file by using command-options (see the first section of this user
-guide).}
-\item{\textbf{particleswarm\_designs.dat}: Values of the design variables for each 
-subsequently better design found by particle swarm optimization.  Will not be written if
-write\_designs is set to .false.}
-\item{\textbf{simplex\_designs.dat}: Same as above, but for the direct search algorithm.}
+\item{\textbf{optfoil.dat}: The coordinates of the final optimized design.}
+\item{\textbf{optfoil\_performance\_summary.dat}: Aerodynamic data for the final optimized
+design at the requested operating points.}
+\item{\textbf{optfoil\_design\_coordinates.dat}: Airfoil coordinates for each
+progressively better design found during the optimization.  Only written if the option
+write\_designs is set to .true.  Each new design is identified under one of the ``zone
+t=...'' labels.  You can plot these using the design visualizer tool. See section 
+\ref{sec:design_visualizer} for more information.}
+\item{\textbf{optfoil\_design\_polars.dat}: Airfoil polars (lift and drag coefficients) at
+the requested operating points for each progressively better design found during the 
+optimization.  Only written if the option write\_designs is set to .true.  Each new design
+is identified under one of the ``zone t=...'' labels.  You can plot these using the design
+visualizer tool. See section \ref{sec:design_visualizer} for more information.}
 \end{enumerate}
 
-The last two files listed above act as inputs for the design\_converter tool; they are not
-actually meant to be viewed graphically by themselves.  The design\_converter tool takes
-these files and uses them to generate airfoil coordinates and polars.  The following files
-are generated when you run design\_converter:
+The prefix of each of these files can be changed from the default ``optfoil'' to something
+else via the second command-line option when xoptfoil is run. See section
+\ref{sec:running} for more information on running xoptfoil with command-line options.
 
-\begin{enumerate}
-\item{\textbf{design\_coordinates.dat}: The the x, y
-coordinates of each subsequently better airfoil design found by the optimizer. They don't
-exactly correspond to optimizer iterations, because during some iterations the airfoil
-design isn't improved. Each new design is identified by the coordinates under one of the
-``zone t=...'' labels.  You can graph these in Excel, Matlab, etc. by copying and pasting
-the coordinates, or you can use them to make a .dat input file for XFoil.}
-\item{\textbf{design\_polars.dat}: The lift and drag coefficients for each subsequently 
-better design found by the optimizer, corresponding to the coordinates in 
-design\_coordinates.dat, at the operating points requested for the optimization.}
-\end{enumerate}
-
-Note that the design\_converter tool can optionally take the same two command line options
-as xoptfoil: the first is the name of the input file (if other than `inputs.txt'), and the
-second is the prefix for the output files.  If an output file prefix is specified, it will
-be appended to the front of the name of design\_coordinates.dat and design\_polars.dat.
-
-\section{Using the design visualizer}
+\section{Using the design visualizer}\label{sec:design_visualizer}
 
 A Python script called design\_visualizer.py is provided to plot and animate airfoil
 designs generated during the optimization process.  In order to use this tool, it is
@@ -594,17 +578,16 @@ For example, on Ubuntu and Linux Mint, Python 2 is installed by default, and the
 matplotlib package for Python 3 is called python3-matplotlib.   Again, for best results,
 matplotlib version 1.5.0 or higher is recommended.
 
-Before running the design visualizer, you must first run an optimization, and then run the
-design\_converter tool to generate airfoil coordinates and polars from the optimization.
-Refer to the previous section for information on how to run design\_converter.  Next, in
-the same directory, run the design visualizer using the following command:
+Before running the design visualizer, you must first run an optimization with the option
+write\_designs set to .true. Next, in the same directory, run the design visualizer using
+the following command:
 
 \begin{verbatim}
 python design_visualizer.py
 \end{verbatim}
 
-\noindent Or, if you specified a different output file prefix when you ran xoptfoil and/or
-design\_converter, the same prefix should be passed to design\_visualizer.py like so:
+\noindent Or, if you specified a different output file prefix when you ran xoptfoil, the 
+same prefix should be passed to design\_visualizer.py like so:
 
 \begin{verbatim}
 python design_visualizer.py prefix
@@ -612,13 +595,13 @@ python design_visualizer.py prefix
 
 Note that design\_visualizer.py must be present in the directory where you try to run it,
 or it must be in your system path.  The design visualizer is menu based.  When it is run, 
-it first attempts to read the coordinate and polar files generated by design\_converter, 
-and then a menu is presented. The prompt should look like the following:
+it first attempts to read the coordinate and polar files generated by xoptfoil, and then
+a menu is presented. The prompt should look like the following:
 
 \begin{verbatim}
-Reading airfoil coordinates from file design_coordinates.dat...
+Reading airfoil coordinates from file optfoil_design_coordinates.dat...
 Found 52 airfoil coordinates plus seed airfoil.
-Reading airfoil polars from file design_polars.dat...
+Reading airfoil polars from file optfoil_design_polars.dat...
 Found 52 airfoil polars plus seed airfoil.
 
 Options:
@@ -635,7 +618,8 @@ generated during the optimization.  Option 2 creates the same plot, but it loops
 all the designs and displays them in sequence.  Plotting options can be changed by
 selecting option 3.  Available plotting options include manual axis bounds for the plots,
 turning on/off various plot elements (such as the seed airfoil, the coordinate plot, and
-the polar plot).  The plotting options menu also allows animation frames to be saved.
+the polar plot), and line colors.  The plotting options menu also allows animation frames 
+to be saved.
 When this option is enabled and then option 2 is selected from the main menu, each frame
 of the animation will be saved to a PNG image file, which can later be combined together
 into a movie by a separate application such as ffmpeg.  By default, the plots generated 
@@ -651,8 +635,7 @@ options menu. To quit the design visualizer tool, enter 0 at the main menu.
 \end{figure}
 
 A future development goal is to modify the design visualizer so that it can be run
-concurrently with xoptfoil and display the optimization progress as it occurs.  This
-functionality will require some modifications to design\_converter as well.  The user
+concurrently with xoptfoil and display the optimization progress as it occurs.  The user
 guide will be updated when that feature is implemented.
 
 \end{document}

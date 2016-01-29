@@ -34,11 +34,10 @@ OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o 
 EXE=xoptfoil
 XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o xfoil_only.o
 XEXE=xfoil_only
-VOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o optimization_driver.o design_converter.o
-VEXE=design_converter
+VOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o optimization_driver.o
 DIR=../src
 
-all: $(EXE) $(XEXE) $(VEXE)
+all: $(EXE) $(XEXE)
 
 remake: clean all
 
@@ -47,9 +46,6 @@ $(EXE): $(OBJ)
 
 $(XEXE): $(XOBJ)
 	$(FC) $(FCFLAGS) $(OMP_FLAG) -o $(XEXE) $(XOBJ)
-
-$(VEXE): $(VOBJ)
-	$(FC) $(FCFLAGS) $(OMP_FLAG) -o $(VEXE) $(VOBJ)
 
 clean: 
 	rm -f *.mod *.o
@@ -113,6 +109,3 @@ main.o: $(DIR)/main.f90
 
 xfoil_only.o: $(DIR)/xfoil_only.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_only.f90
-
-design_converter.o: $(DIR)/design_converter.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/design_converter.f90

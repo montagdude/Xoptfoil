@@ -122,7 +122,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
                                                  randvec2, speed
   double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
-  logical :: use_x0, converged
+  logical :: use_x0, converged, signal_progress
 
   nvars = size(xmin,1)
   nconstrained = size(constrained_dvs,1)
@@ -249,29 +249,16 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! Global best so far
 
-  fmin = minval(objval,1)
+  fmin = f0
+  mincurr = minval(objval,1)
   fminloc = minloc(objval,1)
   xopt = dv(:,fminloc)
-
-! Write design to file if requested
-! converterfunc is an optional function supplied to convert design variables 
-!   into something more useful.  If not supplied, the design variables
-!   themselves are written to a file.
-
-  if (pso_options%write_designs) then
-    designcounter = 1
-    if (present(converterfunc)) then
-      stat = converterfunc(xopt)
-    else
-      call write_design('particleswarm_designs.dat', 'new', xopt, designcounter)
-    end if
-    designcounter = designcounter + 1
-  end if
 
 ! Begin optimization
 
   converged = .false.
   step = 0
+  designcounter = 1
   wcurr = whigh
   write(*,*) 'Particle swarm optimization progress:'
 
@@ -336,24 +323,11 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     mincurr = minval(objval,1)
     fminloc = minloc(objval,1)
     if (mincurr < fmin) then
-
       xopt = dv(:,fminloc)
       fmin = mincurr
-
-!     Write design to file if requested
-!     converterfunc is an optional function supplied to convert design variables
-!       into something more useful.  If not supplied, the design variables
-!       themselves are written to a file.
-
-      if (pso_options%write_designs) then
-        if (present(converterfunc)) then
-          stat = converterfunc(xopt)
-        else
-          call write_design('particleswarm_designs.dat', 'old', xopt,          &
-                            designcounter)
-        end if
-        designcounter = designcounter + 1
-      end if
+      signal_progress = .true.
+    else
+      signal_progress = .false.
     end if
 
 !$omp end master
@@ -368,7 +342,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       call random_number(randvec2)
       vel(:,i) = wcurr*vel(:,i) + c1*randvec1*(bestdesigns(:,i) - dv(:,i)) +   &
                                   c2*randvec2*(xopt - dv(:,i))
-      speed(i) = norm2(vel(:,i))
+      speed(i) = norm_2(vel(:,i))
     end do
 
 !$omp end do
@@ -387,6 +361,21 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     else
       write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
                  fmin
+    end if
+
+!   Write design to file if requested
+!   converterfunc is an optional function supplied to convert design variables
+!     into something more useful.  If not supplied, the design variables
+!     themselves are written to a file.
+
+    if ( (signal_progress) .and. (pso_options%write_designs) ) then
+      if (present(converterfunc)) then
+        stat = converterfunc(xopt)
+      else
+        call write_design('particleswarm_designs.dat', 'old', xopt,            &
+                          designcounter)
+      end if
+      designcounter = designcounter + 1
     end if
     
 !   Evaluate convergence
@@ -489,9 +478,10 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   double precision, dimension(size(x0,1)+1) :: objvals
   double precision, dimension(size(x0,1)) :: xcen, xr, xe, xc
 
-  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0
+  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0, &
+                      mincurr
   integer :: i, j, k, nvars, designcounter, nsame, stat
-  logical :: converged, needshrink
+  logical :: converged, needshrink, signal_progress
   character(3) :: filestat
 
 ! Standard Nelder-Mead constants
@@ -567,6 +557,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   objvals(nvars+1) = objfunc(x0)
   fevals = fevals + 1
   fmin = minval(objvals)
+  mincurr = fmin
 
 ! Iterative procedure for optimization
  
@@ -590,27 +581,15 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     else
       nsame = 0
     end if
-    fmin = objvals(1)
+    mincurr = objvals(1)
 
-!   Write design to file if requested
-!   converterfunc is an optional function supplied to convert design variables
-!     into something more useful.  If not supplied, the design variables
-!     themselves are written to a file.
+!   Update fmin if appropriate
 
-    if (ds_options%write_designs .and. designcounter == 1) then
-      filestat = 'new'
-    else 
-      filestat = 'old'
-    end if
-
-    if (ds_options%write_designs) then
-      if (present(converterfunc)) then
-        stat = converterfunc(dv(:,1))
-      else
-        call write_design('simplex_designs.dat', filestat, dv(:,1),            &
-                          designcounter)
-      end if
-      designcounter = designcounter + 1
+    if (mincurr < fmin) then
+      fmin = mincurr
+      signal_progress = .true.
+    else
+      signal_progress = .false.
     end if
 
 !   Compute max distance between simplex vertices (designs)
@@ -637,6 +616,27 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     else
       write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
                  fmin
+    end if
+
+!   Write design to file if requested
+!   converterfunc is an optional function supplied to convert design variables
+!     into something more useful.  If not supplied, the design variables
+!     themselves are written to a file.
+
+    if (ds_options%write_designs .and. designcounter == 1) then
+      filestat = 'new'
+    else 
+      filestat = 'old'
+    end if
+
+    if ( (signal_progress) .and. (ds_options%write_designs) ) then
+      if (present(converterfunc)) then
+        stat = converterfunc(dv(:,1))
+      else
+        call write_design('simplex_designs.dat', filestat, dv(:,1),            &
+                          designcounter)
+      end if
+      designcounter = designcounter + 1
     end if
 
 !   Compute the centroid of the best nvals designs

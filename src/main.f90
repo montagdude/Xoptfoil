@@ -34,7 +34,7 @@ program main
   character(80) :: search_type, global_search, local_search, seed_airfoil,     &
                    airfoil_file, matchfoil_file
   character(4) :: naca_digits
-  character(80) :: input_file, output_prefix
+  character(80) :: input_file
   type(pso_options_type) :: pso_options
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb, steps, fevals, nshapedvtop, nshapedvbot 
@@ -111,7 +111,7 @@ program main
                               first_time = .true.) ! Needed because parallel
                                         ! optimization allocates shape functions 
                                         ! on each thread and then deallocates
-  call write_final_design(optdesign, f0, fmin, shape_functions, output_prefix)
+  call write_final_design(optdesign, f0, fmin, shape_functions)
 
 ! Deallocate other memory
 

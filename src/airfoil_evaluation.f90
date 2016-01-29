@@ -543,7 +543,7 @@ function write_function_nonseed(designvars)
   double precision, dimension(:), intent(in) :: designvars
   integer :: write_function_nonseed
 
-  write_function_nonseed = write_function(designvars)
+  write_function_nonseed = write_function(designvars, .false.)
 
 end function write_function_nonseed
 
@@ -557,7 +557,7 @@ end function write_function_nonseed
 function write_function(designvars, isseed)
 
   double precision, dimension(:), intent(in) :: designvars
-  logical, optional, intent(in) :: isseed
+  logical, intent(in) :: isseed
   integer :: write_function
 
   if (match_foils) then
@@ -581,7 +581,7 @@ function write_airfoil_optimization_progress(designvars, isseed)
   use xfoil_driver,       only : run_xfoil
 
   double precision, dimension(:), intent(in) :: designvars
-  logical, optional, intent(in) :: isseed
+  logical, intent(in) :: isseed
   integer :: write_airfoil_optimization_progress
 
   double precision, dimension(size(xseedt,1)) :: zt_new
@@ -592,6 +592,10 @@ function write_airfoil_optimization_progress(designvars, isseed)
   double precision, dimension(noppoint) :: actual_flap_degrees
   double precision :: ffact
   integer :: ndvs, flap_idx, dvcounter
+ 
+  character(100) :: foilfile, polarfile, text
+  integer :: foilunit, polarunit
+  integer, save :: designcounter
 
   nmodest = size(top_shape_function,1)
   nmodesb = size(bot_shape_function,1)
@@ -661,11 +665,101 @@ function write_airfoil_optimization_progress(designvars, isseed)
                  use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
                  xfoil_options, lift, drag, moment, viscrms)
 
-! Write coordinates and polars to file
+! Set output file names and identifiers
+
+  foilfile = trim(output_prefix)//'_design_coordinates.dat'
+  polarfile = trim(output_prefix)//'_design_polars.dat'
+
+  foilunit = 13
+  polarunit = 14
+
+! Open files and write headers, if necessary
+
+  if (isseed) then
+
+!   Set designcounter
+
+    designcounter = 0
+
+!   Header for coordinate file
+
+    write(*,*) "Writing coordinates for seed airfoil to file "//               &
+               trim(foilfile)//" ..."
+    open(unit=foilunit, file=foilfile, status='replace')
+    write(foilunit,'(A)') 'title="Airfoil coordinates"'
+    write(foilunit,'(A)') 'variables="x" "z"'
+    write(foilunit,'(A)') 'zone t="Seed airfoil"'
+
+!   Header for polar file
+
+    write(*,*) "Writing polars for seed airfoil to file "//                    &
+               trim(polarfile)//" ..."
+    write(*,*)
+    open(unit=polarunit, file=polarfile, status='replace')
+    write(polarunit,'(A)') 'title="Airfoil polars"'
+    write(polarunit,'(A)') 'variables="cl" "cd"'
+    write(polarunit,'(A)') 'zone t="Seed airfoil polar"'
+
+  else
+
+!   Increment designcounter
+
+    designcounter = designcounter + 1
+    write(text,*) designcounter
+    text = adjustl(text)
+
+!   Open coordinate file and write zone header
+
+    write(*,*) "  Writing coordinates for design number "//trim(text)//        &
+               " to file "//trim(foilfile)//" ..."
+    open(unit=foilunit, file=foilfile, status='old', position='append',        &
+         err=900)
+    write(foilunit,'(A)') 'zone t="Airfoil", SOLUTIONTIME='//trim(text)
+
+    ! Open polar file and write zone header
+    
+    write(*,*) "  Writing polars for design number "//trim(text)//             &
+               " to file "//trim(polarfile)//" ..."
+    write(*,*)
+    open(unit=polarunit, file=polarfile, status='old', position='append',      &
+         err=901)
+    write(polarunit,'(A)') 'zone t="Polars", SOLUTIONTIME='//trim(text)
+
+  end if
+
+! Write coordinates to file
+
+  do i = 1, nptt + nptb - 1
+    write(foilunit,'(2es17.8)') curr_foil%x(i), curr_foil%z(i)
+  end do
+
+! Write polars to file
+
+  do i = 1, noppoint
+    write(polarunit,'(2es17.8)') lift(i), drag(i)
+  end do
+
+! Close output files
+
+  close(foilunit)
+  close(polarunit)
 
 ! Set return value (needed for compiler)
 
   write_airfoil_optimization_progress = 0
+  return
+
+! Warning if there was an error opening design_coordinates file
+
+900 write(*,*) "Warning: unable to open "//trim(foilfile)//". Skipping ..."
+  write_airfoil_optimization_progress = 1
+  return
+
+! Warning if there was an error opening design_coordinates file
+
+901 write(*,*) "Warning: unable to open "//trim(polarfile)//". Skipping ..."
+  write_airfoil_optimization_progress = 2
+  return
 
 end function write_airfoil_optimization_progress
 
@@ -677,13 +771,115 @@ end function write_airfoil_optimization_progress
 !=============================================================================80
 function write_matchfoil_optimization_progress(designvars, isseed)
 
+  use parameterization,   only : top_shape_function, bot_shape_function,       &
+                                 create_airfoil
+
   double precision, dimension(:), intent(in) :: designvars
-  logical, optional, intent(in) :: isseed
+  logical, intent(in) :: isseed
   integer :: write_matchfoil_optimization_progress
+
+  double precision, dimension(size(xseedt,1)) :: zt_new
+  double precision, dimension(size(xseedb,1)) :: zb_new
+  integer :: i, nmodest, nmodesb, nptt, nptb, dvtbnd, dvbbnd
+
+  character(100) :: foilfile, text
+  integer :: foilunit
+  integer, save :: designcounter
+
+  nmodest = size(top_shape_function,1)
+  nmodesb = size(bot_shape_function,1)
+  nptt = size(xseedt,1)
+  nptb = size(xseedb,1)
+
+! Set modes for top and bottom surfaces
+
+  if (trim(shape_functions) == 'naca') then
+    dvtbnd = nmodest
+    dvbbnd = nmodest + nmodesb
+  else
+    dvtbnd = nmodest*3
+    dvbbnd = nmodest*3 + nmodesb*3
+  end if
+
+! Create top and bottom surfaces by perturbation of seed airfoil
+
+  call create_airfoil(xseedt, zseedt, xseedb, zseedb, designvars(1:dvtbnd),    &
+                      designvars(dvtbnd+1:dvbbnd), zt_new, zb_new,             &
+                      shape_functions, .false.)
+
+! Format coordinates in a single loop in derived type
+
+  do i = 1, nptt
+    curr_foil%x(i) = xseedt(nptt-i+1)
+    curr_foil%z(i) = zt_new(nptt-i+1)
+  end do
+  do i = 1, nptb-1
+    curr_foil%x(i+nptt) = xseedb(i+1)
+    curr_foil%z(i+nptt) = zb_new(i+1)
+  end do
+
+! Set output file names and identifiers
+
+  foilfile = trim(output_prefix)//'_design_coordinates.dat'
+  foilunit = 13
+
+! Open file and write header, if necessary
+
+  if (isseed) then
+
+!   Set designcounter
+
+    designcounter = 0
+
+!   Header for coordinate file
+
+    write(*,*) "Writing coordinates for seed airfoil to file "//               &
+               trim(foilfile)//" ..."
+    write(*,*)
+    open(unit=foilunit, file=foilfile, status='replace')
+    write(foilunit,'(A)') 'title="Airfoil coordinates"'
+    write(foilunit,'(A)') 'variables="x" "z"'
+    write(foilunit,'(A)') 'zone t="Seed airfoil"'
+
+  else
+
+!   Increment designcounter
+
+    designcounter = designcounter + 1
+    write(text,*) designcounter
+    text = adjustl(text)
+
+!   Open coordinate file and write zone header
+
+    write(*,*) "  Writing coordinates for design number "//trim(text)//        &
+               " to file "//trim(foilfile)//" ..."
+    write(*,*)
+    open(unit=foilunit, file=foilfile, status='old', position='append',        &
+         err=910)
+    write(foilunit,'(A)') 'zone t="Airfoil", SOLUTIONTIME='//trim(text)
+
+  end if
+
+! Write coordinates to file
+
+  do i = 1, nptt + nptb - 1
+    write(foilunit,'(2es17.8)') curr_foil%x(i), curr_foil%z(i)
+  end do
+
+! Close output file
+
+  close(foilunit)
 
 ! Set return value (needed for compiler)
 
   write_matchfoil_optimization_progress = 0
+  return
+
+! Warning if there was an error opening design_coordinates file
+
+910 write(*,*) "Warning: unable to open "//trim(foilfile)//". Skipping ..."
+  write_matchfoil_optimization_progress = 1
+  return
 
 end function write_matchfoil_optimization_progress
 

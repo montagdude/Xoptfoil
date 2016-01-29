@@ -69,6 +69,8 @@ module vardef
   double precision :: initial_perturb
   double precision :: min_bump_width
 
+  character(80) :: output_prefix
+
 !$omp threadprivate(curr_foil)
 
 end module vardef

@@ -130,20 +130,6 @@ def load_airfoils_from_file(coordfilename, polarfilename):
 
   seedfoil.setCoordinates(np.array(x), np.array(y))
 
-  # Read seed airfoil polars
-
-  zonetitle = 'zone t="Seed airfoil polar"'
-  cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
-  if (ioerror == 1):
-    print("Error: file " + polarfilename + " not found.")
-    return seedfoil, designfoils, ioerror
-  elif (ioerror == 2):
-    print("Error: zone labeled " + zonetitle + " not found in " + polarfilename
-          + ".")
-    return seedfoil, designfoils, ioerror
-
-  seedfoil.setPolars(np.array(cl), np.array(cd))
-
   # Read coordinate data for designs produced by optimizer
 
   print("Reading airfoil coordinates from file " + coordfilename + "...")
@@ -165,6 +151,20 @@ def load_airfoils_from_file(coordfilename, polarfilename):
       counter += 1
 
   print("Found " + str(numfoils) + " airfoil coordinates plus seed airfoil.")
+
+  # Read seed airfoil polars
+
+  zonetitle = 'zone t="Seed airfoil polar"'
+  cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
+  if (ioerror == 1):
+    print("Error: file " + polarfilename + " not found.")
+    return seedfoil, designfoils, 0 - ioerror
+  elif (ioerror == 2):
+    print("Error: zone labeled " + zonetitle + " not found in " + polarfilename
+          + ".")
+    return seedfoil, designfoils, 0 - ioerror
+
+  seedfoil.setPolars(np.array(cl), np.array(cd))
 
   # Read polar data for designs produced by optimizer
 
@@ -231,115 +231,119 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
 
   # Set auto plotting bounds
 
-  if (plotoptions["show_seed_airfoil_only"]):
-    xmax = np.max(seedfoil.x)
-    xmin = np.min(seedfoil.x)
-  elif (plotoptions["show_seed_airfoil"]):
-    xmax = max([np.max(seedfoil.x), np.max(foil.x)])
-    xmin = min([np.min(seedfoil.x), np.min(foil.x)])
-  else:
-    xmax = np.max(foil.x)
-    xmin = np.min(foil.x)
-  xrng = xmax - xmin
-  xmaxauto = xmax + 0.1*xrng
-  xminauto = xmin - 0.1*xrng
-
-  if (plotoptions["show_seed_airfoil_only"]):
-    ymax = np.max(seedfoil.y)
-    ymin = np.min(seedfoil.y)
-  elif (plotoptions["show_seed_airfoil"]):
-    ymax = max([np.max(seedfoil.y), np.max(foil.y)])
-    ymin = min([np.min(seedfoil.y), np.min(foil.y)])
-  else:
-    ymax = np.max(foil.y)
-    ymin = np.min(foil.y)
-  yrng = ymax - ymin
-  ymaxauto = ymax + 0.1*yrng
-  yminauto = ymin - 0.1*yrng
+  if (plotoptions["plot_airfoils"]):
+    if (plotoptions["show_seed_airfoil_only"]):
+      xmax = np.max(seedfoil.x)
+      xmin = np.min(seedfoil.x)
+    elif (plotoptions["show_seed_airfoil"]):
+      xmax = max([np.max(seedfoil.x), np.max(foil.x)])
+      xmin = min([np.min(seedfoil.x), np.min(foil.x)])
+    else:
+      xmax = np.max(foil.x)
+      xmin = np.min(foil.x)
+    xrng = xmax - xmin
+    xmaxauto = xmax + 0.1*xrng
+    xminauto = xmin - 0.1*xrng
   
-  if (plotoptions["show_seed_polar_only"]):
-    cdmax = np.max(seedfoil.cd)
-    cdmin = np.min(seedfoil.cd)
-  elif (plotoptions["show_seed_polar"]):
-    cdmax = max([np.max(seedfoil.cd), np.max(foil.cd)])
-    cdmin = min([np.min(seedfoil.cd), np.min(foil.cd)])
-  else:
-    cdmax = np.max(foil.cd)
-    cdmin = np.min(foil.cd)
-  cdrng = cdmax - cdmin
-  cdmaxauto = cdmax + 0.1*cdrng
-  cdminauto = cdmin - 0.1*cdrng
-
-  if (plotoptions["show_seed_polar_only"]):
-    clmax = np.max(seedfoil.cl)
-    clmin = np.min(seedfoil.cl)
-  elif (plotoptions["show_seed_polar"]):
-    clmax = max([np.max(seedfoil.cl), np.max(foil.cl)])
-    clmin = min([np.min(seedfoil.cl), np.min(foil.cl)])
-  else:
-    clmax = np.max(foil.cl)
-    clmin = np.min(foil.cl)
-  clrng = clmax - clmin
-  clmaxauto = clmax + 0.1*clrng
-  clminauto = clmin - 0.1*clrng
+    if (plotoptions["show_seed_airfoil_only"]):
+      ymax = np.max(seedfoil.y)
+      ymin = np.min(seedfoil.y)
+    elif (plotoptions["show_seed_airfoil"]):
+      ymax = max([np.max(seedfoil.y), np.max(foil.y)])
+      ymin = min([np.min(seedfoil.y), np.min(foil.y)])
+    else:
+      ymax = np.max(foil.y)
+      ymin = np.min(foil.y)
+    yrng = ymax - ymin
+    ymaxauto = ymax + 0.1*yrng
+    yminauto = ymin - 0.1*yrng
+  
+  if (plotoptions["plot_polars"]):
+    if (plotoptions["show_seed_polar_only"]):
+      cdmax = np.max(seedfoil.cd)
+      cdmin = np.min(seedfoil.cd)
+    elif (plotoptions["show_seed_polar"]):
+      cdmax = max([np.max(seedfoil.cd), np.max(foil.cd)])
+      cdmin = min([np.min(seedfoil.cd), np.min(foil.cd)])
+    else:
+      cdmax = np.max(foil.cd)
+      cdmin = np.min(foil.cd)
+    cdrng = cdmax - cdmin
+    cdmaxauto = cdmax + 0.1*cdrng
+    cdminauto = cdmin - 0.1*cdrng
+  
+    if (plotoptions["show_seed_polar_only"]):
+      clmax = np.max(seedfoil.cl)
+      clmin = np.min(seedfoil.cl)
+    elif (plotoptions["show_seed_polar"]):
+      clmax = max([np.max(seedfoil.cl), np.max(foil.cl)])
+      clmin = min([np.min(seedfoil.cl), np.min(foil.cl)])
+    else:
+      clmax = np.max(foil.cl)
+      clmin = np.min(foil.cl)
+    clrng = clmax - clmin
+    clmaxauto = clmax + 0.1*clrng
+    clminauto = clmin - 0.1*clrng
 
   # Set user-specified plotting bounds and check for errors
 
-  if (plotoptions["axis_xmax"] != "auto"):
-    xmax = float(plotoptions["axis_xmax"])
-  else:
-    xmax = xmaxauto
-  if (plotoptions["axis_xmin"] != "auto"):
-    xmin = float(plotoptions["axis_xmin"])
-  else:
-    xmin = xminauto
-  if (xmin >= xmax):
-    print("Warning: xmin must be less than xmax. " +
-          "Reverting to auto x bounds.")
-    xmin = xminauto
-    xmax = xmaxauto
+  if (plotoptions["plot_airfoils"]):
+    if (plotoptions["axis_xmax"] != "auto"):
+      xmax = float(plotoptions["axis_xmax"])
+    else:
+      xmax = xmaxauto
+    if (plotoptions["axis_xmin"] != "auto"):
+      xmin = float(plotoptions["axis_xmin"])
+    else:
+      xmin = xminauto
+    if (xmin >= xmax):
+      print("Warning: xmin must be less than xmax. " +
+            "Reverting to auto x bounds.")
+      xmin = xminauto
+      xmax = xmaxauto
+  
+    if (plotoptions["axis_ymax"] != "auto"):
+      ymax = float(plotoptions["axis_ymax"])
+    else:
+      ymax = ymaxauto
+    if (plotoptions["axis_ymin"] != "auto"):
+      ymin = float(plotoptions["axis_ymin"])
+    else:
+      ymin = yminauto
+    if (ymin >= ymax):
+      print("Warning: ymin must be less than ymax. " + 
+            "Reverting to auto y bounds.")
+      ymin = yminauto
+      ymax = ymaxauto
 
-  if (plotoptions["axis_ymax"] != "auto"):
-    ymax = float(plotoptions["axis_ymax"])
-  else:
-    ymax = ymaxauto
-  if (plotoptions["axis_ymin"] != "auto"):
-    ymin = float(plotoptions["axis_ymin"])
-  else:
-    ymin = yminauto
-  if (ymin >= ymax):
-    print("Warning: ymin must be less than ymax. " + 
-          "Reverting to auto y bounds.")
-    ymin = yminauto
-    ymax = ymaxauto
-
-  if (plotoptions["axis_cdmax"] != "auto"):
-    cdmax = float(plotoptions["axis_cdmax"])
-  else:
-    cdmax = cdmaxauto
-  if (plotoptions["axis_cdmin"] != "auto"):
-    cdmin = float(plotoptions["axis_cdmin"])
-  else:
-    cdmin = cdminauto
-  if (cdmin >= cdmax):
-    print("Warning: cdmin must be less than cdmax. " +
-          "Reverting to auto cd bounds.")
-    cdmin = cdminauto
-    cdmax = cdmaxauto
-
-  if (plotoptions["axis_clmax"] != "auto"):
-    clmax = float(plotoptions["axis_clmax"])
-  else:
-    clmax = clmaxauto
-  if (plotoptions["axis_clmin"] != "auto"):
-    clmin = float(plotoptions["axis_clmin"])
-  else:
-    clmin = clminauto
-  if (clmin >= clmax):
-    print("Warning: clmin must be less than clmax. " +
-          "Reverting to auto cl bounds.")
-    clmin = clminauto
-    clmax = clmaxauto
+  if (plotoptions["plot_polars"]):
+    if (plotoptions["axis_cdmax"] != "auto"):
+      cdmax = float(plotoptions["axis_cdmax"])
+    else:
+      cdmax = cdmaxauto
+    if (plotoptions["axis_cdmin"] != "auto"):
+      cdmin = float(plotoptions["axis_cdmin"])
+    else:
+      cdmin = cdminauto
+    if (cdmin >= cdmax):
+      print("Warning: cdmin must be less than cdmax. " +
+            "Reverting to auto cd bounds.")
+      cdmin = cdminauto
+      cdmax = cdmaxauto
+  
+    if (plotoptions["axis_clmax"] != "auto"):
+      clmax = float(plotoptions["axis_clmax"])
+    else:
+      clmax = clmaxauto
+    if (plotoptions["axis_clmin"] != "auto"):
+      clmin = float(plotoptions["axis_clmin"])
+    else:
+      clmin = clminauto
+    if (clmin >= clmax):
+      print("Warning: clmin must be less than clmax. " +
+            "Reverting to auto cl bounds.")
+      clmin = clminauto
+      clmax = clmaxauto
 
   # Aliases for colors
 
@@ -358,7 +362,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
       ax0.plot(foil.x, foil.y, color=nc)
     ax0.set_aspect('equal', 'datalim')
     ax0.set_xlabel('x')
-    ax0.set_ylabel('y')
+    ax0.set_ylabel('z')
     ax0.set_xlim([xmin,xmax])
     ax0.set_ylim([ymin,ymax])
 
@@ -707,9 +711,9 @@ if __name__ == "__main__":
     polarfilename = args.prefix + '_design_polars.dat'
     prefix = args.prefix
   else:
-    coordfilename = 'design_coordinates.dat'
-    polarfilename = 'design_polars.dat'
-    prefix = 'design'
+    coordfilename = 'optfoil_design_coordinates.dat'
+    polarfilename = 'optfoil_design_polars.dat'
+    prefix = 'optfoil'
 
   # Read airfoil coordinates and polars
 
@@ -718,4 +722,4 @@ if __name__ == "__main__":
 
   # Call main menu
 
-  if (ioerror == 0): main_menu(seedfoil, designfoils, prefix)
+  if (ioerror <= 0): main_menu(seedfoil, designfoils, prefix)
