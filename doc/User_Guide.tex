@@ -23,7 +23,7 @@
 \section{Compiling}
 
 For convenience, precompiled versions of XoptFoil and its related tools are
-located in the bin/x86-64 directory for Windows. These should work as long as
+located in the bin/x86-64 directory for Windows and Linux. These should work as long as
 your CPU architecture is of x86-64 type, but to run the parallel version you will need to
 compile it yourself. If your computer has more than one core, it will be greatly
 beneficial to run the parallel code, so it's highly recommended that you compile it
@@ -266,6 +266,9 @@ airfoils.  `hicks-henne' are a more general class of functions which place a ``b
 variable width and location on the airfoil surface.  Each Hicks-Henne shape function,
 therefore, has a strength and also a width and location, whereas each NACA function only
 has a strength.}
+\item{\textbf{min\_bump\_width}: Minimum width of Hicks-Henne bump function.  Too small a
+value is more likely to result in a final design with small ``bumps'' present.  Default
+value is 0.1 (10\% chord).}
 \item{\textbf{nfunctions\_top}: The number of shape functions used to parameterize the top
 surface of the airfoil.  Note that if you are using Hicks-Henne functions, 1/3 the
 number of shape functions will give the same number of design variables and a similar range of
@@ -319,9 +322,17 @@ the Reynolds number based on chord for this operating point.}
 \item{\textbf{mach(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
 the Mach number for this operating point.  Note that XFoil calculations are not accurate
 at or above the transonic regime, so do not specify too high a Mach number.}
+\item{\textbf{flap\_selection(\#)} (where \# is an integer ranging from 1 to noppoint):
+Options are `specify' or `optimize'.  In the former case, the input value of flap\_degrees
+will be used at this operating point for \textit{all} designs considered by the optimizer.
+In the latter case, the optimizer will consider the flap deflection as a design variable
+and optimize it at this operating point.  The value of flap\_degrees will then be used
+only for the seed airfoil to establish the reference seed airfoil performance.}
 \item{\textbf{flap\_degrees(\#)} (where \# is an integer ranging from 1 to noppoint):
 Specifies the flap deflection for this operating point, in degrees, with a positive
-deflection being in the downward direction. Only used if use\_flap is enabled.}
+deflection being in the downward direction. Only used if use\_flap is enabled. The
+optimized flap deflection is subject to the constraints max\_flap\_degrees and
+min\_flap\_degrees.}
 \item{\textbf{weighting(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
 the weighting for this operating point.  Operating points with a higher weighting are
 given more importance by the optimizer.  Note that the weightings are automatically 
@@ -338,23 +349,33 @@ unusual designs which XFoil may not be able to handle well.
 
 \begin{enumerate}
 \item{\textbf{seed\_violation\_handling}: What action to take if the seed airfoil violates
-a constraint.  The options are 'stop' or 'warn'.}
+a constraint.  The options are `stop' or `warn'.}
 \item{\textbf{min\_thickness}: The minimum allowable max thickness of designs, as a
-fraction of the chord (for example 0.08 means 8\% thickness).  A minimum allowable
+fraction of the chord (for example, 0.08 means 8\% thickness).  A minimum allowable
 thickness is usually required for structural reasons.  If you don't want to impose this
 constraint, just set it to 0.}
-\item{\textbf{moment\_constraint\_type}: How to implement the pitching moment constraint.
-Either 'none', 'specify', or 'use\_seed'.  If 'none', then no pitching moment constraint
-is applied.  If 'specify', then the user specifies the minimum allowable moment using the 
-min\_moment constraint.  If 'use\_seed', then the minimum moment from the seed airfoil 
-over the specified operating points will be taken as the minimum allowable.}
-\item{\textbf{min\_moment}: The minimum allowable pitching moment coefficient 
-A larger negative pitching moment will require a 
-larger tail.  For flying-wing airfoils, this is usually set to 0.  This input is only used
-if moment\_constraint\_type = 'specify'.  If you don't want to 
-impose this constraint, set moment\_constraint\_type to 'none'.  If you want the minimum
-pitching moment to be no higher than the seed airfoil's, set moment\_constraint\_type to
-'use\_seed'.} 
+\item{\textbf{max\_thickness}: The maximum allowable max thickness of designs, as a
+fraction of the chord (for example, 0.08 means 8\% thickness). This can be used to set an
+upper bound on max airfoil thickness.  If you don't want to use this constraint, just set
+it to a very large number like 1000 (or just don't specify a max\_thickness, as 1000 is
+the default value).}
+\item{\textbf{moment\_constraint\_type(\#)} (where \# is an integer ranging from 1 to
+noppoint): How to implement the pitching moment constraint for the specified operating
+point. Either `none', `specify', or `use\_seed'.  If `none', then no pitching moment 
+constraint is applied at this operating point.  If `specify', then the user specifies the 
+minimum allowable moment using the min\_moment constraint.  If `use\_seed', then the 
+pitching moment from the seed airfoil at this operating point will be taken as the minimum
+allowable.}
+\item{\textbf{min\_moment(\#)} (where \# is an integer ranging from 1 to noppoint): The 
+minimum allowable pitching moment coefficient at the specified operating point.  A larger
+negative pitching moment will require a larger tail.  For flying-wing airfoils, this is 
+usually set to 0.  This input is only used if moment\_constraint\_type = `specify'.} 
+\item{\textbf{max\_flap\_degrees}: Maximum flap angle, in degrees, for `optimize' flap 
+selection type in operating\_conditions, where positive corresponds to a downward
+deflection.}
+\item{\textbf{min\_flap\_degrees}: Minimum flap angle, in degrees, for `optimize' flap 
+selection type in operating\_conditions, where positive corresponds to a downward
+deflection.}
 \item{\textbf{min\_te\_angle}: The minimum trailing edge wedge angle, in degrees.  Without
 this constraint, the optimizer may converge on airfoils with a very thin cusped aft
 section, which is challenging to build and presents structural problems.  If you don't
@@ -525,8 +546,9 @@ for xoptfoil, except that only the following namelists are used:
 The namelist called airfoil\_to\_load has a single input, called \textbf{airfoil\_file}.
 Enter the name (or relative path, if it's not in the working directory) of the airfoil 
 coordinates file to load here.  The operating\_conditions namelist is the same as the one
-for xoptfoil, except that the \textbf{optimization\_type} and \textbf{weighting} inputs
-are not used. The other namelists are the same as in the input file for xoptfoil.
+for xoptfoil, except that the \textbf{optimization\_type}, \textbf{flap\_selection}, and 
+\textbf{weighting} inputs are not used. The other namelists are the same as in the input 
+file for xoptfoil.
 
 \section{Output files}\label{sec:output_files}
 
