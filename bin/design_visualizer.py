@@ -5,6 +5,7 @@ from matplotlib import rcParams
 import numpy as np
 from math import log10, floor
 from sys import version_info
+from time import sleep
 
 # Default plottiong options
 
@@ -24,7 +25,8 @@ plotoptions = dict(show_seed_airfoil = True,
                    axis_clmin = "auto",
                    axis_clmax = "auto",
                    color_for_seed = "blue",
-                   color_for_new_designs = "red")
+                   color_for_new_designs = "red",
+                   monitor_update_frequency = 10)
 
 ################################################################################
 #
@@ -99,8 +101,11 @@ def read_airfoil_data(filename, zonetitle):
   # Error if zone has not been found after reading the file
 
   if (not zonefound):
-    f.close()
     ioerror = 2
+
+  # Close the file
+
+  f.close()
 
   # Return coordinate data
 
@@ -116,12 +121,14 @@ def load_airfoils_from_file(coordfilename, polarfilename):
   designfoils = []
   ioerror = 0
 
-  # Read seed airfoil coordinates
+  # Check for seed airfoil coordinates
+
+  print("Checking for airfoil coordinates file " + coordfilename + "...")
 
   zonetitle = 'zone t="Seed airfoil"'
   x, y, ioerror = read_airfoil_data(coordfilename, zonetitle)
   if (ioerror == 1):
-    print("Error: file " + coordfilename + " not found.")
+    print("Warning: file " + coordfilename + " not found.")
     return seedfoil, designfoils, ioerror
   elif (ioerror == 2):
     print("Error: zone labeled " + zonetitle + " not found in " + coordfilename
@@ -152,12 +159,15 @@ def load_airfoils_from_file(coordfilename, polarfilename):
 
   print("Found " + str(numfoils) + " airfoil coordinates plus seed airfoil.")
 
-  # Read seed airfoil polars
+  # Read seed airfoil polars (note: negative error code means coordinates were
+  # read but not polars)
+
+  print("Checking for airfoil polars file " + coordfilename + "...")
 
   zonetitle = 'zone t="Seed airfoil polar"'
   cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
   if (ioerror == 1):
-    print("Error: file " + polarfilename + " not found.")
+    print("Warning: file " + polarfilename + " not found.")
     return seedfoil, designfoils, 0 - ioerror
   elif (ioerror == 2):
     print("Error: zone labeled " + zonetitle + " not found in " + polarfilename
@@ -514,6 +524,67 @@ def plotting_menu(seedfoil, designfoils):
   return plotting_complete
 
 ################################################################################
+# Monitors airfoil coordinates and polar files for updates during optimization
+def monitor_airfoil_data(seedfoil, designfoils, prefix):
+
+  # Temporary airfoil struct
+
+  foil = Airfoil()
+
+  # Set up file names to monitor
+
+  coordfilename = prefix + '_design_coordinates.dat'
+  polarfilename = prefix + '_design_polars.dat'
+
+  # Determine which design to read for coordinate file
+
+  if (seedfoil.npt == 0):
+    zonetitle = 'zone t="Seed airfoil"'
+    foilstr = 'seed'
+  else:
+    nextdesign = len(designfoils) + 1
+    zonetitle = 'zone t="Airfoil", SOLUTIONTIME=' + str(nextdesign)
+    foilstr = 'design number ' + str(nextdesign)
+
+  # Read data from coordinate file
+
+  x, y, ioerror = read_airfoil_data(coordfilename, zonetitle)
+  if (ioerror == 1):
+    print("Airfoil coordinates file " + coordfilename + " not available yet.")
+    return seedfoil, designfoils, ioerror
+  elif (ioerror == 2):
+    print("Waiting for next airfoil design.")
+    return seedfoil, designfoils, ioerror
+  else:
+    print("Read coordinates for " + foilstr + ".")
+    foil.setCoordinates(np.array(x), np.array(y))
+
+  # Set zone title for polars
+
+  if (foilstr == 'seed'):
+    zonetitle = 'zone t="Seed airfoil polar"'
+  else:
+    zonetitle = 'zone t="Polars", SOLUTIONTIME=' + str(nextdesign)
+
+  # Read data from polar file (not: negative error code means coordinates were
+  # read but not polars)
+
+  cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
+  if ( (ioerror == 1) or (ioerror == 2) ):
+    print("Warning: polars will not be available for this design.")
+    ioerror *= -1
+  else:
+    print("Read polars for " + foilstr + ".")
+    foil.setPolars(np.array(cl), np.array(cd))
+
+  # Copy data to output objects
+
+  if (foilstr == 'seed'): seedfoil = foil
+  else: designfoils.append(foil)
+
+  return seedfoil, designfoils, ioerror
+
+################################################################################
 # Gets boolean input from user
 def get_boolean_input(key, keyval):
 
@@ -622,7 +693,8 @@ def options_menu():
 
 ################################################################################
 # Main menu
-def main_menu(seedfoil, designfoils, prefix):
+def main_menu(seedfoil, designfoils, prefix, menumode):
+  global plotoptions
 
   exitchoice = False
   while (not exitchoice):
@@ -632,10 +704,11 @@ def main_menu(seedfoil, designfoils, prefix):
     print("[0] Exit")
     print("[1] Plot a specific design")
     print("[2] Animate all designs")
-    print("[3] Change plotting options")
+    print("[3] Monitor an ongoing optimization")
+    print("[4] Change plotting options")
     print("")
 
-    choice = my_input("Enter a choice [0-3]: ")
+    choice = my_input("Enter a choice [0-4]: ")
 
     if (choice == "0"):
       exitchoice = True
@@ -687,11 +760,53 @@ def main_menu(seedfoil, designfoils, prefix):
 
     elif (choice == "3"):
       exitchoice = False
+      print("Monitoring optimization progress. To stop, create a file called " +
+            "stop_monitoring.")
+
+      #FIXME
+      imagepref = 'default'
+
+      # Plot data read when design_visualizer was started
+
+      if (seedfoil.npt != 0):
+        numfoils = len(designfoils)
+        plot_airfoil(seedfoil, designfoils, numfoils, firsttime=True,
+                     animation=True, prefix=imagepref)
+        init = False
+      else: init = True
+
+      # Periodically read data and update plot
+
+      monitoring = True
+      init = True
+      while (monitoring):
+
+        # Update airfoil data
+
+        seedfoil, designfoils, ioerror = monitor_airfoil_data(seedfoil,
+                                                            designfoils, prefix)
+
+        # Update plot
+
+        if (ioerror <= 0): 
+          numfoils = len(designfoils)
+          plot_airfoil(seedfoil, designfoils, numfoils, firsttime=init,
+                       animation=True, prefix=imagepref)
+          init = False
+        
+        # Pause for requested update interval
+
+        sleep(plotoptions["monitor_update_frequency"])
+
+        # Check for stop_monitoring file
+
+    elif (choice == "4"):
+      exitchoice = False
       options_complete = False
       while (not options_complete): options_complete = options_menu()
 
     else:
-      print("Error: please enter a choice 0-3.")
+      print("Error: please enter a choice 0-4.")
 
 ################################################################################
 # Main design_visualizer program
@@ -720,6 +835,16 @@ if __name__ == "__main__":
   seedfoil, designfoils, ioerror = load_airfoils_from_file(
                                                    coordfilename, polarfilename)
 
+  # Warning if file is not found
+
+  if (ioerror == 1):
+    print("You will not be able to create plots until coordinate data is read.")
+    menumode = "options and monitor"
+  elif (ioerror < 0):
+    print("Only airfoils are available for plotting (no polars).")
+    menumode = "airfoils"
+  else: menumode = "all"
+
   # Call main menu
 
-  if (ioerror <= 0): main_menu(seedfoil, designfoils, prefix)
+  if (abs(ioerror) <= 1): main_menu(seedfoil, designfoils, prefix, menumode)
