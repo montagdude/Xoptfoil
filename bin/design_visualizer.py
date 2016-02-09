@@ -5,7 +5,7 @@ from matplotlib import rcParams
 import numpy as np
 from math import log10, floor
 from sys import version_info
-from time import sleep
+from os import remove
 
 # Default plottiong options
 
@@ -209,7 +209,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
 
   # Select requested airfoil
 
-  foil = designfoils[plotnum-1]
+  if (plotnum > 0): foil = designfoils[plotnum-1]
 
   # Set up plot
 
@@ -242,7 +242,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
   # Set auto plotting bounds
 
   if (plotoptions["plot_airfoils"]):
-    if (plotoptions["show_seed_airfoil_only"]):
+    if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
       xmax = np.max(seedfoil.x)
       xmin = np.min(seedfoil.x)
     elif (plotoptions["show_seed_airfoil"]):
@@ -255,7 +255,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
     xmaxauto = xmax + 0.1*xrng
     xminauto = xmin - 0.1*xrng
   
-    if (plotoptions["show_seed_airfoil_only"]):
+    if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
       ymax = np.max(seedfoil.y)
       ymin = np.min(seedfoil.y)
     elif (plotoptions["show_seed_airfoil"]):
@@ -269,7 +269,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
     yminauto = ymin - 0.1*yrng
   
   if (plotoptions["plot_polars"]):
-    if (plotoptions["show_seed_polar_only"]):
+    if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
       cdmax = np.max(seedfoil.cd)
       cdmin = np.min(seedfoil.cd)
     elif (plotoptions["show_seed_polar"]):
@@ -282,7 +282,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
     cdmaxauto = cdmax + 0.1*cdrng
     cdminauto = cdmin - 0.1*cdrng
   
-    if (plotoptions["show_seed_polar_only"]):
+    if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
       clmax = np.max(seedfoil.cl)
       clmin = np.min(seedfoil.cl)
     elif (plotoptions["show_seed_polar"]):
@@ -363,7 +363,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
   # Plot airfoil coordinates
 
   if (plotoptions["plot_airfoils"]):
-    if (plotoptions["show_seed_airfoil_only"]):
+    if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
       ax0.plot(seedfoil.x, seedfoil.y, color=sc)
     elif (plotoptions["show_seed_airfoil"]):
       ax0.plot(seedfoil.x, seedfoil.y, color=sc)
@@ -379,7 +379,7 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
   # Plot polars
 
   if (plotoptions["plot_polars"]):
-    if (plotoptions["show_seed_polar_only"]):
+    if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
       ax1.plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, marker='o')
     elif (plotoptions["show_seed_polar"]):
       ax1.plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, marker='o')
@@ -414,11 +414,11 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
     if ( (plotoptions["show_seed_airfoil"]) or 
          (plotoptions["show_seed_airfoil_only"]) or
          (plotoptions["show_seed_polar"]) or
-         (plotoptions["show_seed_polar_only"]) ):
+         (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
       fakeline = plt.Line2D((0,1),(0,0), color=sc, label="Seed airfoil")
       lines.append(fakeline)
-    if ( (not plotoptions["show_seed_airfoil_only"]) or
-         (not plotoptions["show_seed_polar_only"]) ):
+    if (plotnum != 0 and ( (not plotoptions["show_seed_airfoil_only"]) or
+         (not plotoptions["show_seed_polar_only"]) )):
       fakeline = plt.Line2D((0,1),(0,0), color=nc, 
                             label="Design number " + str(plotnum))
       lines.append(fakeline)
@@ -428,10 +428,10 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
     # Only plotting airfoils
 
     if ( (plotoptions["show_seed_airfoil"]) or 
-         (plotoptions["show_seed_airfoil_only"]) ):
+         (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
       fakeline = plt.Line2D((0,1),(0,0), color=sc, label="Seed airfoil")
       lines.append(fakeline)
-    if (not plotoptions["show_seed_airfoil_only"]):
+    if ( (not plotoptions["show_seed_airfoil_only"]) and (plotnum != 0) ):
       fakeline = plt.Line2D((0,1),(0,0), color=nc, 
                             label="Design number " + str(plotnum))
       lines.append(fakeline)
@@ -441,11 +441,11 @@ def plot_airfoil(seedfoil, designfoils, plotnum, firsttime=True,
     # Only plotting polars
 
     if ( (plotoptions["show_seed_polar"]) or 
-         (plotoptions["show_seed_polar_only"]) ):
+         (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
       fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=sc, marker='o',
                             label="Seed airfoil")
       lines.append(fakeline)
-    if (not plotoptions["show_seed_polar_only"]):
+    if ( (not plotoptions["show_seed_polar_only"]) and (plotnum != 0) ):
       fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=nc, marker='s', 
                             label="Design number " + str(plotnum))
       lines.append(fakeline)
@@ -710,8 +710,12 @@ def main_menu(seedfoil, designfoils, prefix, menumode):
 
     choice = my_input("Enter a choice [0-4]: ")
 
+    # Exit design_visualizer
+
     if (choice == "0"):
       exitchoice = True
+
+    # Plot a single design
 
     elif (choice == "1"):
       exitchoice = False
@@ -725,6 +729,9 @@ def main_menu(seedfoil, designfoils, prefix, menumode):
       plotting_complete = False
       while (not plotting_complete): plotting_complete = plotting_menu(
                                                           seedfoil, designfoils)
+
+    # Animate all designs
+
     elif (choice == "2"):
       exitchoice = False
 
@@ -758,52 +765,73 @@ def main_menu(seedfoil, designfoils, prefix, menumode):
         plot_airfoil(seedfoil, designfoils, i+1, firsttime=init,
                      animation=True, prefix=imagepref)
 
+    # Monitor optimization progress
+
     elif (choice == "3"):
       exitchoice = False
       print("Monitoring optimization progress. To stop, create a file called " +
             "stop_monitoring.")
 
-      #FIXME
-      imagepref = 'default'
+      # Turn off matplotlib toolbar and temporarily disable saving images
 
-      # Plot data read when design_visualizer was started
+      rcParams['toolbar'] = 'None'
+      temp_save_frames = plotoptions["save_animation_frames"]
+      plotoptions["save_animation_frames"] = False
 
-      if (seedfoil.npt != 0):
-        numfoils = len(designfoils)
-        plot_airfoil(seedfoil, designfoils, numfoils, firsttime=True,
-                     animation=True, prefix=imagepref)
-        init = False
-      else: init = True
+      # Initial flag for plotting (will plot when ioerror <= 0)
+
+      if (seedfoil.npt != 0): ioerror = 0
+      else: ioerror = 1
 
       # Periodically read data and update plot
 
-      monitoring = True
       init = True
+      monitoring = True
       while (monitoring):
-
-        # Update airfoil data
-
-        seedfoil, designfoils, ioerror = monitor_airfoil_data(seedfoil,
-                                                            designfoils, prefix)
 
         # Update plot
 
         if (ioerror <= 0): 
           numfoils = len(designfoils)
           plot_airfoil(seedfoil, designfoils, numfoils, firsttime=init,
-                       animation=True, prefix=imagepref)
+                       animation=True)
           init = False
         
+        # Update airfoil data
+
+        seedfoil, designfoils, ioerror = monitor_airfoil_data(seedfoil,
+                                                            designfoils, prefix)
+
         # Pause for requested update interval
 
-        sleep(plotoptions["monitor_update_frequency"])
+        plt.pause(plotoptions["monitor_update_frequency"])
 
         # Check for stop_monitoring file
+
+        try:
+          f = open('stop_monitoring')
+        except IOError:
+          continue
+
+        # If stop_monitoring file was found, delete it and break loop
+ 
+        print("stop_monitoring file found. Returning to main menu.")
+        f.close()
+        remove('stop_monitoring')
+        monitoring = False
+ 
+      # Change save_animation_frames back to original setting when done
+
+      plotoptions["save_animation_frames"] = temp_save_frames
+
+    # Change plotting options
 
     elif (choice == "4"):
       exitchoice = False
       options_complete = False
       while (not options_complete): options_complete = options_menu()
+
+    # Invalid choice
 
     else:
       print("Error: please enter a choice 0-4.")
