@@ -26,7 +26,7 @@ plotoptions = dict(show_seed_airfoil = True,
                    axis_clmax = "auto",
                    color_for_seed = "blue",
                    color_for_new_designs = "red",
-                   monitor_update_frequency = 10)
+                   monitor_update_interval = 10)
 
 ################################################################################
 #
@@ -631,6 +631,44 @@ def get_color_input(key, keyval):
   return retval
 
 ################################################################################
+# Gets float input from user, subject to user-supplied min and max values
+def get_float_input(key, keyval, minallow=None, maxallow=None):
+
+  validchoice = False
+  while (not validchoice):
+    print("Current value for " + key + ": " + str(keyval) + '\n')
+    sel = my_input("Enter new value: ")
+
+    # Check for bad format
+
+    try:
+      val = float(sel)
+    except ValueError:
+      print("Error: " + key + " must be a floating point number.")
+      validchoice = False
+      continue
+
+    # Check for out-of-bounds selection
+
+    if (minallow != None):
+      if (val <= minallow):
+        print("Error: " + key + " must be greater than " + str(minallow) + ".")
+        validchoice = False
+        continue
+    if (maxallow != None):
+      if (val >= maxallow):
+        print("Error: " + key + " must be less than " + str(maxallow) + ".")
+        validchoice = False
+        continue
+
+    # If it passed all these checks, it's an acceptable input
+
+    validchoice = True
+    retval = val
+
+  return retval
+
+################################################################################
 # Options menu: allows user to change plot options
 def options_menu():
   global plotoptions
@@ -677,6 +715,12 @@ def options_menu():
     print("Current value for " + key + ": " + str(plotoptions[key]) + '\n')
     sel = my_input("Enter new value for " + key + " or enter 'auto': ")
     plotoptions[key] = sel 
+
+  # Change monitor update interval
+
+  elif (key == "monitor_update_interval"):
+    options_complete = False
+    plotoptions[key] = get_float_input(key, plotoptions[key], minallow=0.0)
 
   # Exit options menu
 
@@ -778,10 +822,10 @@ def main_menu(seedfoil, designfoils, prefix, menumode):
       temp_save_frames = plotoptions["save_animation_frames"]
       plotoptions["save_animation_frames"] = False
 
-      # Initial flag for plotting (will plot when ioerror <= 0)
+      # Read airfoil coordinates and polars (clears any data from previous run)
 
-      if (seedfoil.npt != 0): ioerror = 0
-      else: ioerror = 1
+      seedfoil, designfoils, ioerror = load_airfoils_from_file(
+                                                   coordfilename, polarfilename)
 
       # Periodically read data and update plot
 
@@ -796,16 +840,17 @@ def main_menu(seedfoil, designfoils, prefix, menumode):
           plot_airfoil(seedfoil, designfoils, numfoils, firsttime=init,
                        animation=True)
           init = False
-        
+
+        # Pause for requested update interval
+
+        plt.pause(plotoptions["monitor_update_interval"])
+
         # Update airfoil data
 
         seedfoil, designfoils, ioerror = monitor_airfoil_data(seedfoil,
                                                             designfoils, prefix)
 
-        # Pause for requested update interval
-
-        plt.pause(plotoptions["monitor_update_frequency"])
-
+        
         # Check for stop_monitoring file
 
         try:
