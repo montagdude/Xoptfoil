@@ -1,3 +1,20 @@
+#  This file is part of XOPTFOIL.
+
+#  XOPTFOIL is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+
+#  XOPTFOIL is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+
+#  You should have received a copy of the GNU General Public License
+#  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
+
+#  Copyright (C) 2014 -- 2016 Daniel Prosser
+
 import argparse
 from matplotlib import pyplot as plt
 from matplotlib import gridspec
@@ -782,6 +799,9 @@ def main_menu(seedfoil, designfoils, prefix, menumode):
       # Number of digits in design counter string
 
       numfoils = len(designfoils)
+      if (numfoils == 0):
+        print("There are no designs to animate.  Run xoptfoil first.")
+        continue
       width = int(floor(log10(float(numfoils)))) - 1
 
       # Turn off matplotlib toolbar
@@ -912,11 +932,8 @@ if __name__ == "__main__":
 
   if (ioerror == 1):
     print("You will not be able to create plots until coordinate data is read.")
-    menumode = "options and monitor"
   elif (ioerror < 0):
     print("Only airfoils are available for plotting (no polars).")
-    menumode = "airfoils"
-  else: menumode = "all"
 
   # Call main menu
 
