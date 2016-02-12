@@ -754,7 +754,7 @@ def options_menu():
 
 ################################################################################
 # Main menu
-def main_menu(seedfoil, designfoils, prefix, menumode):
+def main_menu(seedfoil, designfoils, prefix):
   global plotoptions
 
   exitchoice = False
@@ -937,4 +937,4 @@ if __name__ == "__main__":
 
   # Call main menu
 
-  if (abs(ioerror) <= 1): main_menu(seedfoil, designfoils, prefix, menumode)
+  if (abs(ioerror) <= 1): main_menu(seedfoil, designfoils, prefix)
