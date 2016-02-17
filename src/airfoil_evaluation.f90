@@ -517,53 +517,23 @@ end function matchfoil_objective_function
 
 !=============================================================================80
 !
-! Generic function to write design for the seed airfoil. Used due to desire
-! to keep converterfunc in optimization.F90 generic (i.e., only takes
-! designvars as input).
-!
-!=============================================================================80
-function write_function_seed(designvars)
-
-  double precision, dimension(:), intent(in) :: designvars
-  integer :: write_function_seed
-
-  write_function_seed = write_function(designvars, .true.)
-
-end function write_function_seed
-
-!=============================================================================80
-!
-! Generic function to write designs for airfoils other than the seed. Used due
-! to desire to keep converterfunc in optimization.F90 generic (i.e., only takes
-! designvars as input).
-!
-!=============================================================================80
-function write_function_nonseed(designvars)
-
-  double precision, dimension(:), intent(in) :: designvars
-  integer :: write_function_nonseed
-
-  write_function_nonseed = write_function(designvars, .false.)
-
-end function write_function_nonseed
-
-!=============================================================================80
-!
 ! Generic function to write designs. Selects either 
 ! write_airfoil_optimization_progress or write_matchfoil_optimization_progress
 ! depending on whether match_foils = .true. or not.
 !
 !=============================================================================80
-function write_function(designvars, isseed)
+function write_function(designvars, designcounter)
 
   double precision, dimension(:), intent(in) :: designvars
-  logical, intent(in) :: isseed
+  integer, intent(in) :: designcounter
   integer :: write_function
 
   if (match_foils) then
-    write_function = write_matchfoil_optimization_progress(designvars, isseed)
+    write_function = write_matchfoil_optimization_progress(designvars,         &
+                                                           designcounter)
   else
-    write_function = write_airfoil_optimization_progress(designvars, isseed)
+    write_function = write_airfoil_optimization_progress(designvars,           &
+                                                         designcounter)
   end if
 
 end function write_function
@@ -573,7 +543,7 @@ end function write_function
 ! Writes airfoil coordinates and polars to files during optimization
 !
 !=============================================================================80
-function write_airfoil_optimization_progress(designvars, isseed)
+function write_airfoil_optimization_progress(designvars, designcounter)
 
   use math_deps,          only : interp_vector 
   use parameterization,   only : top_shape_function, bot_shape_function,       &
@@ -581,7 +551,7 @@ function write_airfoil_optimization_progress(designvars, isseed)
   use xfoil_driver,       only : run_xfoil
 
   double precision, dimension(:), intent(in) :: designvars
-  logical, intent(in) :: isseed
+  integer, intent(in) :: designcounter
   integer :: write_airfoil_optimization_progress
 
   double precision, dimension(size(xseedt,1)) :: zt_new
@@ -595,7 +565,6 @@ function write_airfoil_optimization_progress(designvars, isseed)
  
   character(100) :: foilfile, polarfile, text
   integer :: foilunit, polarunit
-  integer, save :: designcounter
 
   nmodest = size(top_shape_function,1)
   nmodesb = size(bot_shape_function,1)
@@ -675,11 +644,7 @@ function write_airfoil_optimization_progress(designvars, isseed)
 
 ! Open files and write headers, if necessary
 
-  if (isseed) then
-
-!   Set designcounter
-
-    designcounter = 0
+  if (designcounter == 0) then
 
 !   Header for coordinate file
 
@@ -702,9 +667,8 @@ function write_airfoil_optimization_progress(designvars, isseed)
 
   else
 
-!   Increment designcounter
+!   Format design counter as string
 
-    designcounter = designcounter + 1
     write(text,*) designcounter
     text = adjustl(text)
 
@@ -769,13 +733,13 @@ end function write_airfoil_optimization_progress
 ! to another.
 !
 !=============================================================================80
-function write_matchfoil_optimization_progress(designvars, isseed)
+function write_matchfoil_optimization_progress(designvars, designcounter)
 
   use parameterization,   only : top_shape_function, bot_shape_function,       &
                                  create_airfoil
 
   double precision, dimension(:), intent(in) :: designvars
-  logical, intent(in) :: isseed
+  integer, intent(in) :: designcounter
   integer :: write_matchfoil_optimization_progress
 
   double precision, dimension(size(xseedt,1)) :: zt_new
@@ -784,7 +748,6 @@ function write_matchfoil_optimization_progress(designvars, isseed)
 
   character(100) :: foilfile, text
   integer :: foilunit
-  integer, save :: designcounter
 
   nmodest = size(top_shape_function,1)
   nmodesb = size(bot_shape_function,1)
@@ -825,11 +788,7 @@ function write_matchfoil_optimization_progress(designvars, isseed)
 
 ! Open file and write header, if necessary
 
-  if (isseed) then
-
-!   Set designcounter
-
-    designcounter = 0
+  if (designcounter == 0) then
 
 !   Header for coordinate file
 
@@ -843,9 +802,8 @@ function write_matchfoil_optimization_progress(designvars, isseed)
 
   else
 
-!   Increment designcounter
+!   Format designcounter as string
 
-    designcounter = designcounter + 1
     write(text,*) designcounter
     text = adjustl(text)
 

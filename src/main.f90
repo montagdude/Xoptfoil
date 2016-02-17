@@ -37,10 +37,12 @@ program main
   character(80) :: input_file
   type(pso_options_type) :: pso_options
   type(ds_options_type) :: ds_options
-  integer :: pointst, pointsb, steps, fevals, nshapedvtop, nshapedvbot 
+  integer :: pointst, pointsb, steps, fevals, nshapedvtop, nshapedvbot,        &
+             restart_write_freq 
   double precision, dimension(:), allocatable :: optdesign, modest, modesb
   integer, dimension(:), allocatable :: constrained_dvs
   double precision :: f0, fmin
+  logical :: restart
 
   write(*,*)
   write(*,*) 'This is XoptFoil: airfoil optimization with XFOIL'
@@ -54,8 +56,8 @@ program main
 
   call read_inputs(input_file, search_type, global_search, local_search,       &
                    seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
-                   nparams_bot, constrained_dvs, pso_options, ds_options,      &
-                   matchfoil_file)
+                   nparams_bot, restart, restart_write_freq, constrained_dvs,  &
+                   pso_options, ds_options, matchfoil_file)
 
 ! Load seed airfoil into memory, including transformations and smoothing
 
@@ -92,8 +94,8 @@ program main
 ! Optimize
   
   call optimize(search_type, global_search, local_search, matchfoil_file,      &
-                constrained_dvs, pso_options, ds_options, optdesign, f0, fmin, &
-                steps, fevals)
+                constrained_dvs, pso_options, ds_options, restart,             &
+                restart_write_freq, optdesign, f0, fmin, steps, fevals)
 
 ! Notify of total number of steps and function evals
 

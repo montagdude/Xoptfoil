@@ -30,8 +30,8 @@ module optimization_driver
 !
 !=============================================================================80
 subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
-                    constrained_dvs, pso_options, ds_options, optdesign,       &
-                    f0_ref, fmin, steps, fevals)
+                    constrained_dvs, pso_options, ds_options, restart,         &
+                    restart_write_freq, optdesign, f0_ref, fmin, steps, fevals)
 
   use vardef,             only : airfoil_type, match_foils, xmatcht, xmatchb,  &
                                  zmatcht, zmatchb, xseedt, xseedb, zseedt,     &
@@ -40,11 +40,10 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  min_flap_degrees, max_flap_degrees,           &
                                  flap_degrees, flap_optimize_points,           &
                                  min_bump_width, curr_foil, nparams_top,       &
-                                 nparams_bot
+                                 nparams_bot 
   use optimization,       only : pso_options_type, ds_options_type,            &
                                  particleswarm, simplex_search
-  use airfoil_evaluation, only : objective_function, write_function_seed,      &
-                                 write_function_nonseed
+  use airfoil_evaluation, only : objective_function, write_function
   use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
                                  split_airfoil, allocate_airfoil,              &
                                  deallocate_airfoil, my_stop
@@ -60,8 +59,10 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   type(ds_options_type), intent(in) :: ds_options
   double precision, dimension(:), intent(inout) :: optdesign
   double precision, intent(out) :: f0_ref, fmin
+  integer, intent(in) :: restart_write_freq
   integer, dimension(:), intent(in) :: constrained_dvs
   integer, intent(out) :: steps, fevals
+  logical, intent(in) :: restart
 
   type(airfoil_type) :: match_foil
   integer :: pointst, pointsb, counter, nfuncs, ndv
@@ -262,7 +263,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
 !   Analyze and write seed airfoil
 
-    stat = write_function_seed(x0) 
+    if (.not. restart) stat = write_function(x0, 0) 
 
 !   Deallocate memory
 
@@ -314,7 +315,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
                          x0, xmin, xmax, .false., f0_ref, constrained_dvs,     &
-                         pso_options, write_function_nonseed)
+                         pso_options, restart, restart_write_freq,             &
+                         write_function)
 
     end if
 
@@ -335,8 +337,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, given_f0_ref, f0_ref, ds_options,                &
-                          write_function_nonseed)
+                          x0, given_f0_ref, f0_ref, ds_options, write_function)
 
     end if
 

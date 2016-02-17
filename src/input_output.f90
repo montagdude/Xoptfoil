@@ -30,8 +30,8 @@ module input_output
 !=============================================================================80
 subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                        seed_airfoil, airfoil_file, naca_digits, nfunctions_top,&
-                       nfunctions_bot, constrained_dvs, pso_options,           &
-                       ds_options, matchfoil_file)
+                       nfunctions_bot, restart, restart_write_freq,            &
+                       constrained_dvs, pso_options, ds_options, matchfoil_file)
 
   use vardef
   use optimization,       only : pso_options_type, ds_options_type
@@ -48,8 +48,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   type(ds_options_type), intent(out) :: ds_options
 
   logical :: viscous_mode, silent_mode, fix_unconverged, pso_feasible_init,    &
-             reinitialize, write_designs
-  integer :: pop, pso_maxit, simplex_maxit, bl_maxit, npan,                    &
+             reinitialize, restart, write_designs
+  integer :: restart_write_freq, pop, pso_maxit, simplex_maxit, bl_maxit, npan,&
              pso_feasible_init_attempts
   double precision :: pso_speed_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
@@ -61,7 +61,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
             nfunctions_top, nfunctions_bot, initial_perturb, min_bump_width,   &
-            write_designs
+            restart, restart_write_freq, write_designs
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
             use_flap, x_flap, y_flap, flap_selection, flap_degrees, weighting, &
             optimization_type 
@@ -109,6 +109,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   nfunctions_top = 4
   nfunctions_bot = 4
   initial_perturb = 0.025d0
+  restart = .false.
+  restart_write_freq = 30
   write_designs = .true.
 
 ! Read main namelist options
@@ -367,6 +369,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " nfunctions_top = ", nfunctions_top
   write(*,*) " nfunctions_bot = ", nfunctions_bot
   write(*,*) " initial_perturb = ", initial_perturb
+  write(*,*) " restart = ", restart
+  write(*,*) " restart_write_freq = ", restart_write_freq
   write(*,*) " write_designs = ", write_designs
   write(*,'(A)') " /"
   write(*,*)

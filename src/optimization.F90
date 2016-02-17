@@ -74,7 +74,7 @@ module optimization
 !=============================================================================80
 subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
                          given_f0_ref, f0_ref, constrained_dvs, pso_options,   &
-                         converterfunc)
+                         restart, restart_write_freq, converterfunc)
 
   use math_deps,          only : norm_2
 
@@ -106,17 +106,20 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   double precision, dimension(:), intent(in) :: x0, xmin, xmax
   double precision, intent(inout) :: f0_ref
   integer, dimension(:), intent(in) :: constrained_dvs
-  logical, intent(in) :: given_f0_ref
+  logical, intent(in) :: given_f0_ref, restart
   type (pso_options_type), intent(in) :: pso_options
+  integer, intent(in) :: restart_write_freq
 
   optional :: converterfunc
   interface
-    integer function converterfunc(x)
+    integer function converterfunc(x, designcounter)
       double precision, dimension(:), intent(in) :: x
+      integer, intent(in) :: designcounter
     end function
   end interface
 
-  integer :: nvars, nconstrained, i, j, fminloc, designcounter, var, stat
+  integer :: nvars, nconstrained, i, j, fminloc, designcounter, var, stat,     &
+             restartcounter
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
                       f0 
   double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
@@ -160,7 +163,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     maxspeed = maxval(xmax - xmin)
   end if
 
-! Memory allocation and initialization
+! Memory allocation
 
   allocate(dv(nvars,pso_options%pop))
   allocate(vel(nvars,pso_options%pop))
@@ -170,9 +173,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   allocate(speed(pso_options%pop))
   allocate(randvec1(nvars))
   allocate(randvec2(nvars))
-  dv(:,:) = 0.d0
-  vel(:,:) = 0.d0
-  objval(:) = 0.d0
 
 !$omp parallel default(shared) private(i, j)
 
@@ -230,36 +230,65 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! Set up initial designs
 
-  use_x0 = .true.
-  call initial_designs(dv, objval, fevals, objfunc, xmin, xmax, use_x0, x0,    &
-                       pso_options%feasible_init, pso_options%feasible_limit,  &
-                       pso_options%feasible_init_attempts)
+  if (.not. restart) then
+    use_x0 = .true.
+    call initial_designs(dv, objval, fevals, objfunc, xmin, xmax, use_x0, x0,  &
+                         pso_options%feasible_init, pso_options%feasible_limit,&
+                         pso_options%feasible_init_attempts)
+  end if
 
 !$omp master
 
-! Initial velocities which may be positive or negative
+! Set up or read other initialization data
 
-  call random_number(vel)
-  vel = 2.d0*maxspeed*(vel - 0.5d0)
+  if (.not. restart) then
 
-! Matrix of best designs for each particle and vector of their values
+!   Initial velocities which may be positive or negative
 
-  bestdesigns = dv
-  minvals = objval
+    call random_number(vel)
+    vel = 2.d0*maxspeed*(vel - 0.5d0)
 
-! Global best so far
+!   Matrix of best designs for each particle and vector of their values
 
-  fmin = f0
-  mincurr = minval(objval,1)
-  fminloc = minloc(objval,1)
-  xopt = dv(:,fminloc)
+    bestdesigns = dv
+    minvals = objval
+
+!   Global and local best so far
+
+    fmin = f0
+    mincurr = minval(objval,1)
+    fminloc = minloc(objval,1)
+    xopt = dv(:,fminloc)
+  
+!   Counters
+  
+    step = 0
+    designcounter = 1
+
+!   Inertial parameter
+
+    wcurr = whigh
+
+  else
+
+!   Read restart data from file
+
+    call pso_read_restart(dv, objval, vel, speed, bestdesigns, minvals, step,  &
+                          designcounter, wcurr)
+
+!   Global and local best so far
+
+    fmin = minval(minvals,1)
+    fminloc = minloc(minvals,1)
+    xopt = bestdesigns(:,fminloc)
+    mincurr = minval(objval,1)
+
+  end if
 
 ! Begin optimization
 
+  restartcounter = 1
   converged = .false.
-  step = 0
-  designcounter = 1
-  wcurr = whigh
   write(*,*) 'Particle swarm optimization progress:'
 
 !$omp end master
@@ -370,7 +399,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
     if ( (signal_progress) .and. (pso_options%write_designs) ) then
       if (present(converterfunc)) then
-        stat = converterfunc(xopt)
+        stat = converterfunc(xopt, designcounter)
       else
         call write_design('particleswarm_designs.dat', 'old', xopt,            &
                           designcounter)
@@ -390,6 +419,16 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
         write(*,*) '         of iterations being reached.'
       end if
     end if 
+
+!   Write restart file if appropriate and update restart counter
+
+    if (restartcounter == restart_write_freq) then
+      call pso_write_restart(dv, objval, vel, speed, bestdesigns, minvals,    &
+                             step, designcounter, wcurr)
+      restartcounter = 1
+    else
+      restartcounter = restartcounter + 1
+    end if
 
 !$omp end master
 !$omp barrier
@@ -431,6 +470,114 @@ end subroutine particleswarm
 
 !=============================================================================80
 !
+! Particle swarm restart write routine
+!
+!=============================================================================80
+subroutine pso_write_restart(dv, objval, vel, speed, bestdesigns, minvals,     &
+                             step, designcounter, wcurr)
+
+  use vardef, only : output_prefix
+
+  double precision, dimension(:,:), intent(in) :: dv, vel, bestdesigns
+  double precision, dimension(:), intent(in) :: objval, speed, minvals
+  integer, intent(in) :: step, designcounter
+  double precision, intent(in) :: wcurr
+
+  character(100) :: restfile
+  integer :: iunit
+  
+  ! Status notification
+
+  restfile = trim(output_prefix)//'.pso_restart'
+  write(*,*) '  Writing PSO restart data to file '//trim(restfile)//' ...'
+
+  ! Open output file for writing
+
+  iunit = 13
+  open(unit=iunit, file=restfile, status='replace', form='unformatted')
+  
+  ! Write restart data
+
+  write(iunit) dv
+  write(iunit) objval
+  write(iunit) vel
+  write(iunit) speed
+  write(iunit) bestdesigns
+  write(iunit) minvals
+  write(iunit) step
+  write(iunit) designcounter
+  write(iunit) wcurr
+
+  ! Close restart file
+
+  close(iunit)
+
+  ! Status notification
+
+  write(*,*) '  Successfully wrote PSO restart file.'
+  write(*,*)
+
+end subroutine pso_write_restart
+
+!=============================================================================80
+!
+! Particle swarm restart read routine
+!
+!=============================================================================80
+subroutine pso_read_restart(dv, objval, vel, speed, bestdesigns, minvals,      &
+                            step, designcounter, wcurr)
+
+  use vardef, only : output_prefix
+
+  double precision, dimension(:,:), intent(inout) :: dv, vel, bestdesigns
+  double precision, dimension(:), intent(inout) :: objval, speed, minvals
+  integer, intent(out) :: step, designcounter
+  double precision, intent(out) :: wcurr
+
+  character(100) :: restfile
+  integer :: iunit, ioerr
+
+  ! Status notification
+
+  restfile = trim(output_prefix)//'.pso_restart'
+  write(*,*) 'Reading PSO restart data from file '//trim(restfile)//' ...'
+
+  ! Open output file for reading
+
+  iunit = 13
+  open(unit=iunit, file=restfile, status='old', form='unformatted',            &
+       iostat=ioerr)
+  if (ioerr /= 0) then
+    write(*,*) 'Error: could not find input file '//trim(restfile)//'.'
+    write(*,*)
+    stop
+  end if
+  
+  ! Write restart data
+
+  read(iunit) dv
+  read(iunit) objval
+  read(iunit) vel
+  read(iunit) speed
+  read(iunit) bestdesigns
+  read(iunit) minvals
+  read(iunit) step
+  read(iunit) designcounter
+  read(iunit) wcurr
+
+  ! Close restart file
+
+  close(iunit)
+
+  ! Status notification
+
+  write(*,*) 'Successfully read PSO restart data.'
+  write(*,*)
+
+end subroutine pso_read_restart
+
+!=============================================================================80
+!
 ! Nelder-Mead simplex search algorithm
 !
 !=============================================================================80
@@ -469,8 +616,9 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 
   optional :: converterfunc
   interface
-    integer function converterfunc(x)
+    integer function converterfunc(x, designcounter)
       double precision, dimension(:), intent(in) :: x
+      integer, intent(in) :: designcounter
     end function
   end interface
 
@@ -631,7 +779,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 
     if ( (signal_progress) .and. (ds_options%write_designs) ) then
       if (present(converterfunc)) then
-        stat = converterfunc(dv(:,1))
+        stat = converterfunc(dv(:,1), designcounter)
       else
         call write_design('simplex_designs.dat', filestat, dv(:,1),            &
                           designcounter)
