@@ -74,7 +74,8 @@ module optimization
 !=============================================================================80
 subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
                          given_f0_ref, f0_ref, constrained_dvs, pso_options,   &
-                         restart, restart_write_freq, converterfunc)
+                         restart, restart_write_freq, designcounter,           &
+                         converterfunc)
 
   use math_deps,          only : norm_2
 
@@ -109,6 +110,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   logical, intent(in) :: given_f0_ref, restart
   type (pso_options_type), intent(in) :: pso_options
   integer, intent(in) :: restart_write_freq
+  integer, intent(out) :: designcounter
 
   optional :: converterfunc
   interface
@@ -118,8 +120,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     end function
   end interface
 
-  integer :: nvars, nconstrained, i, j, fminloc, designcounter, var, stat,     &
-             restartcounter
+  integer :: nvars, nconstrained, i, j, fminloc, var, stat, restartcounter
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
                       f0 
   double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
@@ -273,8 +274,8 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 !   Read restart data from file
 
-    call pso_read_restart(dv, objval, vel, speed, bestdesigns, minvals, step,  &
-                          designcounter, wcurr)
+    call pso_read_restart(step, designcounter, dv, objval, vel, speed,         &
+                          bestdesigns, minvals, wcurr)
 
 !   Global and local best so far
 
@@ -423,8 +424,8 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 !   Write restart file if appropriate and update restart counter
 
     if (restartcounter == restart_write_freq) then
-      call pso_write_restart(dv, objval, vel, speed, bestdesigns, minvals,    &
-                             step, designcounter, wcurr)
+      call pso_write_restart(step, designcounter, dv, objval, vel, speed,      &
+                             bestdesigns, minvals, wcurr)
       restartcounter = 1
     else
       restartcounter = restartcounter + 1
@@ -473,14 +474,14 @@ end subroutine particleswarm
 ! Particle swarm restart write routine
 !
 !=============================================================================80
-subroutine pso_write_restart(dv, objval, vel, speed, bestdesigns, minvals,     &
-                             step, designcounter, wcurr)
+subroutine pso_write_restart(step, designcounter, dv, objval, vel, speed,      &
+                             bestdesigns, minvals, wcurr)
 
   use vardef, only : output_prefix
 
+  integer, intent(in) :: step, designcounter
   double precision, dimension(:,:), intent(in) :: dv, vel, bestdesigns
   double precision, dimension(:), intent(in) :: objval, speed, minvals
-  integer, intent(in) :: step, designcounter
   double precision, intent(in) :: wcurr
 
   character(100) :: restfile
@@ -488,7 +489,7 @@ subroutine pso_write_restart(dv, objval, vel, speed, bestdesigns, minvals,     &
   
   ! Status notification
 
-  restfile = trim(output_prefix)//'.pso_restart'
+  restfile = trim(output_prefix)//'.restart_pso'
   write(*,*) '  Writing PSO restart data to file '//trim(restfile)//' ...'
 
   ! Open output file for writing
@@ -498,14 +499,14 @@ subroutine pso_write_restart(dv, objval, vel, speed, bestdesigns, minvals,     &
   
   ! Write restart data
 
+  write(iunit) step
+  write(iunit) designcounter
   write(iunit) dv
   write(iunit) objval
   write(iunit) vel
   write(iunit) speed
   write(iunit) bestdesigns
   write(iunit) minvals
-  write(iunit) step
-  write(iunit) designcounter
   write(iunit) wcurr
 
   ! Close restart file
@@ -524,14 +525,14 @@ end subroutine pso_write_restart
 ! Particle swarm restart read routine
 !
 !=============================================================================80
-subroutine pso_read_restart(dv, objval, vel, speed, bestdesigns, minvals,      &
-                            step, designcounter, wcurr)
+subroutine pso_read_restart(step, designcounter, dv, objval, vel, speed,       &
+                            bestdesigns, minvals, wcurr)
 
   use vardef, only : output_prefix
 
+  integer, intent(out) :: step, designcounter
   double precision, dimension(:,:), intent(inout) :: dv, vel, bestdesigns
   double precision, dimension(:), intent(inout) :: objval, speed, minvals
-  integer, intent(out) :: step, designcounter
   double precision, intent(out) :: wcurr
 
   character(100) :: restfile
@@ -539,7 +540,7 @@ subroutine pso_read_restart(dv, objval, vel, speed, bestdesigns, minvals,      &
 
   ! Status notification
 
-  restfile = trim(output_prefix)//'.pso_restart'
+  restfile = trim(output_prefix)//'.restart_pso'
   write(*,*) 'Reading PSO restart data from file '//trim(restfile)//' ...'
 
   ! Open output file for reading
@@ -553,16 +554,16 @@ subroutine pso_read_restart(dv, objval, vel, speed, bestdesigns, minvals,      &
     stop
   end if
   
-  ! Write restart data
+  ! Read restart data
 
+  read(iunit) step
+  read(iunit) designcounter
   read(iunit) dv
   read(iunit) objval
   read(iunit) vel
   read(iunit) speed
   read(iunit) bestdesigns
   read(iunit) minvals
-  read(iunit) step
-  read(iunit) designcounter
   read(iunit) wcurr
 
   ! Close restart file
@@ -582,7 +583,7 @@ end subroutine pso_read_restart
 !
 !=============================================================================80
 subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
-                          f0_ref, ds_options, converterfunc)
+                          f0_ref, ds_options, indesigncounter, converterfunc)
 
 ! The following are only needed if doing xfoil airfoil optimization
 
@@ -613,6 +614,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   double precision, intent(inout) :: f0_ref
   logical, intent(in) :: given_f0_ref
   type (ds_options_type), intent(in) :: ds_options
+  integer, intent(in), optional :: indesigncounter
 
   optional :: converterfunc
   interface
@@ -628,7 +630,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 
   double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0, &
                       mincurr
-  integer :: i, j, k, nvars, designcounter, nsame, stat
+  integer :: i, j, k, nvars, nsame, stat, designcounter
   logical :: converged, needshrink, signal_progress
   character(3) :: filestat
 
@@ -712,7 +714,11 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   step = 0
   needshrink = .false.
   converged = .false.
-  designcounter = 1
+  if (.not. present(indesigncounter)) then
+    designcounter = 1
+  else
+    designcounter = indesigncounter
+  end if
   nsame = 0
   write(*,*) 'Simplex optimization progress:'
   main_loop: do while (.not. converged)

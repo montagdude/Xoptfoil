@@ -40,10 +40,11 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  min_flap_degrees, max_flap_degrees,           &
                                  flap_degrees, flap_optimize_points,           &
                                  min_bump_width, curr_foil, nparams_top,       &
-                                 nparams_bot 
+                                 nparams_bot, output_prefix 
   use optimization,       only : pso_options_type, ds_options_type,            &
                                  particleswarm, simplex_search
-  use airfoil_evaluation, only : objective_function, write_function
+  use airfoil_evaluation, only : objective_function, write_function,           &
+                                 write_function_restart_cleanup
   use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
                                  split_airfoil, allocate_airfoil,              &
                                  deallocate_airfoil, my_stop
@@ -70,9 +71,17 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
   double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
   logical :: given_f0_ref
-  integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint, stat
+  integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint, stat,               &
+             iunit, ioerr, designcounter
+  character(100) :: restart_status_file
+  character(19) :: restart_status
 
-!  Preliminary things for non-aerodynamic optimization
+! Restart status file setup
+
+  iunit = 15
+  restart_status_file = output_prefix//'.restart_status'
+
+! Preliminary things for non-aerodynamic optimization
 
   if (match_foils) then
 
@@ -171,7 +180,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       len1 = len2
     end do
 
-  end if
+  end if   ! Matching airfoils vs. aerodynamic optimization
 
 ! Make sure seed airfoil passes constraints, and get scaling factors for
 ! operating points
@@ -229,54 +238,98 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   end if
 
-! Write seed airfoil coordinates and polars to file if requested
-! (Requires some temporary memory allocation and deallocation)
+! Set default restart status (global or local optimization) from user input
 
-  if ( (pso_options%write_designs) .or. (ds_options%write_designs) ) then
+  if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==    &
+      'global') then
+    restart_status = 'global optimization'
+  else
+    restart_status = 'local optimization'
+  end if
 
-!   Allocate memory for shape functions
+! Read restart status from file for restart case
 
-    if (trim(shape_functions) == 'naca') then
-      allocate(modest(nparams_top))
-      allocate(modesb(nparams_bot))
+  if (restart) then
+
+!   Open status file
+
+    open(unit=iunit, file=restart_status_file, status='old', iostat=ioerr)
+
+!   Read or issue warning if file is not found
+
+    if (ioerr /= 0) then
+      write(*,*) 'Warning: could not find restart status file '//&
+                 trim(restart_status_file)//'.'
+      write(*,*) 'Restarting with '//trim(restart_status)//'.'
     else
-      allocate(modest(nparams_top*3))
-      allocate(modesb(nparams_bot*3))
+      read(iunit,*) restart_status
     end if
-    modest(:) = 0.d0
-    modesb(:) = 0.d0
 
-!   For NACA, this will create the shape functions.  For Hicks-Henne,
-!   it will just allocate them.
+!   Close status file
 
-    call create_shape_functions(xseedt, xseedb, modest, modesb,                &
-                                shape_functions, first_time=.true.)
-
-!   Allocate memory for working airfoil
-
-    curr_foil%npoint = size(xseedt,1) + size(xseedb,1) - 1
-    call allocate_airfoil(curr_foil)
-
-!   Allocate memory for xfoil
-
-    call xfoil_init()
-
-!   Analyze and write seed airfoil
-
-    if (.not. restart) stat = write_function(x0, 0) 
-
-!   Deallocate memory
-
-    deallocate(modest)
-    deallocate(modesb)
-    call deallocate_shape_functions()
-    call deallocate_airfoil(curr_foil)
-    call xfoil_cleanup()
+    close(iunit)
 
   end if
 
-  if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
-      'global') then
+! Design coordinates/polars output handling
+
+  if ( (pso_options%write_designs) .or. (ds_options%write_designs) ) then
+
+!   Write seed airfoil coordinates and polars to file
+
+    if (.not. restart) then
+
+!     Allocate memory for shape functions
+  
+      if (trim(shape_functions) == 'naca') then
+        allocate(modest(nparams_top))
+        allocate(modesb(nparams_bot))
+      else
+        allocate(modest(nparams_top*3))
+        allocate(modesb(nparams_bot*3))
+      end if
+      modest(:) = 0.d0
+      modesb(:) = 0.d0
+  
+!     For NACA, this will create the shape functions.  For Hicks-Henne,
+!     it will just allocate them.
+  
+      call create_shape_functions(xseedt, xseedb, modest, modesb,              &
+                                  shape_functions, first_time=.true.)
+  
+!     Allocate memory for working airfoil
+  
+      curr_foil%npoint = size(xseedt,1) + size(xseedb,1) - 1
+      call allocate_airfoil(curr_foil)
+  
+!     Allocate memory for xfoil
+  
+      call xfoil_init()
+  
+!     Analyze and write seed airfoil
+  
+      stat = write_function(x0, 0) 
+  
+!     Deallocate memory
+  
+      deallocate(modest)
+      deallocate(modesb)
+      call deallocate_shape_functions()
+      call deallocate_airfoil(curr_foil)
+      call xfoil_cleanup()
+
+!   Remove unused entries in design polars and coordinates from previous run
+
+    else
+ 
+      stat = write_function_restart_cleanup(restart_status, global_search,     &
+                                            local_search)
+
+    end if
+
+  end if
+
+  if (trim(restart_status) == 'global optimization') then
 
     if (trim(global_search) == 'particle_swarm') then
 
@@ -311,21 +364,36 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
       end if
 
+!     Write restart status to file
+
+      open(unit=iunit, file=restart_status_file, status='replace')
+      write(iunit,'(A)') trim(restart_status)
+      close(iunit)
+
 !     Particle swarm optimization
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
                          x0, xmin, xmax, .false., f0_ref, constrained_dvs,     &
                          pso_options, restart, restart_write_freq,             &
-                         write_function)
+                         designcounter, write_function)
+
+!     Update restart status 
+
+      restart_status = 'local optimization'
 
     end if
 
   end if
 
-  if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
-      'local') then
+  if (restart_status == 'local optimization') then
 
     if (trim(local_search) == 'simplex') then
+
+!     Write optimization status to file
+
+      open(unit=iunit, file=restart_status_file, status='replace')
+      write(iunit,'(A)') trim(restart_status)
+      close(iunit)
 
 !     Simplex optimization
 
@@ -337,7 +405,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, given_f0_ref, f0_ref, ds_options, write_function)
+                          x0, given_f0_ref, f0_ref, ds_options, designcounter, &
+                          write_function)
 
     end if
 

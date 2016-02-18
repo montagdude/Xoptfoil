@@ -91,12 +91,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     stop
   end if
 
-! Option to match seed airfoil to another instead of aerodynamic optimization
-
-  match_foils = .false.
-  matchfoil_file = 'none'
-  read(iunit, iostat=iostat1, nml=matchfoil_options)
-
 ! Set defaults for main namelist options
 
   search_type = 'global_and_local'
@@ -344,6 +338,12 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   xfoil_geom_options%xsref2 = xsref2
   xfoil_geom_options%xpref1 = xpref1
   xfoil_geom_options%xpref2 = xpref2
+
+! Option to match seed airfoil to another instead of aerodynamic optimization
+
+  match_foils = .false.
+  matchfoil_file = 'none'
+  read(iunit, iostat=iostat1, nml=matchfoil_options)
 
 ! Close the input file
 

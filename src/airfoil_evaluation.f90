@@ -841,4 +841,46 @@ function write_matchfoil_optimization_progress(designvars, designcounter)
 
 end function write_matchfoil_optimization_progress
 
+!=============================================================================80
+!
+! Cleans up unused designs written prior to a restart
+!
+!=============================================================================80
+function write_function_restart_cleanup(restart_status, global_search,         &
+                                        local_search)
+
+  character(*), intent(in) :: restart_status, global_search, local_search
+  integer :: write_function_restart_cleanup
+
+  integer :: iunit, ioerr, step, designcounter
+  character(100) :: restfile
+
+  iunit = 12
+
+! Read last written design from restart file
+
+  if (trim(restart_status) == 'global optimization') then
+    if (trim(global_search) == 'particle_swarm') then
+      restfile = trim(output_prefix)//'.restart_pso'
+    end if
+  else
+    if (trim(local_search) == 'simplex') then
+      restfile = trim(output_prefix)//'.restart_simplex'
+    end if
+  end if
+
+  open(unit=iunit, file=restfile, status='old', form='unformatted',            &
+       iostat=ioerr)
+  if (ioerr /= 0) then
+    write_function_restart_cleanup = 1
+    return
+  end if
+  read(iunit) step
+  read(iunit) designcounter
+  close(iunit)
+
+  write_function_restart_cleanup = 0
+
+end function write_function_restart_cleanup
+
 end module airfoil_evaluation
