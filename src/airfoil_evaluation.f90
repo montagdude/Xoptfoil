@@ -852,10 +852,18 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   character(*), intent(in) :: restart_status, global_search, local_search
   integer :: write_function_restart_cleanup
 
-  integer :: iunit, ioerr, step, designcounter
-  character(100) :: restfile
+  integer :: restunit, ioerr, step, designcounter, foilunit, polarunit, ncoord
+  integer :: i, j
+  double precision, dimension(:,:), allocatable :: x, z, lift, drag
+  character(100) :: restfile, foilfile, polarfile, text
 
-  iunit = 12
+! Print status
+
+  write(*,*) 'Cleaning up unused designs written after restart save ...'
+
+  restunit = 12
+  foilunit = 13
+  polarunit = 14
 
 ! Read last written design from restart file
 
@@ -869,15 +877,78 @@ function write_function_restart_cleanup(restart_status, global_search,         &
     end if
   end if
 
-  open(unit=iunit, file=restfile, status='old', form='unformatted',            &
+  open(unit=restunit, file=restfile, status='old', form='unformatted',         &
        iostat=ioerr)
   if (ioerr /= 0) then
     write_function_restart_cleanup = 1
     return
   end if
-  read(iunit) step
-  read(iunit) designcounter
-  close(iunit)
+  read(restunit) step
+  read(restunit) designcounter
+  close(restunit)
+
+! Allocate size of data arrays
+
+  ncoord = size(xseedt,1) + size(xseedb,1) - 1
+  allocate(x(ncoord,designcounter+1))
+  allocate(z(ncoord,designcounter+1))
+  allocate(lift(noppoint,designcounter+1))
+  allocate(drag(noppoint,designcounter+1))
+
+! Open coordinates file
+
+  foilfile = trim(output_prefix)//'_design_coordinates.dat'
+  open(unit=foilunit, file=foilfile, status='old', iostat=ioerr)
+  if (ioerr /= 0) then
+    write_function_restart_cleanup = 2
+    return
+  end if
+
+! Skip header line
+
+  read(foilunit,*)
+
+! Read coordinates for each airfoil
+
+  do i = 1, designcoordinates + 1
+  
+!   Skip header
+
+    read(foilunit,*)
+    read(foilunit,*)
+
+!   Read coordinates
+
+    do j = 1, ncoord
+      read(foilunit,'(2es17.8)') x(j,i), z(j,i)
+    end do
+
+  end do
+
+! Close coordinates file
+
+  close(foilunit)
+
+! Return now if we're matching airfoils (no aero data)
+
+  if (match_foils) then
+    deallocate(x)
+    deallocate(z)
+    deallocate(lift)
+    deallocate(drag)
+    write(*,*) 'Finished cleaning up unused designs.'
+    write_function_restart_cleanup = 0
+    return
+  end if
+
+! Open coordinates file
+
+! Deallocate data arrays
+
+  deallocate(x)
+  deallocate(z)
+  deallocate(lift)
+  deallocate(drag)
 
   write_function_restart_cleanup = 0
 
