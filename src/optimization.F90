@@ -264,7 +264,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 !   Counters
   
     step = 0
-    designcounter = 1
+    designcounter = 0
 
 !   Inertial parameter
 
@@ -399,13 +399,13 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 !     themselves are written to a file.
 
     if ( (signal_progress) .and. (pso_options%write_designs) ) then
+      designcounter = designcounter + 1
       if (present(converterfunc)) then
         stat = converterfunc(xopt, designcounter)
       else
         call write_design('particleswarm_designs.dat', 'old', xopt,            &
                           designcounter)
       end if
-      designcounter = designcounter + 1
     end if
     
 !   Evaluate convergence
@@ -489,7 +489,7 @@ subroutine pso_write_restart(step, designcounter, dv, objval, vel, speed,      &
   
   ! Status notification
 
-  restfile = trim(output_prefix)//'.restart_pso'
+  restfile = 'restart_pso_'//trim(output_prefix)
   write(*,*) '  Writing PSO restart data to file '//trim(restfile)//' ...'
 
   ! Open output file for writing
@@ -540,7 +540,7 @@ subroutine pso_read_restart(step, designcounter, dv, objval, vel, speed,       &
 
   ! Status notification
 
-  restfile = trim(output_prefix)//'.restart_pso'
+  restfile = 'restart_pso_'//trim(output_prefix)
   write(*,*) 'Reading PSO restart data from file '//trim(restfile)//' ...'
 
   ! Open output file for reading
@@ -583,7 +583,8 @@ end subroutine pso_read_restart
 !
 !=============================================================================80
 subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
-                          f0_ref, ds_options, indesigncounter, converterfunc)
+                          f0_ref, ds_options, restart, restart_write_freq,     &
+                          indesigncounter, converterfunc)
 
 ! The following are only needed if doing xfoil airfoil optimization
 
@@ -612,8 +613,9 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 
   double precision, dimension(:), intent(in) :: x0
   double precision, intent(inout) :: f0_ref
-  logical, intent(in) :: given_f0_ref
+  logical, intent(in) :: given_f0_ref, restart
   type (ds_options_type), intent(in) :: ds_options
+  integer, intent(in) :: restart_write_freq
   integer, intent(in), optional :: indesigncounter
 
   optional :: converterfunc
@@ -628,9 +630,8 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   double precision, dimension(size(x0,1)+1) :: objvals
   double precision, dimension(size(x0,1)) :: xcen, xr, xe, xc
 
-  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, errval, f0, &
-                      mincurr
-  integer :: i, j, k, nvars, nsame, stat, designcounter
+  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, f0, mincurr
+  integer :: i, j, k, nvars, stat, designcounter, restartcounter
   logical :: converged, needshrink, signal_progress
   character(3) :: filestat
 
@@ -683,44 +684,64 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     f0_ref = f0
   end if
 
-! Set up initial simplex
+! Set up or read initialzation data
 
-  fevals = 0
   nvars = size(x0,1)
-  do j = 1, nvars
-    do i = 1, nvars
-      if (i == j) then
-        if (x0(i) == 0.d0) then
-          dv(i,j) = 0.00025d0
-        else
-          dv(i,j) = 1.05d0*x0(i)
-        end if
-      else
-        dv(i,j) = x0(i)
-      end if
-    end do
-    objvals(j) = objfunc(dv(:,j))
-    fevals = fevals + 1
-  end do
 
-  dv(:,nvars+1) = x0
-  objvals(nvars+1) = objfunc(x0)
-  fevals = fevals + 1
+  if (.not. restart) then
+
+!   Set up initial simplex
+
+    fevals = 0
+    do j = 1, nvars
+      do i = 1, nvars
+        if (i == j) then
+          if (x0(i) == 0.d0) then
+            dv(i,j) = 0.00025d0
+          else
+            dv(i,j) = 1.05d0*x0(i)
+          end if
+        else
+          dv(i,j) = x0(i)
+        end if
+      end do
+      objvals(j) = objfunc(dv(:,j))
+      fevals = fevals + 1
+    end do
+  
+    dv(:,nvars+1) = x0
+    objvals(nvars+1) = objfunc(x0)
+    fevals = fevals + 1
+
+!   Counters
+
+    step = 0
+    if (.not. present(indesigncounter)) then
+      designcounter = 0
+    else
+      designcounter = indesigncounter
+    end if
+
+  else
+
+!   Get initial simplex and counters from restart file
+
+    call simplex_read_restart(step, designcounter, dv, objvals, fevals)
+
+  end if
+
+! Initial minimum value
+
   fmin = minval(objvals)
   mincurr = fmin
 
 ! Iterative procedure for optimization
  
-  step = 0
+  restartcounter = 1
   needshrink = .false.
   converged = .false.
-  if (.not. present(indesigncounter)) then
-    designcounter = 1
-  else
-    designcounter = indesigncounter
-  end if
-  nsame = 0
   write(*,*) 'Simplex optimization progress:'
+
   main_loop: do while (.not. converged)
 
     step = step + 1
@@ -729,12 +750,6 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 !   Sort according to ascending objective function value
 
     call bubble_sort(dv, objvals)
-    errval = abs((objvals(1) - fmin)/fmin)
-    if (errval < 1.D-15) then
-      nsame = nsame + 1
-    else
-      nsame = 0
-    end if
     mincurr = objvals(1)
 
 !   Update fmin if appropriate
@@ -784,13 +799,22 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     end if
 
     if ( (signal_progress) .and. (ds_options%write_designs) ) then
+      designcounter = designcounter + 1
       if (present(converterfunc)) then
         stat = converterfunc(dv(:,1), designcounter)
       else
         call write_design('simplex_designs.dat', filestat, dv(:,1),            &
                           designcounter)
       end if
-      designcounter = designcounter + 1
+    end if
+
+!   Write restart file if appropriate and update restart counter
+
+    if (restartcounter == restart_write_freq) then
+      call simplex_write_restart(step, designcounter, dv, objvals, fevals)
+      restartcounter = 1
+    else
+      restartcounter = restartcounter + 1
     end if
 
 !   Compute the centroid of the best nvals designs
@@ -924,6 +948,102 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 #endif
 
 end subroutine simplex_search
+
+!=============================================================================80
+!
+! Simplex restart write routine
+!
+!=============================================================================80
+subroutine simplex_write_restart(step, designcounter, dv, objvals, fevals)
+
+  use vardef, only : output_prefix
+
+  integer, intent(in) :: step, designcounter, fevals
+  double precision, dimension(:,:), intent(in) :: dv
+  double precision, dimension(:), intent(in) :: objvals
+
+  character(100) :: restfile
+  integer :: iunit
+  
+  ! Status notification
+
+  restfile = 'restart_simplex_'//trim(output_prefix)
+  write(*,*) '  Writing simplex restart data to file '//trim(restfile)//' ...'
+
+  ! Open output file for writing
+
+  iunit = 13
+  open(unit=iunit, file=restfile, status='replace', form='unformatted')
+  
+  ! Write restart data
+
+  write(iunit) step
+  write(iunit) designcounter
+  write(iunit) dv
+  write(iunit) objvals
+  write(iunit) fevals
+
+  ! Close restart file
+
+  close(iunit)
+
+  ! Status notification
+
+  write(*,*) '  Successfully wrote simplex restart file.'
+  write(*,*)
+
+end subroutine simplex_write_restart
+
+!=============================================================================80
+!
+! Particle swarm restart read routine
+!
+!=============================================================================80
+subroutine simplex_read_restart(step, designcounter, dv, objvals, fevals)
+
+  use vardef, only : output_prefix
+
+  integer, intent(out) :: step, designcounter, fevals
+  double precision, dimension(:,:), intent(inout) :: dv
+  double precision, dimension(:), intent(inout) :: objvals
+
+  character(100) :: restfile
+  integer :: iunit, ioerr
+
+  ! Status notification
+
+  restfile = 'restart_simplex_'//trim(output_prefix)
+  write(*,*) 'Reading simplex restart data from file '//trim(restfile)//' ...'
+
+  ! Open output file for reading
+
+  iunit = 13
+  open(unit=iunit, file=restfile, status='old', form='unformatted',            &
+       iostat=ioerr)
+  if (ioerr /= 0) then
+    write(*,*) 'Error: could not find input file '//trim(restfile)//'.'
+    write(*,*)
+    stop
+  end if
+  
+  ! Read restart data
+
+  read(iunit) step
+  read(iunit) designcounter
+  read(iunit) dv
+  read(iunit) objvals
+  read(iunit) fevals
+
+  ! Close restart file
+
+  close(iunit)
+
+  ! Status notification
+
+  write(*,*) 'Successfully read simplex restart data.'
+  write(*,*)
+
+end subroutine simplex_read_restart
 
 !=============================================================================80
 !

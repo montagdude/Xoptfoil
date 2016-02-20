@@ -79,7 +79,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 ! Restart status file setup
 
   iunit = 15
-  restart_status_file = output_prefix//'.restart_status'
+  restart_status_file = 'restart_status_'//trim(output_prefix)
 
 ! Preliminary things for non-aerodynamic optimization
 
@@ -242,9 +242,9 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==    &
       'global') then
-    restart_status = 'global optimization'
+    restart_status = 'global_optimization'
   else
-    restart_status = 'local optimization'
+    restart_status = 'local_optimization'
   end if
 
 ! Read restart status from file for restart case
@@ -329,7 +329,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   end if
 
-  if (trim(restart_status) == 'global optimization') then
+  if (trim(restart_status) == 'global_optimization') then
 
     if (trim(global_search) == 'particle_swarm') then
 
@@ -379,13 +379,13 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
 !     Update restart status 
 
-      restart_status = 'local optimization'
+      restart_status = 'local_optimization'
 
     end if
 
   end if
 
-  if (restart_status == 'local optimization') then
+  if (restart_status == 'local_optimization') then
 
     if (trim(local_search) == 'simplex') then
 
@@ -405,8 +405,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, given_f0_ref, f0_ref, ds_options, designcounter, &
-                          write_function)
+                          x0, given_f0_ref, f0_ref, ds_options, restart,       &
+                          restart_write_freq, designcounter, write_function)
 
     end if
 

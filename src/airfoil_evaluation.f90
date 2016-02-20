@@ -867,13 +867,13 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 
 ! Read last written design from restart file
 
-  if (trim(restart_status) == 'global optimization') then
+  if (trim(restart_status) == 'global_optimization') then
     if (trim(global_search) == 'particle_swarm') then
-      restfile = trim(output_prefix)//'.restart_pso'
+      restfile = 'restart_pso_'//trim(output_prefix)
     end if
   else
     if (trim(local_search) == 'simplex') then
-      restfile = trim(output_prefix)//'.restart_simplex'
+      restfile = 'restart_simplex_'//trim(output_prefix)
     end if
   end if
 
@@ -904,17 +904,17 @@ function write_function_restart_cleanup(restart_status, global_search,         &
     return
   end if
 
-! Skip header line
+! Skip file header
 
+  read(foilunit,*)
   read(foilunit,*)
 
 ! Read coordinates for each airfoil
 
-  do i = 1, designcoordinates + 1
+  do i = 1, designcounter + 1
   
-!   Skip header
+!   Skip zone header
 
-    read(foilunit,*)
     read(foilunit,*)
 
 !   Read coordinates
@@ -923,6 +923,33 @@ function write_function_restart_cleanup(restart_status, global_search,         &
       read(foilunit,'(2es17.8)') x(j,i), z(j,i)
     end do
 
+  end do
+
+! Close coordinates file
+
+  close(foilunit)
+
+! Re-write coordinates file without the unused designs
+
+  open(unit=foilunit, file=foilfile, status='replace')
+  write(foilunit,'(A)') 'title="Airfoil coordinates"'
+  write(foilunit,'(A)') 'variables="x" "z"'
+  do i = 0, designcounter
+!   Write zone header
+
+    if (i == 0) then
+      write(foilunit,'(A)') 'zone t="Seed airfoil"'
+    else
+      write(text,*) i
+      text = adjustl(text)
+      write(foilunit,'(A)') 'zone t="Airfoil", SOLUTIONTIME='//trim(text)
+    end if
+
+!   Write coordinates
+
+    do j = 1, ncoord
+      write(foilunit,'(2es17.8)') x(j,i+1), z(j,i+1)
+    end do
   end do
 
 ! Close coordinates file
@@ -941,7 +968,66 @@ function write_function_restart_cleanup(restart_status, global_search,         &
     return
   end if
 
-! Open coordinates file
+! Open polars file
+
+  polarfile = trim(output_prefix)//'_design_polars.dat'
+  open(unit=polarunit, file=polarfile, status='old', iostat=ioerr)
+  if (ioerr /= 0) then
+    write_function_restart_cleanup = 3
+    return
+  end if
+
+! Skip file header
+
+  read(polarunit,*)
+  read(polarunit,*)
+
+! Read polars for each airfoil
+
+  do i = 1, designcounter + 1
+  
+!   Skip zone header
+
+    read(polarunit,*)
+
+!   Read polars
+
+    do j = 1, noppoint
+      read(polarunit,'(2es17.8)') lift(j,i), drag(j,i)
+    end do
+
+  end do
+
+! Close polars file
+
+  close(polarunit)
+
+! Re-write polars file without the unused designs
+
+  open(unit=polarunit, file=polarfile, status='replace')
+  write(polarunit,'(A)') 'title="Airfoil polars"'
+  write(polarunit,'(A)') 'variables="cl" "cd"'
+  do i = 0, designcounter
+!   Write zone header
+
+    if (i == 0) then
+      write(polarunit,'(A)') 'zone t="Seed airfoil polar"'
+    else
+      write(text,*) i
+      text = adjustl(text)
+      write(polarunit,'(A)') 'zone t="Polars", SOLUTIONTIME='//trim(text)
+    end if
+
+!   Write polars
+
+    do j = 1, noppoint
+      write(polarunit,'(2es17.8)') lift(j,i+1), drag(j,i+1)
+    end do
+  end do
+
+! Close polars file
+
+  close(polarunit)
 
 ! Deallocate data arrays
 
@@ -949,6 +1035,11 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   deallocate(z)
   deallocate(lift)
   deallocate(drag)
+
+! Print status
+
+  write(*,*) 'Finished cleaning up unused designs.'
+  write(*,*)
 
   write_function_restart_cleanup = 0
 
