@@ -104,7 +104,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   nfunctions_bot = 4
   initial_perturb = 0.025d0
   restart = .false.
-  restart_write_freq = 30
+  restart_write_freq = 20
   write_designs = .true.
 
 ! Read main namelist options

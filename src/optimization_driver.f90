@@ -70,7 +70,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   double precision, dimension(:), allocatable :: zttmp, zbtmp, modest, modesb
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
   double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
-  logical :: given_f0_ref
+  logical :: given_f0_ref, restart_temp
   integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint, stat,               &
              iunit, ioerr, designcounter
   character(100) :: restart_status_file
@@ -327,6 +327,12 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
     end if
 
+! Set temporary restart variable
+
+  restart_temp = restart
+
+! Global optimization
+
   end if
 
   if (trim(restart_status) == 'global_optimization') then
@@ -374,16 +380,19 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
                          x0, xmin, xmax, .false., f0_ref, constrained_dvs,     &
-                         pso_options, restart, restart_write_freq,             &
+                         pso_options, restart_temp, restart_write_freq,        &
                          designcounter, write_function)
 
-!     Update restart status 
+!     Update restart status and turn off restarting for local search
 
       restart_status = 'local_optimization'
+      restart_temp = .false.
 
     end if
 
   end if
+
+! Local optimization
 
   if (restart_status == 'local_optimization') then
 
@@ -405,7 +414,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
       end if
 
       call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, given_f0_ref, f0_ref, ds_options, restart,       &
+                          x0, given_f0_ref, f0_ref, ds_options, restart_temp,  &
                           restart_write_freq, designcounter, write_function)
 
     end if
