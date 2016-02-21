@@ -675,20 +675,20 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 
 #endif
 
-! Get f0 (reference seed design objective function)
-
-  if (given_f0_ref) then
-    f0 = f0_ref
-  else 
-    f0 = objfunc(x0)
-    f0_ref = f0
-  end if
-
 ! Set up or read initialzation data
 
   nvars = size(x0,1)
 
   if (.not. restart) then
+
+!   Get f0 (reference seed design objective function)
+
+    if (given_f0_ref) then
+      f0 = f0_ref
+    else 
+      f0 = objfunc(x0)
+      f0_ref = f0
+    end if
 
 !   Set up initial simplex
 
@@ -726,7 +726,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 
 !   Get initial simplex and counters from restart file
 
-    call simplex_read_restart(step, designcounter, dv, objvals, fevals)
+    call simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
 
   end if
 
@@ -811,7 +811,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
 !   Write restart file if appropriate and update restart counter
 
     if (restartcounter == restart_write_freq) then
-      call simplex_write_restart(step, designcounter, dv, objvals, fevals)
+      call simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
       restartcounter = 1
     else
       restartcounter = restartcounter + 1
@@ -954,13 +954,14 @@ end subroutine simplex_search
 ! Simplex restart write routine
 !
 !=============================================================================80
-subroutine simplex_write_restart(step, designcounter, dv, objvals, fevals)
+subroutine simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
 
   use vardef, only : output_prefix
 
   integer, intent(in) :: step, designcounter, fevals
   double precision, dimension(:,:), intent(in) :: dv
   double precision, dimension(:), intent(in) :: objvals
+  double precision, intent(in) :: f0
 
   character(100) :: restfile
   integer :: iunit
@@ -981,6 +982,7 @@ subroutine simplex_write_restart(step, designcounter, dv, objvals, fevals)
   write(iunit) designcounter
   write(iunit) dv
   write(iunit) objvals
+  write(iunit) f0
   write(iunit) fevals
 
   ! Close restart file
@@ -999,13 +1001,14 @@ end subroutine simplex_write_restart
 ! Particle swarm restart read routine
 !
 !=============================================================================80
-subroutine simplex_read_restart(step, designcounter, dv, objvals, fevals)
+subroutine simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
 
   use vardef, only : output_prefix
 
   integer, intent(out) :: step, designcounter, fevals
   double precision, dimension(:,:), intent(inout) :: dv
   double precision, dimension(:), intent(inout) :: objvals
+  double precision, intent(out) :: f0
 
   character(100) :: restfile
   integer :: iunit, ioerr
@@ -1032,6 +1035,7 @@ subroutine simplex_read_restart(step, designcounter, dv, objvals, fevals)
   read(iunit) designcounter
   read(iunit) dv
   read(iunit) objvals
+  read(iunit) f0
   read(iunit) fevals
 
   ! Close restart file
