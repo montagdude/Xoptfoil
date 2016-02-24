@@ -1308,8 +1308,10 @@ subroutine bubble_sort(dv, objvals)
         tempvals(i+1) = objvals(i)
         temporder(i) = finalorder(i+1)
         temporder(i+1) = finalorder(i)
-        finalorder(i:i+1) = temporder(i:i+1)
-        objvals(i:i+1) = tempvals(i:i+1)
+        finalorder(i) = temporder(i)
+        finalorder(i+1) = temporder(i+1)
+        objvals(i) = tempvals(i)
+        objvals(i+1) = tempvals(i+1)
         sortcounter = sortcounter + 1
 
       end if
