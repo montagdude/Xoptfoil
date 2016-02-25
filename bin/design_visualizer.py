@@ -906,22 +906,13 @@ def main_menu(seedfoil, designfoils, prefix):
 if __name__ == "__main__":
 
   # Read command line arguments
+  
+  print("Enter the case name for the optimization (e.g., optfoil, which ")
+  prefix = my_input("is the default case name): ")
+  print("")
 
-  parser = argparse.ArgumentParser()
-  parser.add_argument("prefix", nargs='?', help="Output file prefix in "
-        + "XoptFoil (preceding _design_coordinates.dat and _design_polars.dat)")
-  args = parser.parse_args()
-
-  # Determine names of data files
-
-  if (args.prefix):
-    coordfilename = args.prefix + '_design_coordinates.dat'
-    polarfilename = args.prefix + '_design_polars.dat'
-    prefix = args.prefix
-  else:
-    coordfilename = 'optfoil_design_coordinates.dat'
-    polarfilename = 'optfoil_design_polars.dat'
-    prefix = 'optfoil'
+  coordfilename = prefix + '_design_coordinates.dat'
+  polarfilename = prefix + '_design_polars.dat'
 
   # Read airfoil coordinates and polars
 
