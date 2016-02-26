@@ -30,11 +30,10 @@ endif
 
 ####### Definitions, rules, targets #################################
 
-OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o optimization_driver.o main.o
+OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o memory_util.o optimization_driver.o main.o
 EXE=xoptfoil
-XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o xfoil_only.o
+XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o xfoil_only.o
 XEXE=xfoil_only
-VOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parameterization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o optimization_driver.o
 DIR=../src
 
 all: $(EXE) $(XEXE)
@@ -83,8 +82,8 @@ xfoil_aero.o: $(DIR)/xfoil_deps/xfoil_aero.f
 xfoil_driver.o: $(DIR)/xfoil_driver.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_driver.f90
 
-parameterization.o: $(DIR)/parameterization.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/parameterization.f90
+parametrization.o: $(DIR)/parametrization.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/parametrization.f90
 
 airfoil_operations.o: $(DIR)/airfoil_operations.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/airfoil_operations.f90
@@ -101,11 +100,11 @@ input_output.o: $(DIR)/input_output.f90
 input_sanity.o: $(DIR)/input_sanity.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/input_sanity.f90
 
+memory_util.o: $(DIR)/memory_util.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/memory_util.f90
+
 optimization_driver.o: $(DIR)/optimization_driver.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/optimization_driver.f90
 
 main.o: $(DIR)/main.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/main.f90
-
-xfoil_only.o: $(DIR)/xfoil_only.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_only.f90

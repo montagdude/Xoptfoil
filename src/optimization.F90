@@ -79,21 +79,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
   use math_deps,          only : norm_2
 
-! The following are only needed if doing xfoil airfoil optimization
-
-#ifdef airfoil_optimization
-
-  use xfoil_driver,       only : xfoil_init, xfoil_cleanup
-  use vardef,             only : nparams_top, nparams_bot, shape_functions,    &
-                                 xseedt, xseedb, curr_foil
-  use parameterization,   only : create_shape_functions,                       &
-                                 deallocate_shape_functions
-  use airfoil_operations, only : allocate_airfoil, deallocate_airfoil
-
-  double precision, dimension(:), allocatable :: modest, modesb
-
-#endif
-
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
   integer, intent(out) :: step, fevals
@@ -175,55 +160,16 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   allocate(randvec1(nvars))
   allocate(randvec2(nvars))
 
-!$omp parallel default(shared) private(i, j)
-
-! To allocate private memory for airfoil optimization on each thread
-
-#ifdef airfoil_optimization
-
-! Allocate memory for shape functions
-
-!$omp master
-  if (trim(shape_functions) == 'naca') then
-    allocate(modest(nparams_top))
-    allocate(modesb(nparams_bot))
-  else
-    allocate(modest(nparams_top*3))
-    allocate(modesb(nparams_bot*3))
-  end if
-  modest(:) = 0.d0
-  modesb(:) = 0.d0
-!$omp end master
-!$omp barrier
-
-! For NACA, this will create the shape functions.  For Hicks-Henne,
-! it will just allocate them.
-
-  call create_shape_functions(xseedt, xseedb, modest, modesb,                  &
-                              shape_functions, first_time=.true.)
-
-! Allocate memory for working airfoil on each thread
-
-  curr_foil%npoint = size(xseedt,1) + size(xseedb,1) - 1
-  call allocate_airfoil(curr_foil)
-
-! Allocate memory for xfoil
-
-  call xfoil_init()
-
-#endif
-
 ! Get f0 (reference seed design objective function)
 
-!$omp master
   if (given_f0_ref) then
     f0 = f0_ref
   else 
     f0 = objfunc(x0)
     f0_ref = f0
   end if
-!$omp end master
-!$omp barrier
+
+!$omp parallel default(shared) private(i, j)
 
 ! Initialize a random seed
 
@@ -436,20 +382,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
   end do optimization_loop
 
-! To deallocate memory for airfoil optimization on each thread
-
-#ifdef airfoil_optimization
-
-!$omp master
-  deallocate(modest)
-  deallocate(modesb)
-!$omp end master
-  call deallocate_shape_functions()
-  call deallocate_airfoil(curr_foil)
-  call xfoil_cleanup()
-
-#endif
-
 !$omp end parallel
 
 ! Calculate number of function evaluations
@@ -586,21 +518,6 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
                           f0_ref, ds_options, restart, restart_write_freq,     &
                           indesigncounter, converterfunc)
 
-! The following are only needed if doing xfoil airfoil optimization
-
-#ifdef airfoil_optimization
-
-  use xfoil_driver,       only : xfoil_init, xfoil_cleanup
-  use vardef,             only : nparams_top, nparams_bot, shape_functions,    &
-                                 xseedt, xseedb, curr_foil 
-  use parameterization,   only : create_shape_functions,                       &
-                                 deallocate_shape_functions
-  use airfoil_operations, only : allocate_airfoil, deallocate_airfoil
-
-  double precision, dimension(:), allocatable :: modest, modesb
-
-#endif
-
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
   integer, intent(out) :: step, fevals
@@ -641,39 +558,6 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   xi = 2.d0
   gam = 0.5d0
   sigma = 0.5d0
-
-! To allocate private memory for airfoil optimization on each thread
-
-#ifdef airfoil_optimization
-
-! Allocate memory for shape functions
-
-  if (trim(shape_functions) == 'naca') then
-    allocate(modest(nparams_top))
-    allocate(modesb(nparams_bot))
-  else
-    allocate(modest(nparams_top*3))
-    allocate(modesb(nparams_bot*3))
-  end if
-  modest(:) = 0.d0
-  modesb(:) = 0.d0
-
-! For NACA, this will create the shape functions.  For Hicks-Henne,
-! it will just allocate them.
-
-  call create_shape_functions(xseedt, xseedb, modest, modesb,                  &
-                              shape_functions, first_time=.true.)
-
-! Allocate memory for working airfoil on each thread
-
-  curr_foil%npoint = size(xseedt,1) + size(xseedb,1) - 1
-  call allocate_airfoil(curr_foil)
-
-! Allocate memory for xfoil
-
-  call xfoil_init()
-
-#endif
 
 ! Set up or read initialzation data
 
@@ -936,16 +820,6 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     write(*,*) 'Warning: Simplex optimizer forced to exit due to the max number'
     write(*,*) '         of iterations being reached.'
   end if
-
-#ifdef airfoil_optimization
-
-  deallocate(modest)
-  deallocate(modesb)
-  call deallocate_shape_functions()
-  call deallocate_airfoil(curr_foil)
-  call xfoil_cleanup()
-
-#endif
 
 end subroutine simplex_search
 

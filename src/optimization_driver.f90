@@ -39,8 +39,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  symmetrical, nflap_optimize, initial_perturb, &
                                  min_flap_degrees, max_flap_degrees,           &
                                  flap_degrees, flap_optimize_points,           &
-                                 min_bump_width, curr_foil, nparams_top,       &
-                                 nparams_bot, output_prefix 
+                                 min_bump_width, output_prefix 
   use optimization,       only : pso_options_type, ds_options_type,            &
                                  particleswarm, simplex_search
   use airfoil_evaluation, only : objective_function, write_function,           &
@@ -48,9 +47,6 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
                                  split_airfoil, allocate_airfoil,              &
                                  deallocate_airfoil, my_stop
-  use parameterization,   only : create_shape_functions,                       &
-                                 deallocate_shape_functions
-  use xfoil_driver,       only : xfoil_init, xfoil_cleanup
   use math_deps,          only : interp_vector
   use input_sanity,       only : check_seed
 
@@ -67,7 +63,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   type(airfoil_type) :: match_foil
   integer :: pointst, pointsb, counter, nfuncs, ndv
-  double precision, dimension(:), allocatable :: zttmp, zbtmp, modest, modesb
+  double precision, dimension(:), allocatable :: zttmp, zbtmp
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
   double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
   logical :: given_f0_ref, restart_temp
@@ -279,44 +275,9 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
     if (.not. restart) then
 
-!     Allocate memory for shape functions
-  
-      if (trim(shape_functions) == 'naca') then
-        allocate(modest(nparams_top))
-        allocate(modesb(nparams_bot))
-      else
-        allocate(modest(nparams_top*3))
-        allocate(modesb(nparams_bot*3))
-      end if
-      modest(:) = 0.d0
-      modesb(:) = 0.d0
-  
-!     For NACA, this will create the shape functions.  For Hicks-Henne,
-!     it will just allocate them.
-  
-      call create_shape_functions(xseedt, xseedb, modest, modesb,              &
-                                  shape_functions, first_time=.true.)
-  
-!     Allocate memory for working airfoil
-  
-      curr_foil%npoint = size(xseedt,1) + size(xseedb,1) - 1
-      call allocate_airfoil(curr_foil)
-  
-!     Allocate memory for xfoil
-  
-      call xfoil_init()
-  
 !     Analyze and write seed airfoil
   
       stat = write_function(x0, 0) 
-  
-!     Deallocate memory
-  
-      deallocate(modest)
-      deallocate(modesb)
-      call deallocate_shape_functions()
-      call deallocate_airfoil(curr_foil)
-      call xfoil_cleanup()
 
 !   Remove unused entries in design polars and coordinates from previous run
 
@@ -447,10 +408,10 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
   use vardef
   use airfoil_operations, only : allocate_airfoil, deallocate_airfoil,         &
                                  airfoil_write
-  use parameterization,   only : top_shape_function, bot_shape_function,       &
+  use parametrization,    only : top_shape_function, bot_shape_function,       &
                                  create_airfoil
   use airfoil_evaluation, only : xfoil_geom_options, xfoil_options
-  use xfoil_driver,       only : xfoil_init, run_xfoil, xfoil_cleanup
+  use xfoil_driver,       only : run_xfoil
 
   double precision, dimension(:), intent(in) :: optdesign
   character(*), intent(in) :: shapetype
@@ -526,20 +487,12 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
       dvcounter = dvcounter + 1
     end do
 
-!   Allocate xfoil variables
-
-    call xfoil_init()
-
 !   Analyze airfoil at requested operating conditions with Xfoil
 
     call run_xfoil(final_airfoil, xfoil_geom_options, op_point(1:noppoint),    &
                    op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),&
                    use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),  &
                    xfoil_options, lift, drag, moment, viscrms)
-
-!   Deallocate xfoil variables
-
-    call xfoil_cleanup()
 
 !   Write summary to screen and file
 

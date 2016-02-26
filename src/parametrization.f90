@@ -15,7 +15,7 @@
 
 !  Copyright (C) 2014 -- 2016 Daniel Prosser
 
-module parameterization
+module parametrization
 
 ! Contains subroutines to create an airfoil shape from design variables
 
@@ -357,4 +357,4 @@ function g_func_norm(i, N, sig, mu, G0, Gmid) result(g)
 
 end function g_func_norm
 
-end module parameterization
+end module parametrization

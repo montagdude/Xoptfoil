@@ -68,11 +68,11 @@ end function objective_function
 !=============================================================================80
 function aero_objective_function(designvars)
 
-  use math_deps,          only : interp_vector, curvature
-  use parameterization,   only : top_shape_function, bot_shape_function,       &
-                                 create_airfoil
-  use xfoil_driver,       only : run_xfoil
-  use xfoil_inc,          only : AMAX
+  use math_deps,       only : interp_vector, curvature
+  use parametrization, only : top_shape_function, bot_shape_function,          &
+                              create_airfoil
+  use xfoil_driver,    only : run_xfoil
+  use xfoil_inc,       only : AMAX
 
   double precision, dimension(:), intent(in) :: designvars
   double precision :: aero_objective_function
@@ -475,9 +475,9 @@ end function aero_objective_function
 !=============================================================================80
 function matchfoil_objective_function(designvars)
 
-  use parameterization,   only : top_shape_function, bot_shape_function,       &
-                                 create_airfoil
-  use math_deps,          only : norm_2
+  use parametrization, only : top_shape_function, bot_shape_function,          &
+                              create_airfoil
+  use math_deps,       only : norm_2
 
   double precision, dimension(:), intent(in) :: designvars
   double precision :: matchfoil_objective_function
@@ -545,10 +545,10 @@ end function write_function
 !=============================================================================80
 function write_airfoil_optimization_progress(designvars, designcounter)
 
-  use math_deps,          only : interp_vector 
-  use parameterization,   only : top_shape_function, bot_shape_function,       &
-                                 create_airfoil
-  use xfoil_driver,       only : run_xfoil
+  use math_deps,       only : interp_vector 
+  use parametrization, only : top_shape_function, bot_shape_function,          &
+                              create_airfoil
+  use xfoil_driver,    only : run_xfoil
 
   double precision, dimension(:), intent(in) :: designvars
   integer, intent(in) :: designcounter
@@ -735,8 +735,8 @@ end function write_airfoil_optimization_progress
 !=============================================================================80
 function write_matchfoil_optimization_progress(designvars, designcounter)
 
-  use parameterization,   only : top_shape_function, bot_shape_function,       &
-                                 create_airfoil
+  use parametrization, only : top_shape_function, bot_shape_function,          &
+                              create_airfoil
 
   double precision, dimension(:), intent(in) :: designvars
   integer, intent(in) :: designcounter

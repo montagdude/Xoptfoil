@@ -120,7 +120,7 @@ end subroutine load_airfoil
 !=============================================================================80
 subroutine naca_four_digit(naca_digits, pointsmcl, foil)
 
-  use parameterization, only : normal_spacing
+  use parametrization,  only : normal_spacing
   use vardef,           only : airfoil_type
 
   character(4), intent(in) :: naca_digits

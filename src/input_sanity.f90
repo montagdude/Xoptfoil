@@ -32,9 +32,9 @@ subroutine check_seed()
 
   use vardef
   use math_deps,          only : interp_vector, curvature
-  use xfoil_driver,       only : xfoil_init, xfoil_cleanup, run_xfoil
+  use xfoil_driver,       only : run_xfoil
   use xfoil_inc,          only : AMAX
-  use airfoil_operations, only : allocate_airfoil, deallocate_airfoil, my_stop
+  use airfoil_operations, only : my_stop
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
 
   double precision, dimension(:), allocatable :: x_interp, thickness
@@ -55,12 +55,6 @@ subroutine check_seed()
 
   write(*,*) 'Checking to make sure seed airfoil passes all constraints ...'
   write(*,*)
-
-! Allocate memory needed for check
-
-  curr_foil%npoint = size(xseedt,1) + size(xseedb,1) - 1
-  call allocate_airfoil(curr_foil)
-  call xfoil_init()
 
 ! Format coordinates in a single loop in derived type
 
@@ -275,11 +269,6 @@ subroutine check_seed()
     call my_stop("Seed airfoil panel angles are too large. Try adjusting "//   &
                  "xfoil_paneling_options.", stoptype)
 
-! Deallocate memory
-
-  call deallocate_airfoil(curr_foil)
-  call xfoil_cleanup()
-  
 end subroutine check_seed
 
 end module input_sanity
