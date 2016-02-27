@@ -40,8 +40,8 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  min_flap_degrees, max_flap_degrees,           &
                                  flap_degrees, flap_optimize_points,           &
                                  min_bump_width, output_prefix 
-  use optimization,       only : pso_options_type, ds_options_type,            &
-                                 particleswarm, simplex_search
+  use particle_swarm,     only : pso_options_type, particleswarm
+  use simplex,            only : ds_options_type, simplex_search
   use airfoil_evaluation, only : objective_function, write_function,           &
                                  write_function_restart_cleanup
   use airfoil_operations, only : get_seed_airfoil, get_split_points,           &

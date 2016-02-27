@@ -30,9 +30,9 @@ endif
 
 ####### Definitions, rules, targets #################################
 
-OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o input_sanity.o memory_util.o optimization_driver.o main.o
+OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization_util.o particle_swarm.o simplex.o input_output.o input_sanity.o memory_util.o optimization_driver.o main.o
 EXE=xoptfoil
-XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization.o input_output.o xfoil_only.o
+XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o input_output.o xfoil_only.o
 XEXE=xfoil_only
 DIR=../src
 
@@ -91,8 +91,14 @@ airfoil_operations.o: $(DIR)/airfoil_operations.f90
 airfoil_evaluation.o: $(DIR)/airfoil_evaluation.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/airfoil_evaluation.f90
 
-optimization.o: $(DIR)/optimization.F90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(PREPROC) $(DIR)/optimization.F90
+optimization_util.o: $(DIR)/optimization_util.F90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(PREPROC) $(DIR)/optimization_util.F90
+
+particle_swarm.o: $(DIR)/particle_swarm.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/particle_swarm.f90
+
+simplex.o: $(DIR)/simplex.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/simplex.f90
 
 input_output.o: $(DIR)/input_output.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/input_output.f90

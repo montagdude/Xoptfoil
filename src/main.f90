@@ -21,7 +21,8 @@ program main
 
   use vardef
   use input_output,        only : read_inputs, read_clo
-  use optimization,        only : pso_options_type, ds_options_type
+  use particle_swarm,      only : pso_options_type
+  use simplex,             only : ds_options_type
   use airfoil_operations,  only : get_seed_airfoil, get_split_points,          &
                                   split_airfoil, deallocate_airfoil
   use memory_util,         only : allocate_airfoil_data, deallocate_airfoil_data
@@ -38,7 +39,7 @@ program main
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb, steps, fevals, nshapedvtop, nshapedvbot,        &
              restart_write_freq 
-  double precision, dimension(:), allocatable :: optdesign, modest, modesb
+  double precision, dimension(:), allocatable :: optdesign
   integer, dimension(:), allocatable :: constrained_dvs
   double precision :: f0, fmin
   logical :: restart

@@ -34,7 +34,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                        constrained_dvs, pso_options, ds_options, matchfoil_file)
 
   use vardef
-  use optimization,       only : pso_options_type, ds_options_type
+  use particle_swarm,     only : pso_options_type
+  use simplex,            only : ds_options_type
   use airfoil_operations, only : my_stop
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
  
