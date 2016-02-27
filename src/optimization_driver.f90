@@ -41,7 +41,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  flap_degrees, flap_optimize_points,           &
                                  min_bump_width, output_prefix 
   use particle_swarm,     only : pso_options_type, particleswarm
-  use simplex,            only : ds_options_type, simplex_search
+  use simplex_search,     only : ds_options_type, simplexsearch
   use airfoil_evaluation, only : objective_function, write_function,           &
                                  write_function_restart_cleanup
   use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
@@ -374,9 +374,9 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
         given_f0_ref = .false.
       end if
 
-      call simplex_search(optdesign, fmin, stepsl, fevalsl, objective_function,&
-                          x0, given_f0_ref, f0_ref, ds_options, restart_temp,  &
-                          restart_write_freq, designcounter, write_function)
+      call simplexsearch(optdesign, fmin, stepsl, fevalsl, objective_function, &
+                         x0, given_f0_ref, f0_ref, ds_options, restart_temp,   &
+                         restart_write_freq, designcounter, write_function)
 
     end if
 

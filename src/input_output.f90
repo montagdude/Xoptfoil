@@ -35,7 +35,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   use vardef
   use particle_swarm,     only : pso_options_type
-  use simplex,            only : ds_options_type
+  use simplex_search,     only : ds_options_type
   use airfoil_operations, only : my_stop
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
  
@@ -183,7 +183,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   pso_convergence_profile = "standard"
   pso_feasible_init = .true.
   pso_feasible_limit = 5.0D+04
-  pso_feasible_init_attempts = 100
+  pso_feasible_init_attempts = 1000
 
 ! Set default simplex search options
 

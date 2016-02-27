@@ -340,6 +340,66 @@ end subroutine bubble_sort
 
 !=============================================================================80
 !
+! Pops item out of a vetor.  Note: doesn't actually change size of vector, just
+! shuffles data so that the first nitems-1 entries represent the new vector.
+!
+!=============================================================================80
+subroutine pop_double_vector(vector, nitems, popidx)
+
+  double precision, dimension(:), intent(inout) :: vector
+  integer, intent(in) :: nitems, popidx
+
+  integer :: i
+  double precision, dimension(size(vector,1)) :: tempvector
+
+! Copy input vector
+
+  tempvector = vector
+
+! Populate output vector
+
+  do i = 1, nitems-1
+    if (i < popidx) then
+      vector(i) = tempvector(i)
+    else
+      vector(i) = tempvector(i+1)
+    end if
+  end do
+
+end subroutine pop_double_vector
+
+!=============================================================================80
+!
+! Pops item out of a vetor.  Note: doesn't actually change size of vector, just
+! shuffles data so that the first nitems-1 entries represent the new vector.
+!
+!=============================================================================80
+subroutine pop_integer_vector(vector, nitems, popidx)
+
+  integer, dimension(:), intent(inout) :: vector
+  integer, intent(in) :: nitems, popidx
+
+  integer :: i
+  integer, dimension(size(vector,1)) :: tempvector
+
+! Copy input vector
+
+  tempvector = vector
+
+! Populate output vector
+
+  do i = 1, nitems-1
+    if (i < popidx) then
+      vector(i) = tempvector(i)
+    else
+      vector(i) = tempvector(i+1)
+    end if
+  end do
+
+end subroutine pop_integer_vector
+
+!=============================================================================80
+!
 ! Writes design variables to file
 !
 !=============================================================================80

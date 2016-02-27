@@ -15,7 +15,7 @@
 
 !  Copyright (C) 2014 -- 2016 Daniel Prosser
 
-module simplex
+module simplex_search
 
 ! Module containing simplex search optimization routine
 
@@ -42,9 +42,9 @@ module simplex
 ! Nelder-Mead simplex search algorithm
 !
 !=============================================================================80
-subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
-                          f0_ref, ds_options, restart, restart_write_freq,     &
-                          indesigncounter, converterfunc)
+subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
+                         f0_ref, ds_options, restart, restart_write_freq,      &
+                         indesigncounter, converterfunc)
 
   use optimization_util, only : bubble_sort, design_radius, write_design
 
@@ -333,7 +333,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
     write(*,*) '         of iterations being reached.'
   end if
 
-end subroutine simplex_search
+end subroutine simplexsearch
 
 !=============================================================================80
 !
@@ -352,17 +352,17 @@ subroutine simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
   character(100) :: restfile
   integer :: iunit
   
-  ! Status notification
+! Status notification
 
   restfile = 'restart_simplex_'//trim(output_prefix)
   write(*,*) '  Writing simplex restart data to file '//trim(restfile)//' ...'
 
-  ! Open output file for writing
+! Open output file for writing
 
   iunit = 13
   open(unit=iunit, file=restfile, status='replace', form='unformatted')
   
-  ! Write restart data
+! Write restart data
 
   write(iunit) step
   write(iunit) designcounter
@@ -371,11 +371,11 @@ subroutine simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
   write(iunit) f0
   write(iunit) fevals
 
-  ! Close restart file
+! Close restart file
 
   close(iunit)
 
-  ! Status notification
+! Status notification
 
   write(*,*) '  Successfully wrote simplex restart file.'
 
@@ -398,12 +398,12 @@ subroutine simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
   character(100) :: restfile
   integer :: iunit, ioerr
 
-  ! Status notification
+! Status notification
 
   restfile = 'restart_simplex_'//trim(output_prefix)
   write(*,*) 'Reading simplex restart data from file '//trim(restfile)//' ...'
 
-  ! Open output file for reading
+! Open output file for reading
 
   iunit = 13
   open(unit=iunit, file=restfile, status='old', form='unformatted',            &
@@ -414,7 +414,7 @@ subroutine simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
     stop
   end if
   
-  ! Read restart data
+! Read restart data
 
   read(iunit) step
   read(iunit) designcounter
@@ -423,15 +423,15 @@ subroutine simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
   read(iunit) f0
   read(iunit) fevals
 
-  ! Close restart file
+! Close restart file
 
   close(iunit)
 
-  ! Status notification
+! Status notification
 
   write(*,*) 'Successfully read simplex restart data.'
   write(*,*)
 
 end subroutine simplex_read_restart
 
-end module simplex
+end module simplex_search

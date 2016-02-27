@@ -26,7 +26,7 @@ module particle_swarm
   type pso_options_type
 
     integer :: pop                ! particle swarm population size
-    double precision :: tol       ! tolerance in mean radius of designs before
+    double precision :: tol       ! tolerance in max radius of designs before
                                   !   triggering a stop condition
     double precision :: maxspeed  ! Max speed allowed for particles
     integer :: maxit              ! Max steps allowed before stopping
@@ -53,8 +53,7 @@ module particle_swarm
 !=============================================================================80
 !
 ! Particle swarm optimization routine. Recommended as a first step to determine
-! the vicinity of the global optimum, followed by a gradient-based search to
-! refine the optimization.
+! the vicinity of the global optimum, followed by a local search to hone in.
 !
 !=============================================================================80
 subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
@@ -92,15 +91,15 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     end function
   end interface
 
-  integer :: nvars, nconstrained, i, j, fminloc, var, stat, restartcounter
+  integer :: nconstrained, i, j, fminloc, var, stat, restartcounter
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
                       f0, radius
-  double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
-                                                 randvec2, speed
-  double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
+  double precision, dimension(pso_options%pop) :: objval, minvals, speed
+  double precision, dimension(size(xmin,1)) :: randvec1, randvec2
+  double precision, dimension(size(xmin,1),pso_options%pop) :: dv, vel,        &
+                                                               bestdesigns
   logical :: use_x0, converged, signal_progress
 
-  nvars = size(xmin,1)
   nconstrained = size(constrained_dvs,1)
 
 ! PSO tuning variables
@@ -135,17 +134,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   elseif (maxspeed < 1.0D-14) then
     maxspeed = maxval(xmax - xmin)
   end if
-
-! Memory allocation
-
-  allocate(dv(nvars,pso_options%pop))
-  allocate(vel(nvars,pso_options%pop))
-  allocate(objval(pso_options%pop))
-  allocate(bestdesigns(nvars,pso_options%pop))
-  allocate(minvals(pso_options%pop))
-  allocate(speed(pso_options%pop))
-  allocate(randvec1(nvars))
-  allocate(randvec2(nvars))
 
 ! Get f0 (reference seed design objective function)
 
@@ -376,17 +364,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       
   fevals = fevals + step*pso_options%pop
 
-! Memory deallocation
-
-  deallocate(dv)
-  deallocate(vel)
-  deallocate(objval)
-  deallocate(bestdesigns)
-  deallocate(minvals)
-  deallocate(speed)
-  deallocate(randvec1)
-  deallocate(randvec2)
-
 end subroutine particleswarm
 
 !=============================================================================80
@@ -407,17 +384,17 @@ subroutine pso_write_restart(step, designcounter, dv, objval, vel, speed,      &
   character(100) :: restfile
   integer :: iunit
   
-  ! Status notification
+! Status notification
 
   restfile = 'restart_pso_'//trim(output_prefix)
   write(*,*) '  Writing PSO restart data to file '//trim(restfile)//' ...'
 
-  ! Open output file for writing
+! Open output file for writing
 
   iunit = 13
   open(unit=iunit, file=restfile, status='replace', form='unformatted')
   
-  ! Write restart data
+! Write restart data
 
   write(iunit) step
   write(iunit) designcounter
@@ -429,11 +406,11 @@ subroutine pso_write_restart(step, designcounter, dv, objval, vel, speed,      &
   write(iunit) minvals
   write(iunit) wcurr
 
-  ! Close restart file
+! Close restart file
 
   close(iunit)
 
-  ! Status notification
+! Status notification
 
   write(*,*) '  Successfully wrote PSO restart file.'
 
@@ -457,12 +434,12 @@ subroutine pso_read_restart(step, designcounter, dv, objval, vel, speed,       &
   character(100) :: restfile
   integer :: iunit, ioerr
 
-  ! Status notification
+! Status notification
 
   restfile = 'restart_pso_'//trim(output_prefix)
   write(*,*) 'Reading PSO restart data from file '//trim(restfile)//' ...'
 
-  ! Open output file for reading
+! Open output file for reading
 
   iunit = 13
   open(unit=iunit, file=restfile, status='old', form='unformatted',            &
@@ -473,7 +450,7 @@ subroutine pso_read_restart(step, designcounter, dv, objval, vel, speed,       &
     stop
   end if
   
-  ! Read restart data
+! Read restart data
 
   read(iunit) step
   read(iunit) designcounter
@@ -485,11 +462,11 @@ subroutine pso_read_restart(step, designcounter, dv, objval, vel, speed,       &
   read(iunit) minvals
   read(iunit) wcurr
 
-  ! Close restart file
+! Close restart file
 
   close(iunit)
 
-  ! Status notification
+! Status notification
 
   write(*,*) 'Successfully read PSO restart data.'
   write(*,*)
