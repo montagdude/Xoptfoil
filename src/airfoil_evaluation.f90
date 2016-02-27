@@ -659,7 +659,6 @@ function write_airfoil_optimization_progress(designvars, designcounter)
 
     write(*,*) "Writing polars for seed airfoil to file "//                    &
                trim(polarfile)//" ..."
-    write(*,*)
     open(unit=polarunit, file=polarfile, status='replace')
     write(polarunit,'(A)') 'title="Airfoil polars"'
     write(polarunit,'(A)') 'variables="cl" "cd"'
@@ -684,7 +683,6 @@ function write_airfoil_optimization_progress(designvars, designcounter)
     
     write(*,*) "  Writing polars for design number "//trim(text)//             &
                " to file "//trim(polarfile)//" ..."
-    write(*,*)
     open(unit=polarunit, file=polarfile, status='old', position='append',      &
          err=901)
     write(polarunit,'(A)') 'zone t="Polars", SOLUTIONTIME='//trim(text)
@@ -794,7 +792,6 @@ function write_matchfoil_optimization_progress(designvars, designcounter)
 
     write(*,*) "Writing coordinates for seed airfoil to file "//               &
                trim(foilfile)//" ..."
-    write(*,*)
     open(unit=foilunit, file=foilfile, status='replace')
     write(foilunit,'(A)') 'title="Airfoil coordinates"'
     write(foilunit,'(A)') 'variables="x" "z"'
@@ -811,7 +808,6 @@ function write_matchfoil_optimization_progress(designvars, designcounter)
 
     write(*,*) "  Writing coordinates for design number "//trim(text)//        &
                " to file "//trim(foilfile)//" ..."
-    write(*,*)
     open(unit=foilunit, file=foilfile, status='old', position='append',        &
          err=910)
     write(foilunit,'(A)') 'zone t="Airfoil", SOLUTIONTIME='//trim(text)

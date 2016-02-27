@@ -25,7 +25,7 @@ module simplex
 
   type ds_options_type
 
-    double precision :: tol       ! tolerance in simplex diameter before
+    double precision :: tol       ! tolerance in simplex radius before
                                   !   triggering a stop condition
     integer :: maxit              ! Max steps allowed before stopping
     logical :: write_designs      ! Whether to write best design each time it
@@ -46,7 +46,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
                           f0_ref, ds_options, restart, restart_write_freq,     &
                           indesigncounter, converterfunc)
 
-  use optimization_util, only : bubble_sort, write_design
+  use optimization_util, only : bubble_sort, design_radius, write_design
 
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
@@ -77,8 +77,8 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   double precision, dimension(size(x0,1)+1) :: objvals
   double precision, dimension(size(x0,1)) :: xcen, xr, xe, xc
 
-  double precision :: rho, xi, gam, sigma, fr, fe, fc, dist, diam, f0, mincurr
-  integer :: i, j, k, nvars, stat, designcounter, restartcounter
+  double precision :: rho, xi, gam, sigma, fr, fe, fc, f0, mincurr, radius
+  integer :: i, j, nvars, stat, designcounter, restartcounter
   logical :: converged, needshrink, signal_progress
   character(3) :: filestat
 
@@ -175,21 +175,10 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
       signal_progress = .false.
     end if
 
-!   Compute max distance between simplex vertices (designs)
-
-    diam = 0.d0
-    do j = 2, nvars + 1
-      dist = 0.d0
-      do k = 1, nvars
-        dist = dist + (dv(k,1) - dv(k,j))**2.d0
-      end do
-      dist = sqrt(dist)
-      if (dist > diam) diam = dist
-    end do
-
 !   Check for convergence
 
-    if (diam < ds_options%tol) converged = .true.
+    radius = design_radius(dv)
+    if (radius < ds_options%tol) converged = .true.
 
 !   Display progress
 
@@ -200,6 +189,7 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
       write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
                  fmin
     end if
+    write(*,*) '  Max radius of designs: ', radius
 
 !   Write design to file if requested
 !   converterfunc is an optional function supplied to convert design variables
@@ -332,21 +322,13 @@ subroutine simplex_search(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref, &
   xopt = dv(:,1)
   fmin = objvals(1)
 
-! Compute max distance between simplex vertices (designs)
+! Check for convergence one more time
 
-  diam = 0.d0
-  do j = 2, nvars + 1
-    dist = 0.d0
-    do k = 1, nvars
-      dist = dist + (dv(k,1) - dv(k,j))**2.d0
-    end do
-    dist = sqrt(dist)
-    if (dist > diam) diam = dist
-  end do
+  radius = design_radius(dv)
 
 ! Display warning if max iterations are reached
   
-  if (step == ds_options%maxit .and. (diam >= ds_options%tol)) then
+  if (step == ds_options%maxit .and. (radius >= ds_options%tol)) then
     write(*,*) 'Warning: Simplex optimizer forced to exit due to the max number'
     write(*,*) '         of iterations being reached.'
   end if
@@ -396,7 +378,6 @@ subroutine simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
   ! Status notification
 
   write(*,*) '  Successfully wrote simplex restart file.'
-  write(*,*)
 
 end subroutine simplex_write_restart
 

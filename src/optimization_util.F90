@@ -242,6 +242,41 @@ end subroutine initial_designs
 
 !=============================================================================80
 !
+! Computes max radius of designs (used for evaluating convergence
+!
+!=============================================================================80
+function design_radius(dv)
+
+  use math_deps, only : norm_2
+
+  double precision, dimension(:,:), intent(in) :: dv
+  double precision design_radius
+
+  integer :: i, ndesigns
+  double precision, dimension(size(dv,1)) :: design_centroid
+  double precision :: radius
+
+  ! Compute centroid of designs
+
+  ndesigns = size(dv,2)
+  design_centroid(:) = 0.d0
+  do i = 1, ndesigns
+    design_centroid = design_centroid + dv(:,i)
+  end do
+  design_centroid = design_centroid / dble(ndesigns)
+
+  ! Compute max design radius
+
+  design_radius = 0.d0
+  do i = 1, ndesigns
+    radius = norm_2(dv(:,i) - design_centroid)
+    if (radius > design_radius) design_radius = radius
+  end do
+
+end function
+
+!=============================================================================80
+!
 ! Sorts a set of designs according to their objective function value
 !
 !=============================================================================80

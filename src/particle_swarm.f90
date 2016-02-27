@@ -26,9 +26,8 @@ module particle_swarm
   type pso_options_type
 
     integer :: pop                ! particle swarm population size
-    double precision :: speed_tol ! tolerance in particle speed, as fraction of
-                                  !   initial max speed, before triggering a
-                                  !   stop condition
+    double precision :: tol       ! tolerance in mean radius of designs before
+                                  !   triggering a stop condition
     double precision :: maxspeed  ! Max speed allowed for particles
     integer :: maxit              ! Max steps allowed before stopping
     logical :: feasible_init      ! Whether to enforce initially feasible
@@ -64,7 +63,8 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
                          converterfunc)
 
   use math_deps,         only : norm_2
-  use optimization_util, only : init_random_seed, initial_designs, write_design
+  use optimization_util, only : init_random_seed, initial_designs,             &
+                                design_radius, write_design
 
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
@@ -94,7 +94,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
   integer :: nvars, nconstrained, i, j, fminloc, var, stat, restartcounter
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
-                      f0 
+                      f0, radius
   double precision, dimension(:), allocatable :: objval, minvals, randvec1,    &
                                                  randvec2, speed
   double precision, dimension(:,:), allocatable :: dv, vel, bestdesigns
@@ -318,6 +318,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 !   Display progress
 
+    radius = design_radius(dv)
     if (pso_options%relative_fmin_report) then
       write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
                  (f0 - fmin)/f0*100
@@ -325,6 +326,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
                  fmin
     end if
+    write(*,*) '  Max radius of designs: ', radius
 
 !   Write design to file if requested
 !   converterfunc is an optional function supplied to convert design variables
@@ -343,8 +345,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     
 !   Evaluate convergence
 
-    if ( (maxval(speed) > pso_options%speed_tol*maxspeed) .and.                &
-         (step < pso_options%maxit) ) then
+    if ( (radius > pso_options%tol) .and. (step < pso_options%maxit) ) then
       converged = .false.
     else
       converged = .true.
@@ -435,7 +436,6 @@ subroutine pso_write_restart(step, designcounter, dv, objval, vel, speed,      &
   ! Status notification
 
   write(*,*) '  Successfully wrote PSO restart file.'
-  write(*,*)
 
 end subroutine pso_write_restart
 
