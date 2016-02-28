@@ -370,4 +370,26 @@ function derv2c(u_plus, u, u_minus, h)
 
 end function derv2c
 
+!=============================================================================80
+!
+! Generates a pseudo-random number in the specified range
+!
+!=============================================================================80
+function random_integer(low, high)
+
+  integer, intent(in) :: low, high
+  integer :: random_integer
+
+  double precision :: randdble
+
+! Generate a random number in the range (0, 1)
+
+  call random_number(randdble)
+
+! Scale, translate, and convert to integer
+
+  random_integer = low + floor(randdble*dble(high - low + 1))
+
+end function random_integer
+
 end module math_deps

@@ -337,8 +337,108 @@ subroutine single_parent_selection(objvalconsidered, nconsidered, method, beta,&
   double precision, intent(in) :: beta, tournament_fraction
   integer, intent(out) :: idx
 
-  continue
+  if (trim(method) == 'random') then
+    call random_selection(nconsidered, idx)
+  else if (trim(method) == 'tournament') then
+    call tournament_selection(objvalconsidered, nconsidered,                   &
+                              tournament_fraction, idx)
+  else
+    call roulette_selection(objvalconsidered, nconsidered, beta, idx)
+  end if
 
 end subroutine single_parent_selection
+
+!=============================================================================80
+!
+! Roulette wheel selection based on objective function value
+!
+!=============================================================================80
+subroutine roulette_selection(objvalconsidered, nconsidered, beta, idx)
+
+  double precision, dimension(:), intent(in) :: objvalconsidered
+  integer, intent(in) :: nconsidered
+  double precision, intent(in) :: beta
+  integer, intent(out) :: idx
+
+  integer i
+  double precision :: total, worst, selection, cumsum, p
+  logical :: selected
+ 
+! Sum of all probabilities
+
+  total = 0.d0
+  worst = maxval(objvalconsidered(1:nconsidered))
+  do i = 1, nconsidered
+    total = total + exp(-beta*objvalconsidered(i)/worst)
+    if (objvalconsidered(i) < 0.d0) then 
+      write(*,*)
+      write(*,*) "Error: roulette selection cannot be used with negative"
+      write(*,*) "objective function values. Try tournament instead."
+      write(*,*)
+      stop
+    end if
+  end do
+
+! Select a random number between 0 and 1
+
+  call random_number(selection)
+
+! Determine which design was selected
+
+  cumsum = 0.d0
+  idx = 1
+  selected = .false.
+  do while (.not. selected)
+
+!   Probability of the current design being selected
+
+    p = exp(-beta*objvalconsidered(idx)/worst) / total
+
+!   Add to cumulative sum and determine whether the random number has been
+!   exceeded
+
+    cumsum = cumsum + p
+    if (cumsum >= selection) then
+      selected = .true.
+    else
+      idx = idx + 1
+    end if
+
+  end do
+
+end subroutine roulette_selection
+
+!=============================================================================80
+!
+! Tournament selection based on objective function value
+!
+!=============================================================================80
+subroutine tournament_selection(objvalconsidered, nconsidered,                 &
+                                tournament_fraction, idx)
+
+  double precision, dimension(:), intent(in) :: objvalconsidered
+  integer, intent(in) :: nconsidered
+  double precision, intent(in) :: tournament_fraction
+  integer, intent(out) :: idx
+
+  continue
+
+end subroutine tournament_selection
+
+!=============================================================================80
+!
+! Random parent selection
+!
+!=============================================================================80
+subroutine random_selection(nconsidered, idx)
+
+  use math_deps, only : random_integer
+
+  integer, intent(in) :: nconsidered
+  integer, intent(out) :: idx
+
+  idx = random_integer(1, nconsidered)
+
+end subroutine random_selection
 
 end module genetic_algorithm
