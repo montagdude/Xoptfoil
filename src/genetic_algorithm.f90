@@ -112,11 +112,27 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
     end function
   end interface
 
-  integer :: nconstrained, i, j, fminloc, var, stat, restartcounter
-  double precision :: mincurr, f0, radius
+  integer, dimension(:), allocatable :: idxparents
+  integer :: nconstrained, i, j, fminloc, var, stat, restartcounter, nparents
+  integer :: idxparent1, idxparent2
+  double precision :: mincurr, f0, radius, mutate1, mutate2, objchild1,        &
+                      objchild2
   double precision, dimension(ga_options%pop) :: objval
+  double precision, dimension(size(xmin,1)) :: xrng, child1, child2
   double precision, dimension(size(xmin,1),ga_options%pop) :: dv
   logical :: use_x0, converged, signal_progress
+
+  nconstrained = size(constrained_dvs,1)
+
+! Number of parents in each generation (must be an even number >= 2)
+
+  nparents = nint(ga_options%pop*ga_options%parent_fraction/2.d0)*2
+  nparents = max(nparents, 2)
+  allocate(idxparents(nparents))
+
+! Difference between max and min
+
+  xrng = xmax - xmin
 
 ! Get f0 (reference seed design objective function)
 
@@ -170,108 +186,140 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   converged = .false.
   write(*,*) 'Genetic algorithm optimization progress:'
 
+  optimization_loop: do while (.not. converged)
+
+!   Increase iteration counter
+
+    step = step + 1
+
+!   Select parents
+
+    call parents_selection(objval, ga_options%parents_selection_method,        &
+                           ga_options%roulette_selection_pressure,             &
+                           ga_options%tournament_fraction, idxparents)
+
+!   Procreate to generate offspring pairs
+
+    offspring_creation: do i = 1, nparents/2
+      idxparent1 = idxparents(2*(i-1)+1)
+      idxparent2 = idxparents(2*i)
+      call crossover(dv(:,idxparent1), dv(:,idxparent2),                       &
+                     ga_options%crossover_range_factor, child1, child2)
+
+!     Mutate offspring
+
+      call random_number(mutate1)
+      if (mutate1 > ga_options%mutant_probability)                             &
+        call mutate(child1, ga_options%chromosome_mutation_rate,               &
+                    ga_options%mutation_range_factor, xrng, child1) 
+
+      call random_number(mutate2)
+      if (mutate2 > ga_options%mutant_probability)                             &
+        call mutate(child2, ga_options%chromosome_mutation_rate,               &
+                    ga_options%mutation_range_factor, xrng, child2) 
+
+!     Bring back to side constraints if necessary
+
+      do j = 1, nconstrained
+        var = constrained_dvs(j)
+        if (child1(var) < xmin(var)) then
+          child1(var) = xmin(var)
+        elseif (child1(var) > xmax(var)) then
+          child1(var) = xmax(var)
+        end if
+        if (child2(var) < xmin(var)) then
+          child2(var) = xmin(var)
+        elseif (child2(var) > xmax(var)) then
+          child2(var) = xmax(var)
+        end if
+      end do
+
+!     Evaluate objective function for offspring
+
+      objchild1 = objfunc(child1)
+      objchild2 = objfunc(child2)
+      fevals = fevals + 2
+
+!     Place into population if child design in better than parent
+
+      if (objchild1 < objval(idxparent1)) then
+        dv(:,idxparent1) = child1
+        objval(idxparent1) = objchild1
+      end if
+      if (objchild2 < objval(idxparent2)) then
+        dv(:,idxparent2) = child2
+        objval(idxparent2) = objchild2
+      end if
+
+    end do offspring_creation
+
+!   Update best overall design, if appropriate
+
+    mincurr = minval(objval,1)
+    fminloc = minloc(objval,1)
+    if (mincurr < fmin) then
+      xopt = dv(:,fminloc)
+      fmin = mincurr
+      signal_progress = .true.
+    else
+      signal_progress = .false.
+    end if
+
+!   Display progress
+
+    radius = design_radius(dv)
+    if (ga_options%relative_fmin_report) then
+      write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
+                 (f0 - fmin)/f0*100
+    else
+      write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
+                 fmin
+    end if
+    write(*,*) '  Max radius of designs: ', radius
+
+!   Write design to file if requested
+!   converterfunc is an optional function supplied to convert design variables
+!     into something more useful.  If not supplied, the design variables
+!     themselves are written to a file.
+
+    if ( (signal_progress) .and. (ga_options%write_designs) ) then
+      designcounter = designcounter + 1
+      if (present(converterfunc)) then
+        stat = converterfunc(xopt, designcounter)
+      else
+        call write_design('geneticalgorithm_designs.dat', 'old', xopt,         &
+                          designcounter)
+      end if
+    end if
+    
+!   Evaluate convergence
+
+    if ( (radius > ga_options%tol) .and. (step < ga_options%maxit) ) then
+      converged = .false.
+    else
+      converged = .true.
+      if (step == ga_options%maxit) then
+        write(*,*) 'Warning: Genetic algorithm forced to exit due to the max'
+        write(*,*) '         number of iterations being reached.'
+      end if
+    end if 
+
+!   Write restart file if appropriate and update restart counter
+
+    if (restartcounter == restart_write_freq) then
+      call ga_write_restart(step, designcounter, dv, objval, fmin, xopt)
+      restartcounter = 1
+    else
+      restartcounter = restartcounter + 1
+    end if
+
+  end do optimization_loop
+
+! Deallocate memory
+
+  deallocate(idxparents)
+
 end subroutine geneticalgorithm
-
-!=============================================================================80
-!
-! Genetic algorithm restart write routine
-!
-!=============================================================================80
-subroutine ga_write_restart(step, designcounter, dv, objval, fmin, xopt)
-
-  use vardef, only : output_prefix
-
-  integer, intent(in) :: step, designcounter
-  double precision, dimension(:,:), intent(in) :: dv
-  double precision, dimension(:), intent(in) :: objval, xopt
-  double precision, intent(in) :: fmin
-
-  character(100) :: restfile
-  integer :: iunit
-
-!  Status notification
-
-  restfile = 'restart_ga_'//trim(output_prefix)
-  write(*,*) '  Writing genetic algorithm restart data to file '//&
-             trim(restfile)//' ...'
- 
-! Open output file for writing
-
-  iunit = 13
-  open(unit=iunit, file=restfile, status='replace', form='unformatted')
-
-! Write restart data
-
-  write(iunit) step
-  write(iunit) designcounter
-  write(iunit) dv
-  write(iunit) objval
-  write(iunit) fmin
-  write(iunit) xopt
-
-! Close restart file
-
-  close(iunit)
-
-! Status notification
-
-  write(*,*) '  Successfully wrote genetic algorithm restart file.'
-
-end subroutine ga_write_restart
-
-!=============================================================================80
-!
-! Genetic algorithm restart read routine
-!
-!=============================================================================80
-subroutine ga_read_restart(step, designcounter, dv, objval, fmin, xopt)
-
-  use vardef, only : output_prefix
-
-  integer, intent(inout) :: step, designcounter
-  double precision, dimension(:,:), intent(inout) :: dv
-  double precision, dimension(:), intent(inout) :: objval, xopt
-  double precision, intent(out) :: fmin
-
-  character(100) :: restfile
-  integer :: iunit, ioerr
-
-! Status notification
-
-  restfile = 'restart_ga_'//trim(output_prefix)
-  write(*,*) '  Reading genetic algorithm restart data from file '//&
-             trim(restfile)//' ...'
- 
-! Open output file for reading
-
-  iunit = 13
-  open(unit=iunit, file=restfile, status='old', form='unformatted',            &
-       iostat=ioerr)
-  if (ioerr /= 0) then
-    write(*,*) 'Error: could not find input file '//trim(restfile)//'.'
-    write(*,*)
-    stop
-  end if
-
-! Read restart data
-
-  read(iunit) step
-  read(iunit) designcounter
-  read(iunit) dv
-  read(iunit) objval
-  read(iunit) fmin
-  read(iunit) xopt
-
-! Close restart file
-
-  close(iunit)
-
-! Status notification
-
-  write(*,*) 'Successfully read genetic algorithm restart file.'
-  write(*,*)
-
-end subroutine ga_read_restart
 
 !=============================================================================80
 !
@@ -555,4 +603,105 @@ subroutine mutate(design, mu, sigma, varrange, newdesign)
 
 end subroutine mutate
   
+!=============================================================================80
+!
+! Genetic algorithm restart write routine
+!
+!=============================================================================80
+subroutine ga_write_restart(step, designcounter, dv, objval, fmin, xopt)
+
+  use vardef, only : output_prefix
+
+  integer, intent(in) :: step, designcounter
+  double precision, dimension(:,:), intent(in) :: dv
+  double precision, dimension(:), intent(in) :: objval, xopt
+  double precision, intent(in) :: fmin
+
+  character(100) :: restfile
+  integer :: iunit
+
+!  Status notification
+
+  restfile = 'restart_ga_'//trim(output_prefix)
+  write(*,*) '  Writing genetic algorithm restart data to file '//&
+             trim(restfile)//' ...'
+ 
+! Open output file for writing
+
+  iunit = 13
+  open(unit=iunit, file=restfile, status='replace', form='unformatted')
+
+! Write restart data
+
+  write(iunit) step
+  write(iunit) designcounter
+  write(iunit) dv
+  write(iunit) objval
+  write(iunit) fmin
+  write(iunit) xopt
+
+! Close restart file
+
+  close(iunit)
+
+! Status notification
+
+  write(*,*) '  Successfully wrote genetic algorithm restart file.'
+
+end subroutine ga_write_restart
+
+!=============================================================================80
+!
+! Genetic algorithm restart read routine
+!
+!=============================================================================80
+subroutine ga_read_restart(step, designcounter, dv, objval, fmin, xopt)
+
+  use vardef, only : output_prefix
+
+  integer, intent(inout) :: step, designcounter
+  double precision, dimension(:,:), intent(inout) :: dv
+  double precision, dimension(:), intent(inout) :: objval, xopt
+  double precision, intent(out) :: fmin
+
+  character(100) :: restfile
+  integer :: iunit, ioerr
+
+! Status notification
+
+  restfile = 'restart_ga_'//trim(output_prefix)
+  write(*,*) '  Reading genetic algorithm restart data from file '//&
+             trim(restfile)//' ...'
+ 
+! Open output file for reading
+
+  iunit = 13
+  open(unit=iunit, file=restfile, status='old', form='unformatted',            &
+       iostat=ioerr)
+  if (ioerr /= 0) then
+    write(*,*) 'Error: could not find input file '//trim(restfile)//'.'
+    write(*,*)
+    stop
+  end if
+
+! Read restart data
+
+  read(iunit) step
+  read(iunit) designcounter
+  read(iunit) dv
+  read(iunit) objval
+  read(iunit) fmin
+  read(iunit) xopt
+
+! Close restart file
+
+  close(iunit)
+
+! Status notification
+
+  write(*,*) 'Successfully read genetic algorithm restart file.'
+  write(*,*)
+
+end subroutine ga_read_restart
+
 end module genetic_algorithm
