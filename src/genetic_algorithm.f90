@@ -416,12 +416,54 @@ end subroutine roulette_selection
 subroutine tournament_selection(objvalconsidered, nconsidered,                 &
                                 tournament_fraction, idx)
 
+  use math_deps,         only : random_integer
+  use optimization_util, only : pop_integer_vector
+
   double precision, dimension(:), intent(in) :: objvalconsidered
   integer, intent(in) :: nconsidered
   double precision, intent(in) :: tournament_fraction
   integer, intent(out) :: idx
 
-  continue
+  integer :: i, nparticipants, nselected, nremaining, nextidx, nextparticipant
+  integer, dimension(nconsidered) :: designstemp
+  double precision :: mincurr
+
+! Set number of participants
+
+  nparticipants = nint(dble(nconsidered)*tournament_fraction)
+  nparticipants = max(nparticipants,1)
+
+! Temporary list to store designs not yet in the tournament
+
+  do i = 1, nconsidered
+    designstemp(i) = i
+  end do
+
+! Choose best among nparticipants random designs
+
+  mincurr = 1.D+08
+  nselected = 0
+  nremaining = nconsidered
+  do i = 1, nparticipants
+
+!   Pick a random design from the remaining designs
+
+    nextidx = random_integer(1, nremaining)
+    nextparticipant = designstemp(nextidx)
+
+!   Evaluate fitness
+
+    if (objvalconsidered(nextparticipant) < mincurr) then
+      mincurr = objvalconsidered(nextparticipant)
+      idx = nextparticipant
+    end if
+
+!   Pop selected participant out of temp list
+
+    call pop_integer_vector(designstemp, nremaining, nextidx)
+    nremaining = nremaining - 1
+
+  end do
 
 end subroutine tournament_selection
 
@@ -441,4 +483,76 @@ subroutine random_selection(nconsidered, idx)
 
 end subroutine random_selection
 
+!=============================================================================80
+!
+! Crossover of two parents
+!
+!=============================================================================80
+subroutine crossover(parent1, parent2, gam, child1, child2)
+
+  use math_deps, only : random_double
+
+  double precision, dimension(:), intent(in) :: parent1, parent2
+  double precision, dimension(:), intent(inout) :: child1, child2
+  double precision, intent(in) :: gam
+
+  integer :: nvars, i
+  double precision :: alpha
+
+  nvars = size(parent1,1)
+
+! Crossover of each design variable
+
+  do i = 1, nvars
+  
+!   Crossover parameter
+
+    alpha = random_double(-gam, 1.d0+gam)
+
+!   Child design variables as linear combination of parents
+
+    child1(i) = alpha*parent1(i) + (1.d0-alpha)*parent2(i)
+    child2(i) = (1.d0-alpha)*parent1(i) + alpha*parent2(i)
+
+  end do
+
+end subroutine crossover
+
+!=============================================================================80
+!
+! Mutation of a design
+!
+!=============================================================================80
+subroutine mutate(design, mu, sigma, varrange, newdesign)
+
+  use math_deps, only : random_double
+
+  double precision, dimension(:), intent(in) :: design, varrange
+  double precision, intent(in) :: mu, sigma
+  double precision, dimension(:), intent(inout) :: newdesign
+
+  integer :: nvars, i
+  double precision :: selvar, mutation
+
+  nvars = size(design,1)
+  newdesign = design
+
+! Mutate each design variable with probability mu
+
+  do i = 1, nvars
+
+!   Crossover parameter
+
+    call random_number(selvar)
+    if (selvar > mu) cycle
+
+!   Mutate if dictated by selvar
+
+    mutation = sigma*varrange(i)*random_double(-0.5d0, 0.5d0)
+    newdesign(i) = design(i) + mutation
+
+  end do
+
+end subroutine mutate
+  
 end module genetic_algorithm
