@@ -31,10 +31,12 @@ module input_output
 subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                        seed_airfoil, airfoil_file, naca_digits, nfunctions_top,&
                        nfunctions_bot, restart, restart_write_freq,            &
-                       constrained_dvs, pso_options, ds_options, matchfoil_file)
+                       constrained_dvs, pso_options, ga_options, ds_options,   &
+                       matchfoil_file)
 
   use vardef
   use particle_swarm,     only : pso_options_type
+  use genetic_algorithm,  only : ga_options_type
   use simplex_search,     only : ds_options_type
   use airfoil_operations, only : my_stop
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
@@ -46,18 +48,24 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   integer, intent(out) :: nfunctions_top, nfunctions_bot
   integer, dimension(:), allocatable, intent(inout) :: constrained_dvs
   type(pso_options_type), intent(out) :: pso_options
+  type(ga_options_type), intent(out) :: ga_options
   type(ds_options_type), intent(out) :: ds_options
 
   logical :: viscous_mode, silent_mode, fix_unconverged, feasible_init,        &
              reinitialize, restart, write_designs
-  integer :: restart_write_freq, pop, pso_maxit, simplex_maxit, bl_maxit, npan,&
-             feasible_init_attempts
+  integer :: restart_write_freq, pso_pop, pso_maxit, simplex_maxit, bl_maxit,  &
+             npan, feasible_init_attempts
+  integer :: ga_pop, ga_maxit
   double precision :: pso_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
   double precision :: feasible_limit
+  double precision :: ga_tol, parent_fraction, roulette_selection_pressure,    &
+                      tournament_fraction, crossover_range_factor,             &
+                      mutant_probability, chromosome_mutation_rate,            &
+                      mutation_range_factor
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
-  character(10) :: pso_convergence_profile
+  character(10) :: pso_convergence_profile, parents_selection_method
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
@@ -72,8 +80,13 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                          symmetrical, min_flap_degrees, max_flap_degrees
   namelist /initialization/ feasible_init, feasible_limit,                     &
                             feasible_init_attempts
-  namelist /particle_swarm_options/ pop, pso_tol, pso_maxit,                   &
+  namelist /particle_swarm_options/ pso_pop, pso_tol, pso_maxit,               &
                                     pso_convergence_profile
+  namelist /genetic_algorithm_options/ ga_pop, ga_tol, ga_maxit,               &
+            parents_selection_method, parent_fraction,                         &
+            roulette_selection_pressure, tournament_fraction,                  &
+            crossover_range_factor, mutant_probability,                        &
+            chromosome_mutation_rate, mutation_range_factor
   namelist /simplex_options/ simplex_tol, simplex_maxit
   namelist /xfoil_run_options/ ncrit, xtript, xtripb, viscous_mode,            &
             silent_mode, bl_maxit, vaccel, fix_unconverged, reinitialize
@@ -188,10 +201,24 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 ! Set default particle swarm options
 
-  pop = 40
+  pso_pop = 40
   pso_tol = 1.D-04
   pso_maxit = 300
-  pso_convergence_profile = "standard"
+  pso_convergence_profile = 'standard'
+
+! Set default genetic algorithm options
+
+  ga_pop = 80
+  ga_tol = 1.D-04
+  ga_maxit = 300
+  parents_selection_method = 'roulette'
+  parent_fraction = 0.5d0
+  roulette_selection_pressure = 8.d0
+  tournament_fraction = 0.1d0
+  crossover_range_factor = 0.4d0
+  mutant_probability = 0.3d0
+  chromosome_mutation_rate = 0.01d0
+  mutation_range_factor = 0.2d0
 
 ! Set default simplex search options
 
@@ -238,13 +265,13 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
     end if
 
-    if(trim(global_search) == 'particle_swarm') then
+    if (trim(global_search) == 'particle_swarm') then
 
 !     Read PSO options and put them into derived type
 
       rewind(iunit)
       read(iunit, iostat=iostat1, nml=particle_swarm_options)
-      pso_options%pop = pop
+      pso_options%pop = pso_pop
       pso_options%tol = pso_tol
       pso_options%maxspeed = initial_perturb
       pso_options%maxit = pso_maxit
@@ -257,6 +284,32 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
         pso_options%relative_fmin_report = .true.
       else
         pso_options%relative_fmin_report = .false.
+      end if
+
+    else if (trim(global_search) == 'genetic_algorithm') then
+
+!     Read genetic algorithm options and put them into derived type
+
+      read(iunit, iostat=iostat1, nml=genetic_algorithm_options)
+      ga_options%pop = ga_pop
+      ga_options%tol = ga_tol
+      ga_options%maxit = ga_maxit
+      ga_options%parents_selection_method = parents_selection_method
+      ga_options%parent_fraction = parent_fraction
+      ga_options%roulette_selection_pressure = roulette_selection_pressure
+      ga_options%tournament_fraction = tournament_fraction
+      ga_options%crossover_range_factor = crossover_range_factor
+      ga_options%mutant_probability = mutant_probability
+      ga_options%chromosome_mutation_rate = chromosome_mutation_rate
+      ga_options%mutation_range_factor = mutation_range_factor
+      ga_options%feasible_init = feasible_init
+      ga_options%feasible_limit = feasible_limit
+      ga_options%feasible_init_attempts = feasible_init_attempts
+      ga_options%write_designs = write_designs
+      if (.not. match_foils) then
+        ga_options%relative_fmin_report = .true.
+      else
+        ga_options%relative_fmin_report = .false.
       end if
 
     else
@@ -447,15 +500,37 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
       'global') then
 
-    if(trim(global_search) == 'particle_swarm') then
+    if (trim(global_search) == 'particle_swarm') then
 
 !     Particle swarm namelist
 
       write(*,'(A)') " &particle_swarm_options"
-      write(*,*) " pop = ", pso_options%pop
+      write(*,*) " pso_pop = ", pso_options%pop
       write(*,*) " pso_tol = ", pso_options%tol
       write(*,*) " pso_maxit = ", pso_options%maxit
       write(*,*) " pso_convergence_profile = ", pso_options%convergence_profile
+      write(*,'(A)') " /"
+      write(*,*)
+
+    else if (trim(global_search) == 'genetic_algorithm') then
+
+!     Genetic algorithm options
+
+      write(*,'(A)') " &genetic_algorithm_options"
+      write(*,*) " ga_pop = ", ga_options%pop
+      write(*,*) " ga_tol = ", ga_options%tol
+      write(*,*) " ga_maxit = ", ga_options%maxit
+      write(*,*) " parents_selection_method = ",                               &
+                 ga_options%parents_selection_method
+      write(*,*) " parent_fraction = ", ga_options%parent_fraction 
+      write(*,*) " roulette_selection_pressure = ",                            &
+                 ga_options%roulette_selection_pressure
+      write(*,*) " tournament_fraction = " , ga_options%tournament_fraction
+      write(*,*) " crossover_range_factor = ", ga_options%crossover_range_factor
+      write(*,*) " mutant_probability = ", ga_options%mutant_probability
+      write(*,*) " chromosome_mutation_rate = ",                               &
+                 ga_options%chromosome_mutation_rate
+      write(*,*) " mutation_range_factor = ", ga_options%mutation_range_factor
       write(*,'(A)') " /"
       write(*,*)
 
@@ -594,19 +669,63 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if ((feasible_init_attempts < 1) .and. feasible_init)                        &
     call my_stop("feasible_init_attempts must be > 0.")
 
-! Particle swarm options
+! Optimizer options
 
-  if (pop < 1) call my_stop("pop must be > 0.")
-  if (pso_tol <= 0.d0) call my_stop("pso_tol must be > 0.")
-  if (pso_maxit < 1) call my_stop("pso_maxit must be > 0.")  
-  if ( (trim(pso_convergence_profile) /= "standard") .and.                     &
-       (trim(pso_convergence_profile) /= "exhaustive") )                       &
-    call my_stop("pso_convergence_profile must be 'standard' or 'exhaustive'.")
+  if (trim(search_type) == 'global' .or.                                       &
+       trim(search_type) == 'global_and_local') then
 
-! Simplex options
+    if (trim(global_search) == 'particle_swarm') then
 
-  if (simplex_tol <= 0.d0) call my_stop("simplex_tol must be > 0.")
-  if (simplex_maxit < 1) call my_stop("simplex_maxit must be > 0.")  
+!     Particle swarm options
+
+      if (pso_pop < 1) call my_stop("pso_pop must be > 0.")
+      if (pso_tol <= 0.d0) call my_stop("pso_tol must be > 0.")
+      if (pso_maxit < 1) call my_stop("pso_maxit must be > 0.")  
+      if ( (trim(pso_convergence_profile) /= "standard") .and.                 &
+           (trim(pso_convergence_profile) /= "exhaustive") )                   &
+        call my_stop("pso_convergence_profile must be 'standard' "//&
+                     "or 'exhaustive'.")
+
+    else if (trim(global_search) == 'genetic_algorithm') then
+
+!     Genetic algorithm options
+
+      if (ga_pop < 1) call my_stop("ga_pop must be > 0.")
+      if (ga_tol <= 0.d0) call my_stop("ga_tol must be > 0.")
+      if (ga_maxit < 1) call my_stop("ga_maxit must be > 0.")
+      if ( (trim(parents_selection_method) /= "roulette") .and.                &
+           (trim(parents_selection_method) /= "tournament") .and.              &
+           (trim(parents_selection_method) /= "random") )                      &
+        call my_stop("parents_selection_method must be 'roulette', "//&
+                     "'tournament', or 'random'.")
+      if ( (parent_fraction <= 0.d0) .or. (parent_fraction > 1.d0) )           &
+        call my_stop("parent_fraction must be > 0 and <= 1.")
+      if (roulette_selection_pressure <= 0.d0)                                 &
+        call my_stop("roulette_selection_pressure must be > 0.")
+      if ( (tournament_fraction <= 0.d0) .or. (tournament_fraction > 1.d0) )   &
+        call my_stop("tournament_fraction must be > 0 and <= 1.")
+      if (crossover_range_factor < 0.d0)                                       &
+        call my_stop("crossover_range_factor must be >= 0.")
+      if ( (mutant_probability < 0.d0) .or. (mutant_probability > 1.d0) )      &
+        call my_stop("mutant_probability must be >= 0 and <= 1.") 
+      if (chromosome_mutation_rate < 0.d0)                                     &
+        call my_stop("chromosome_mutation_rate must be >= 0.")
+      if (mutation_range_factor < 0.d0)                                        &
+        call my_stop("mutation_range_factor must be >= 0.")
+
+    end if
+
+  end if
+
+  if (trim(search_type) == 'local' .or.                                        &
+       trim(search_type) == 'global_and_local') then
+
+!   Simplex options
+
+    if (simplex_tol <= 0.d0) call my_stop("simplex_tol must be > 0.")
+    if (simplex_maxit < 1) call my_stop("simplex_maxit must be > 0.")  
+  
+  end if
 
 ! XFoil run options
 

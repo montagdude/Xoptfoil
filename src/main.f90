@@ -22,6 +22,7 @@ program main
   use vardef
   use input_output,        only : read_inputs, read_clo
   use particle_swarm,      only : pso_options_type
+  use genetic_algorithm,   only : ga_options_type
   use simplex_search,      only : ds_options_type
   use airfoil_operations,  only : get_seed_airfoil, get_split_points,          &
                                   split_airfoil, deallocate_airfoil
@@ -36,6 +37,7 @@ program main
   character(4) :: naca_digits
   character(80) :: input_file
   type(pso_options_type) :: pso_options
+  type(ga_options_type) :: ga_options
   type(ds_options_type) :: ds_options
   integer :: pointst, pointsb, steps, fevals, nshapedvtop, nshapedvbot,        &
              restart_write_freq 
@@ -57,7 +59,7 @@ program main
   call read_inputs(input_file, search_type, global_search, local_search,       &
                    seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
                    nparams_bot, restart, restart_write_freq, constrained_dvs,  &
-                   pso_options, ds_options, matchfoil_file)
+                   pso_options, ga_options, ds_options, matchfoil_file)
 
 ! Load seed airfoil into memory, including transformations and smoothing
 
