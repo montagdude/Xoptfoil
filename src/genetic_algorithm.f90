@@ -124,9 +124,6 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   double precision, dimension(4) :: replaceobjval
   logical :: use_x0, converged, signal_progress
 
-!integer :: k
-!character(30) :: text
-
   nconstrained = size(constrained_dvs,1)
 
 ! Number of parents in each generation (must be an even number >= 2)
@@ -148,6 +145,10 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
     f0_ref = f0
   end if
 
+!$omp parallel default(shared) private(i, j, var, idxparent1, idxparent2,      &
+!$omp  child1, child2, mutate1, mutate2, objchild1, objchild2, replacedv,      &
+!$omp  replaceobjval)
+
 ! Initialize a random seed
 
   call init_random_seed()
@@ -159,6 +160,8 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
                          ga_options%feasible_init, ga_options%feasible_limit,  &
                          ga_options%feasible_init_attempts)
   end if
+
+!$omp master
 
 ! Set up or read other initialization data
 
@@ -185,20 +188,18 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 
   end if
 
-!open(12, file='ga_designs.dat', status='replace')
-!write(12,'(A)') 'variables = "x", "y"'
-!write(12,'(A)') 'zone t="designs", solutiontime=0'
-!do k = 1, ga_options%pop
-!  write(12,*) dv(1,k), dv(2,k)
-!end do
-
 ! Begin optimization
 
   restartcounter = 1
   converged = .false.
   write(*,*) 'Genetic algorithm optimization progress:'
 
+!$omp end master
+!$omp barrier
+
   optimization_loop: do while (.not. converged)
+
+!$omp master
 
 !   Increase iteration counter
 
@@ -209,6 +210,11 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
     call parents_selection(objval, ga_options%parents_selection_method,        &
                            ga_options%roulette_selection_pressure,             &
                            ga_options%tournament_fraction, idxparents)
+
+!$omp end master
+!$omp barrier
+
+!$omp do
 
 !   Procreate to generate offspring pairs
 
@@ -250,7 +256,6 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 
       objchild1 = objfunc(child1)
       objchild2 = objfunc(child2)
-      fevals = fevals + 2
 
 !     Create sorted list of parents:children and replace parents with best 2
 
@@ -272,6 +277,10 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
       objval(idxparent2) = replaceobjval(2)
 
     end do offspring_creation
+
+!$omp end do
+
+!$omp master
 
 !   Update best overall design, if appropriate
 
@@ -341,20 +350,20 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
       restartcounter = restartcounter + 1
     end if
 
-!write(text,*) step
-!text=adjustl(text)
-!write(12,'(A)') 'zone t="designs", solutiontime='//trim(text)
-!do k = 1, ga_options%pop
-!  write(12,*) dv(1,k), dv(2,k)
-!end do
+!$omp end master
+!$omp barrier
 
   end do optimization_loop
 
-!close(12)
+!$omp end parallel
 
 ! Deallocate memory
 
   deallocate(idxparents)
+
+! Calculate number of function evaluations
+
+  fevals = fevals + step*nparents
 
 end subroutine geneticalgorithm
 

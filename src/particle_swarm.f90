@@ -144,7 +144,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     f0_ref = f0
   end if
 
-!$omp parallel default(shared) private(i, j)
+!$omp parallel default(shared) private(i, j, var)
 
 ! Initialize a random seed
 
