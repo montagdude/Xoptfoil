@@ -124,8 +124,8 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   double precision, dimension(4) :: replaceobjval
   logical :: use_x0, converged, signal_progress
 
-integer :: k
-character(30) :: text
+!integer :: k
+!character(30) :: text
 
   nconstrained = size(constrained_dvs,1)
 
@@ -185,12 +185,12 @@ character(30) :: text
 
   end if
 
-open(12, file='ga_designs.dat', status='replace')
-write(12,'(A)') 'variables = "x", "y"'
-write(12,'(A)') 'zone t="designs", solutiontime=0'
-do k = 1, ga_options%pop
-  write(12,*) dv(1,k), dv(2,k)
-end do
+!open(12, file='ga_designs.dat', status='replace')
+!write(12,'(A)') 'variables = "x", "y"'
+!write(12,'(A)') 'zone t="designs", solutiontime=0'
+!do k = 1, ga_options%pop
+!  write(12,*) dv(1,k), dv(2,k)
+!end do
 
 ! Begin optimization
 
@@ -285,9 +285,17 @@ end do
       signal_progress = .false.
     end if
 
+!   Sort designs from low to high objective value
+
+    call bubble_sort(dv, objval)
+
+!   Get radius of best nparents designs (because some poor designs may take
+!   a long time to converge to the optimum due to selection pressure)
+
+    radius = design_radius(dv(:,1:nparents))
+
 !   Display progress
 
-    radius = design_radius(dv)
     if (ga_options%relative_fmin_report) then
       write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
                  (f0 - fmin)/f0*100
@@ -295,7 +303,7 @@ end do
       write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
                  fmin
     end if
-    write(*,*) '  Max radius of designs: ', radius
+    write(*,*) '  Max radius of considered designs: ', radius
 
 !   Write design to file if requested
 !   converterfunc is an optional function supplied to convert design variables
@@ -333,16 +341,16 @@ end do
       restartcounter = restartcounter + 1
     end if
 
-write(text,*) step
-text=adjustl(text)
-write(12,'(A)') 'zone t="designs", solutiontime='//trim(text)
-do k = 1, ga_options%pop
-  write(12,*) dv(1,k), dv(2,k)
-end do
+!write(text,*) step
+!text=adjustl(text)
+!write(12,'(A)') 'zone t="designs", solutiontime='//trim(text)
+!do k = 1, ga_options%pop
+!  write(12,*) dv(1,k), dv(2,k)
+!end do
 
   end do optimization_loop
 
-close(12)
+!close(12)
 
 ! Deallocate memory
 
