@@ -84,7 +84,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
                             converterfunc)
 
   use optimization_util, only : init_random_seed, initial_designs,             &
-                                design_radius, write_design 
+                                design_radius, write_design, bubble_sort 
 
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
@@ -120,7 +120,12 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   double precision, dimension(ga_options%pop) :: objval
   double precision, dimension(size(xmin,1)) :: xrng, child1, child2
   double precision, dimension(size(xmin,1),ga_options%pop) :: dv
+  double precision, dimension(size(xmin,1),4) :: replacedv
+  double precision, dimension(4) :: replaceobjval
   logical :: use_x0, converged, signal_progress
+
+integer :: k
+character(30) :: text
 
   nconstrained = size(constrained_dvs,1)
 
@@ -179,6 +184,13 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
     mincurr = minval(objval,1)
 
   end if
+
+open(12, file='ga_designs.dat', status='replace')
+write(12,'(A)') 'variables = "x", "y"'
+write(12,'(A)') 'zone t="designs", solutiontime=0'
+do k = 1, ga_options%pop
+  write(12,*) dv(1,k), dv(2,k)
+end do
 
 ! Begin optimization
 
@@ -240,16 +252,24 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
       objchild2 = objfunc(child2)
       fevals = fevals + 2
 
-!     Place into population if child design in better than parent
+!     Create sorted list of parents:children and replace parents with best 2
 
-      if (objchild1 < objval(idxparent1)) then
-        dv(:,idxparent1) = child1
-        objval(idxparent1) = objchild1
-      end if
-      if (objchild2 < objval(idxparent2)) then
-        dv(:,idxparent2) = child2
-        objval(idxparent2) = objchild2
-      end if
+      replacedv(:,1) = dv(:,idxparent1)
+      replacedv(:,2) = dv(:,idxparent2)
+      replacedv(:,3) = child1
+      replacedv(:,4) = child2
+
+      replaceobjval(1) = objval(idxparent1)
+      replaceobjval(2) = objval(idxparent2)
+      replaceobjval(3) = objchild1
+      replaceobjval(4) = objchild2
+
+      call bubble_sort(replacedv, replaceobjval)
+
+      dv(:,idxparent1) = replacedv(:,1)
+      dv(:,idxparent2) = replacedv(:,2)
+      objval(idxparent1) = replaceobjval(1)
+      objval(idxparent2) = replaceobjval(2)
 
     end do offspring_creation
 
@@ -313,7 +333,16 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
       restartcounter = restartcounter + 1
     end if
 
+write(text,*) step
+text=adjustl(text)
+write(12,'(A)') 'zone t="designs", solutiontime='//trim(text)
+do k = 1, ga_options%pop
+  write(12,*) dv(1,k), dv(2,k)
+end do
+
   end do optimization_loop
+
+close(12)
 
 ! Deallocate memory
 
