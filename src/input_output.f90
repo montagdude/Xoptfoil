@@ -48,13 +48,13 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   type(pso_options_type), intent(out) :: pso_options
   type(ds_options_type), intent(out) :: ds_options
 
-  logical :: viscous_mode, silent_mode, fix_unconverged, pso_feasible_init,    &
+  logical :: viscous_mode, silent_mode, fix_unconverged, feasible_init,        &
              reinitialize, restart, write_designs
   integer :: restart_write_freq, pop, pso_maxit, simplex_maxit, bl_maxit, npan,&
-             pso_feasible_init_attempts
+             feasible_init_attempts
   double precision :: pso_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
-  double precision :: pso_feasible_limit
+  double precision :: feasible_limit
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
   character(10) :: pso_convergence_profile
@@ -70,10 +70,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                          moment_constraint_type, min_moment, min_te_angle,     &
                          check_curvature, max_curv_reverse, curv_threshold,    &
                          symmetrical, min_flap_degrees, max_flap_degrees
+  namelist /initialization/ feasible_init, feasible_limit,                     &
+                            feasible_init_attempts
   namelist /particle_swarm_options/ pop, pso_tol, pso_maxit,                   &
-                                    pso_convergence_profile, pso_feasible_init,&
-                                    pso_feasible_limit,                        &
-                                    pso_feasible_init_attempts
+                                    pso_convergence_profile
   namelist /simplex_options/ simplex_tol, simplex_maxit
   namelist /xfoil_run_options/ ncrit, xtript, xtripb, viscous_mode,            &
             silent_mode, bl_maxit, vaccel, fix_unconverged, reinitialize
@@ -175,15 +175,23 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   weighting = weighting/sum(weighting(1:noppoint))
 
+! Set default initialization options
+
+  feasible_init = .true.
+  feasible_limit = 5.0D+04
+  feasible_init_attempts = 1000
+
+! Read initialization parameters
+
+  rewind(iunit)
+  read(iunit, iostat=iostat1, nml=initialization)
+
 ! Set default particle swarm options
 
   pop = 40
   pso_tol = 1.D-04
   pso_maxit = 300
   pso_convergence_profile = "standard"
-  pso_feasible_init = .true.
-  pso_feasible_limit = 5.0D+04
-  pso_feasible_init_attempts = 1000
 
 ! Set default simplex search options
 
@@ -193,44 +201,44 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
       'global') then
   
-    if(trim(global_search) == 'particle_swarm') then
+!   Set design variables with side constraints
 
-!     Set design variables with side constraints
+    if (trim(shape_functions) == 'naca') then
 
-      if (trim(shape_functions) == 'naca') then
+!     For NACA, we will only constrain the flap deflection
 
-!       For NACA, we will only constrain the flap deflection
-
-        allocate(constrained_dvs(nflap_optimize))
-        counter = 0
-        do i = nfunctions_top + nfunctions_bot + 1,                            &
-               nfunctions_top + nfunctions_bot + nflap_optimize
-          counter = counter + 1
-          constrained_dvs(counter) = i
-        end do
+      allocate(constrained_dvs(nflap_optimize))
+      counter = 0
+      do i = nfunctions_top + nfunctions_bot + 1,                              &
+             nfunctions_top + nfunctions_bot + nflap_optimize
+        counter = counter + 1
+        constrained_dvs(counter) = i
+      end do
           
-      else
+    else
 
-!       For Hicks-Henne, also constrain bump locations and width
+!     For Hicks-Henne, also constrain bump locations and width
 
-        allocate(constrained_dvs(2*nfunctions_top + 2*nfunctions_bot +         &
-                                 nflap_optimize))
-        counter = 0
-        do i = 1, nfunctions_top + nfunctions_bot
-          counter = counter + 1
-          idx = 3*(i-1) + 2      ! DV index of bump location, shape function i
-          constrained_dvs(counter) = idx
-          counter = counter + 1
-          idx = 3*(i-1) + 3      ! Index of bump width, shape function i
-          constrained_dvs(counter) = idx
-        end do
-        do i = 3*(nfunctions_top + nfunctions_bot) + 1,                        &
-               3*(nfunctions_top + nfunctions_bot) + nflap_optimize
-          counter = counter + 1
-          constrained_dvs(counter) = i
-        end do
+      allocate(constrained_dvs(2*nfunctions_top + 2*nfunctions_bot +           &
+                               nflap_optimize))
+      counter = 0
+      do i = 1, nfunctions_top + nfunctions_bot
+        counter = counter + 1
+        idx = 3*(i-1) + 2      ! DV index of bump location, shape function i
+        constrained_dvs(counter) = idx
+        counter = counter + 1
+        idx = 3*(i-1) + 3      ! Index of bump width, shape function i
+        constrained_dvs(counter) = idx
+      end do
+      do i = 3*(nfunctions_top + nfunctions_bot) + 1,                          &
+             3*(nfunctions_top + nfunctions_bot) + nflap_optimize
+        counter = counter + 1
+        constrained_dvs(counter) = i
+      end do
 
-      end if
+    end if
+
+    if(trim(global_search) == 'particle_swarm') then
 
 !     Read PSO options and put them into derived type
 
@@ -241,9 +249,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       pso_options%maxspeed = initial_perturb
       pso_options%maxit = pso_maxit
       pso_options%convergence_profile = pso_convergence_profile
-      pso_options%feasible_init = pso_feasible_init
-      pso_options%feasible_limit = pso_feasible_limit
-      pso_options%feasible_init_attempts = pso_feasible_init_attempts
+      pso_options%feasible_init = feasible_init
+      pso_options%feasible_limit = feasible_limit
+      pso_options%feasible_init_attempts = feasible_init_attempts
       pso_options%write_designs = write_designs
       if (.not. match_foils) then
         pso_options%relative_fmin_report = .true.
@@ -425,6 +433,17 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,'(A)') " /"
   write(*,*)
 
+! Initialization namelist
+
+  write(*,'(A)') " &initialization"
+  write(*,*) " feasible_init = ", feasible_init
+  write(*,*) " feasible_limit = ", feasible_limit
+  write(*,*) " feasible_init_attempts = ", feasible_init_attempts
+  write(*,'(A)') " /"
+  write(*,*)
+
+! Optimizer namelists
+
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
       'global') then
 
@@ -437,10 +456,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       write(*,*) " pso_tol = ", pso_options%tol
       write(*,*) " pso_maxit = ", pso_options%maxit
       write(*,*) " pso_convergence_profile = ", pso_options%convergence_profile
-      write(*,*) " pso_feasible_init = ", pso_options%feasible_init
-      write(*,*) " pso_feasible_limit = ", pso_options%feasible_limit
-      write(*,*) " pso_feasible_init_attempts = ",                             &
-                   pso_options%feasible_init_attempts
       write(*,'(A)') " /"
       write(*,*)
 
@@ -571,7 +586,14 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     call my_stop("min_flap_degrees must be greater than -90.")
   if (max_flap_degrees >= 90.d0)                                               &
     call my_stop("max_flap_degrees must be less than 90.")
+
+! Initialization options
     
+  if ((feasible_limit <= 0.d0) .and. feasible_init)                            &
+    call my_stop("feasible_limit must be > 0.")
+  if ((feasible_init_attempts < 1) .and. feasible_init)                        &
+    call my_stop("feasible_init_attempts must be > 0.")
+
 ! Particle swarm options
 
   if (pop < 1) call my_stop("pop must be > 0.")
@@ -580,10 +602,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if ( (trim(pso_convergence_profile) /= "standard") .and.                     &
        (trim(pso_convergence_profile) /= "exhaustive") )                       &
     call my_stop("pso_convergence_profile must be 'standard' or 'exhaustive'.")
-  if ((pso_feasible_limit <= 0.d0) .and. pso_feasible_init)                    &
-    call my_stop("pso_feasible_limit must be > 0.")
-  if ((pso_feasible_init_attempts < 1) .and. pso_feasible_init)                &
-    call my_stop("pso_feasible_init_attempts must be > 0.")
 
 ! Simplex options
 
