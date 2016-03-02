@@ -60,15 +60,20 @@ subroutine smooth_paneling(foilin, npoint, foilout)
   
   type(xfoil_geom_options_type) :: geom_options
   integer :: i
+  logical :: needs_cleanup
 
 ! Some things that need to be allocated for XFoil PANGEN
 
-  allocate(W1(6*IQX))
-  allocate(W2(6*IQX))
-  allocate(W3(6*IQX))
-  allocate(W4(6*IQX))
-  allocate(W5(6*IQX))
-  allocate(W6(6*IQX))
+  needs_cleanup = .false.
+  if (.not. allocated(W1)) then
+    allocate(W1(6*IQX))
+    allocate(W2(6*IQX))
+    allocate(W3(6*IQX))
+    allocate(W4(6*IQX))
+    allocate(W5(6*IQX))
+    allocate(W6(6*IQX))
+    needs_cleanup = .true.
+  end if
 
 ! Set some things that Xfoil may need to do paneling
 
@@ -121,12 +126,14 @@ subroutine smooth_paneling(foilin, npoint, foilout)
 
 ! Deallocate memory that is not needed anymore
 
-  deallocate(W1)
-  deallocate(W2)
-  deallocate(W3)
-  deallocate(W4)
-  deallocate(W5)
-  deallocate(W6)
+  if (needs_cleanup) then
+    deallocate(W1)
+    deallocate(W2)
+    deallocate(W3)
+    deallocate(W4)
+    deallocate(W5)
+    deallocate(W6)
+  end if
   
 end subroutine smooth_paneling
 

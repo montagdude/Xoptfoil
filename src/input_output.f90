@@ -66,6 +66,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
   character(10) :: pso_convergence_profile, parents_selection_method
+  character(200) :: msg
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
@@ -125,6 +126,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=optimization_options)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'optimization_options.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
 ! Error checking and setting search algorithm options
 
@@ -169,8 +175,18 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=operating_conditions)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'operating_conditions.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=constraints)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'constraints.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
 ! Store operating points where flap setting will be optimized
 
@@ -198,6 +214,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=initialization)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'initialization.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
 ! Set default particle swarm options
 
@@ -271,6 +292,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
       rewind(iunit)
       read(iunit, iostat=iostat1, nml=particle_swarm_options)
+      if (iostat1 /= 0) then
+        msg = "Unrecognized variable name in namelist "//&
+        "'particle_swarm_options.' Check User Guide for available variables."
+        call my_stop(msg)
+      end if
       pso_options%pop = pso_pop
       pso_options%tol = pso_tol
       pso_options%maxspeed = initial_perturb
@@ -290,7 +316,13 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 !     Read genetic algorithm options and put them into derived type
 
+      rewind(iunit)
       read(iunit, iostat=iostat1, nml=genetic_algorithm_options)
+      if (iostat1 /= 0) then
+        msg = "Unrecognized variable name in namelist "//&
+        "'genetic_algorithm_options.' Check User Guide for available variables."
+        call my_stop(msg)
+      end if
       ga_options%pop = ga_pop
       ga_options%tol = ga_tol
       ga_options%maxit = ga_maxit
@@ -333,6 +365,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
       rewind(iunit)
       read(iunit, iostat=iostat1, nml=simplex_options)
+      if (iostat1 /= 0) then
+        msg = "Unrecognized variable name in namelist "//&
+        "'simplex_options.' Check User Guide for available variables."
+        call my_stop(msg)
+      end if
       ds_options%tol = simplex_tol
       ds_options%maxit = simplex_maxit
       ds_options%write_designs = write_designs
@@ -379,8 +416,18 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=xfoil_run_options)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'xfoil_run_options.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'xfoil_paneling_options.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
   xfoil_options%ncrit = ncrit
   xfoil_options%xtript = xtript
@@ -406,6 +453,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   match_foils = .false.
   matchfoil_file = 'none'
   read(iunit, iostat=iostat1, nml=matchfoil_options)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'matchfoil_options.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
 ! Close the input file
 

@@ -834,5 +834,4 @@ subroutine my_stop(message, stoptype)
 
 end subroutine my_stop
 
-
 end module airfoil_operations

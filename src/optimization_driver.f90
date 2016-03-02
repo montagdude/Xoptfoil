@@ -30,8 +30,9 @@ module optimization_driver
 !
 !=============================================================================80
 subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
-                    constrained_dvs, pso_options, ds_options, restart,         &
-                    restart_write_freq, optdesign, f0_ref, fmin, steps, fevals)
+                    constrained_dvs, pso_options, ga_options, ds_options,      &
+                    restart, restart_write_freq, optdesign, f0_ref, fmin,      &
+                    steps, fevals)
 
   use vardef,             only : airfoil_type, match_foils, xmatcht, xmatchb,  &
                                  zmatcht, zmatchb, xseedt, xseedb, zseedt,     &
@@ -41,6 +42,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                                  flap_degrees, flap_optimize_points,           &
                                  min_bump_width, output_prefix 
   use particle_swarm,     only : pso_options_type, particleswarm
+  use genetic_algorithm,  only : ga_options_type, geneticalgorithm
   use simplex_search,     only : ds_options_type, simplexsearch
   use airfoil_evaluation, only : objective_function, write_function,           &
                                  write_function_restart_cleanup
@@ -53,6 +55,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   character(*), intent(in) :: search_type, global_search, local_search,        &
                               matchfoil_file
   type(pso_options_type), intent(in) :: pso_options
+  type(ga_options_type), intent(in) :: ga_options
   type(ds_options_type), intent(in) :: ds_options
   double precision, dimension(:), intent(inout) :: optdesign
   double precision, intent(out) :: f0_ref, fmin
@@ -66,7 +69,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   double precision, dimension(:), allocatable :: zttmp, zbtmp
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
   double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
-  logical :: given_f0_ref, restart_temp
+  logical :: given_f0_ref, restart_temp, write_designs
   integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint, stat,               &
              iunit, ioerr, designcounter
   character(100) :: restart_status_file
@@ -269,24 +272,33 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
 ! Design coordinates/polars output handling
 
-  if ( (pso_options%write_designs) .or. (ds_options%write_designs) ) then
+  write_designs = .false.
+  if ( (trim(search_type) == 'global_and_local') .or.                          &
+       (trim(search_type) == 'global') ) then
+    if ( (pso_options%write_designs) .or. (ga_options%write_designs) )         &
+      write_designs = .true.
+  else
+    if (ds_options%write_designs) write_designs = .true.
+  end if
+    
+! Write seed airfoil coordinates and polars to file
 
-!   Write seed airfoil coordinates and polars to file
-
+  if (write_designs) then
     if (.not. restart) then
 
 !     Analyze and write seed airfoil
   
       stat = write_function(x0, 0) 
 
-!   Remove unused entries in design polars and coordinates from previous run
-
     else
+
+!     Remove unused entries in design polars and coordinates from previous run
  
       stat = write_function_restart_cleanup(restart_status, global_search,     &
                                             local_search)
 
     end if
+  end if
 
 ! Set temporary restart variable
 
@@ -294,48 +306,46 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
 ! Global optimization
 
-  end if
-
   if (trim(restart_status) == 'global_optimization') then
 
+!   Set up mins and maxes
+    
+    if (trim(shape_functions) == 'naca') then
+
+      nfuncs = ndv - nflap_optimize
+
+      xmin(1:nfuncs) = -0.5d0*initial_perturb
+      xmax(1:nfuncs) = 0.5d0*initial_perturb
+      xmin(nfuncs+1:ndv) = min_flap_degrees*ffact
+      xmax(nfuncs+1:ndv) = max_flap_degrees*ffact
+
+    else
+
+      nfuncs = (ndv - nflap_optimize)/3
+
+      do i = 1, nfuncs
+        counter = 3*(i-1)
+        xmin(counter+1) = -initial_perturb/2.d0
+        xmax(counter+1) = initial_perturb/2.d0
+        xmin(counter+2) = 0.0001d0*t1fact
+        xmax(counter+2) = 1.d0*t1fact
+        xmin(counter+3) = min_bump_width*t2fact
+        xmax(counter+3) = 10.d0*t2fact
+      end do
+      do i = 3*nfuncs+1, ndv
+        xmin(i) = min_flap_degrees*ffact
+        xmax(i) = max_flap_degrees*ffact
+      end do
+
+    end if
+
+!   Write restart status to file
+
+    open(unit=iunit, file=restart_status_file, status='replace')
+    write(iunit,'(A)') trim(restart_status)
+    close(iunit)
+
     if (trim(global_search) == 'particle_swarm') then
-
-!     Set up mins and maxes
-      
-      if (trim(shape_functions) == 'naca') then
-
-        nfuncs = ndv - nflap_optimize
-
-        xmin(1:nfuncs) = -0.5d0*initial_perturb
-        xmax(1:nfuncs) = 0.5d0*initial_perturb
-        xmin(nfuncs+1:ndv) = min_flap_degrees*ffact
-        xmax(nfuncs+1:ndv) = max_flap_degrees*ffact
-
-      else
-
-        nfuncs = (ndv - nflap_optimize)/3
-
-        do i = 1, nfuncs
-          counter = 3*(i-1)
-          xmin(counter+1) = -initial_perturb/2.d0
-          xmax(counter+1) = initial_perturb/2.d0
-          xmin(counter+2) = 0.0001d0*t1fact
-          xmax(counter+2) = 1.d0*t1fact
-          xmin(counter+3) = min_bump_width*t2fact
-          xmax(counter+3) = 10.d0*t2fact
-        end do
-        do i = 3*nfuncs+1, ndv
-          xmin(i) = min_flap_degrees*ffact
-          xmax(i) = max_flap_degrees*ffact
-        end do
-
-      end if
-
-!     Write restart status to file
-
-      open(unit=iunit, file=restart_status_file, status='replace')
-      write(iunit,'(A)') trim(restart_status)
-      close(iunit)
 
 !     Particle swarm optimization
 
@@ -344,12 +354,23 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
                          pso_options, restart_temp, restart_write_freq,        &
                          designcounter, write_function)
 
-!     Update restart status and turn off restarting for local search
+    else if (trim(global_search) == 'genetic_algorithm') then
 
-      restart_status = 'local_optimization'
-      restart_temp = .false.
+!     Genetic algorithm optimization
+
+      call geneticalgorithm(optdesign, fmin, stepsg, fevalsg,                  &
+                            objective_function, x0, xmin, xmax, .false.,       &
+                            f0_ref, constrained_dvs, ga_options, restart_temp, &
+                            restart_write_freq, designcounter, write_function)
 
     end if
+
+!   Update restart status and turn off restarting for local search
+
+    if (trim(search_type) == 'global_and_local') then
+      restart_status = 'local_optimization'
+    end if
+    restart_temp = .false.
 
   end if
 

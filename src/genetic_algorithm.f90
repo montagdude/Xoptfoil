@@ -716,7 +716,7 @@ subroutine ga_read_restart(step, designcounter, dv, objval, fmin, xopt)
 ! Status notification
 
   restfile = 'restart_ga_'//trim(output_prefix)
-  write(*,*) '  Reading genetic algorithm restart data from file '//&
+  write(*,*) 'Reading genetic algorithm restart data from file '//&
              trim(restfile)//' ...'
  
 ! Open output file for reading

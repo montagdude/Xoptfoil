@@ -100,7 +100,7 @@ program main
 ! Optimize
   
   call optimize(search_type, global_search, local_search, matchfoil_file,      &
-                constrained_dvs, pso_options, ds_options, restart,             &
+                constrained_dvs, pso_options, ga_options, ds_options, restart, &
                 restart_write_freq, optdesign, f0, fmin, steps, fevals)
 
 ! Notify of total number of steps and function evals

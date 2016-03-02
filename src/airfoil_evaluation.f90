@@ -866,6 +866,8 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   if (trim(restart_status) == 'global_optimization') then
     if (trim(global_search) == 'particle_swarm') then
       restfile = 'restart_pso_'//trim(output_prefix)
+    else if (trim(global_search) == 'genetic_algorithm') then
+      restfile = 'restart_ga_'//trim(output_prefix)
     end if
   else
     if (trim(local_search) == 'simplex') then
