@@ -809,13 +809,15 @@ end subroutine read_inputs
 ! Subroutine to read inputs from namelist file - for xfoil_only
 !
 !=============================================================================80
-subroutine read_inputs_xfoil_only(airfoil_file)
+subroutine read_inputs_xfoil_only(input_file, airfoil_file)
 
   use vardef,             only : max_op_points, noppoint, op_mode, op_point,   &
                                  reynolds, mach, use_flap, x_flap, y_flap,     &
                                  flap_degrees
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
+  use airfoil_operations, only : my_stop
  
+  character(*), intent(in) :: input_file
   character(80), intent(out) :: airfoil_file
 
   logical :: viscous_mode, silent_mode, fix_unconverged, reinitialize
@@ -824,6 +826,7 @@ subroutine read_inputs_xfoil_only(airfoil_file)
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
   integer :: i, iunit, ioerr, iostat1
   character(30) :: text
+  character(200) :: msg
 
   namelist /airfoil_to_load/ airfoil_file
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
@@ -836,10 +839,10 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 ! Open input file
 
   iunit = 12
-  open(unit=iunit, file='inputs_xfoil_only.txt', status='old', iostat=ioerr)
+  open(unit=iunit, file=input_file, status='old', iostat=ioerr)
   if (ioerr /= 0) then
     write(*,*)
-    write(*,*) 'Error: could not find input file inputs_xfoil_only.txt.'
+    write(*,*) 'Error: could not find input file '//trim(input_file)//'.'
     write(*,*)
     stop
   end if
@@ -847,6 +850,11 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 ! Read airfoil_to_load namelist options
 
   read(iunit, iostat=iostat1, nml=airfoil_to_load)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'airfoil_to_load.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
 ! Set defaults for operating conditions
 
@@ -863,6 +871,11 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 ! Read operating conditions and constraints
 
   read(iunit, iostat=iostat1, nml=operating_conditions)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'operating_conditions.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
 ! Set default xfoil aerodynamics and paneling options
 
@@ -888,7 +901,17 @@ subroutine read_inputs_xfoil_only(airfoil_file)
 ! Read xfoil options and put them into derived types
 
   read(iunit, iostat=iostat1, nml=xfoil_run_options)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'xfoil_run_options.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
   read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
+  if (iostat1 /= 0) then
+    msg = "Unrecognized variable name in namelist "//&
+    "'xfoil_paneling_options.' Check User Guide for available variables."
+    call my_stop(msg)
+  end if
 
   xfoil_options%ncrit = ncrit
   xfoil_options%xtript = xtript
@@ -984,11 +1007,6 @@ end subroutine read_inputs_xfoil_only
 subroutine read_clo(input_file, output_prefix)
 
   character(*), intent(inout) :: input_file, output_prefix
-
-! Set default names
-
-  input_file = "inputs.txt"
-  output_prefix = "optfoil"
 
 ! Read supplied names
 

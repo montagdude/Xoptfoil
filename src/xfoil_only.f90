@@ -23,18 +23,23 @@ program xfoil_only
   use vardef,             only : airfoil_type, max_op_points, noppoint,        &
                                  op_mode, op_point, reynolds, mach, use_flap,  &
                                  x_flap, y_flap, flap_degrees
-  use input_output,       only : read_inputs_xfoil_only
+  use input_output,       only : read_inputs_xfoil_only, read_clo
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
   use airfoil_operations, only : load_airfoil, deallocate_airfoil
   use xfoil_driver,       only : run_xfoil, xfoil_init, xfoil_cleanup
 
   type(airfoil_type) :: foil
-  character(80) :: airfoil_file
+  character(80) :: airfoil_file, input_file, output_prefix
   double precision, dimension(:), allocatable :: lift, drag, moment, viscrms
+
+! Set default names and read command line arguments
+
+  input_file = 'inputs_xfoil_only.txt'
+  call read_clo(input_file, output_prefix)
 
 ! Read inputs from namelist file
 
-  call read_inputs_xfoil_only(airfoil_file)
+  call read_inputs_xfoil_only(input_file, airfoil_file)
 
 ! Allocate some things
 

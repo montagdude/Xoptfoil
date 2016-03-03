@@ -50,8 +50,10 @@ program main
   write(*,*) 'This is XoptFoil: airfoil optimization with XFOIL'
   write(*,*) 'Copyright 2014 -- 2016 Daniel Prosser'
 
-! Read command line arguments
+! Set default names and read command line arguments
 
+  input_file = 'inputs.txt'
+  output_prefix = 'optfoil'
   call read_clo(input_file, output_prefix)
 
 ! Read inputs from namelist file
