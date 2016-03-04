@@ -44,7 +44,7 @@ module particle_swarm
                                   ! If .true., reports improvement over seed
                                   !   design. Otherwise, reports fmin itself.
     character(10) :: convergence_profile
-                                  ! 'standard' or 'exhaustive'; exhaustive takes
+                                  ! 'exhaustive' or 'quick'; exhaustive takes
                                   !   longer but finds better solutions 
   end type pso_options_type
 
@@ -104,7 +104,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! PSO tuning variables
 
-  if (trim(pso_options%convergence_profile) == "standard") then
+  if (trim(pso_options%convergence_profile) == "quick") then
 
     c1 = 1.2d0         ! particle-best trust factor
     c2 = 1.2d0         ! swarm-best trust factor
@@ -122,7 +122,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
   else
     write(*,*) "Error in particleswarm: convergence mode should be"//          &
-               "'standard' or 'exhaustive'."
+               "'exhaustive' or 'quick'."
     stop
   end if
 
