@@ -66,7 +66,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
   character(10) :: pso_convergence_profile, parents_selection_method
-  character(200) :: msg
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
@@ -126,11 +125,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=optimization_options)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'optimization_options.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('optimization_options', iostat1, 'warn')
 
 ! Error checking and setting search algorithm options
 
@@ -175,18 +170,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=operating_conditions)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'operating_conditions.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('operating_conditions', iostat1, 'stop')
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=constraints)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'constraints.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('constraints', iostat1, 'stop')
 
 ! Store operating points where flap setting will be optimized
 
@@ -214,11 +201,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=initialization)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'initialization.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('initialization', iostat1, 'warn')
 
 ! Set default particle swarm options
 
@@ -292,11 +275,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
       rewind(iunit)
       read(iunit, iostat=iostat1, nml=particle_swarm_options)
-      if (iostat1 /= 0) then
-        msg = "Unrecognized variable name in namelist "//&
-        "'particle_swarm_options.' Check User Guide for available variables."
-        call my_stop(msg)
-      end if
+      call namelist_check('particle_swarm_options', iostat1, 'warn')
       pso_options%pop = pso_pop
       pso_options%tol = pso_tol
       pso_options%maxspeed = initial_perturb
@@ -318,11 +297,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
       rewind(iunit)
       read(iunit, iostat=iostat1, nml=genetic_algorithm_options)
-      if (iostat1 /= 0) then
-        msg = "Unrecognized variable name in namelist "//&
-        "'genetic_algorithm_options.' Check User Guide for available variables."
-        call my_stop(msg)
-      end if
+      call namelist_check('genetic_algorithm_options', iostat1, 'warn')
       ga_options%pop = ga_pop
       ga_options%tol = ga_tol
       ga_options%maxit = ga_maxit
@@ -365,11 +340,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
       rewind(iunit)
       read(iunit, iostat=iostat1, nml=simplex_options)
-      if (iostat1 /= 0) then
-        msg = "Unrecognized variable name in namelist "//&
-        "'simplex_options.' Check User Guide for available variables."
-        call my_stop(msg)
-      end if
+      call namelist_check('simplex_options', iostat1, 'warn')
       ds_options%tol = simplex_tol
       ds_options%maxit = simplex_maxit
       ds_options%write_designs = write_designs
@@ -416,18 +387,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=xfoil_run_options)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'xfoil_run_options.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('xfoil_run_options', iostat1, 'warn')
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'xfoil_paneling_options.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('xfoil_paneling_options', iostat1, 'warn')
 
   xfoil_options%ncrit = ncrit
   xfoil_options%xtript = xtript
@@ -453,11 +416,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   match_foils = .false.
   matchfoil_file = 'none'
   read(iunit, iostat=iostat1, nml=matchfoil_options)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'matchfoil_options.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('matchfoil_options', iostat1, 'warn')
 
 ! Close the input file
 
@@ -826,7 +785,6 @@ subroutine read_inputs_xfoil_only(input_file, airfoil_file)
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
   integer :: i, iunit, ioerr, iostat1
   character(30) :: text
-  character(200) :: msg
 
   namelist /airfoil_to_load/ airfoil_file
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
@@ -850,11 +808,7 @@ subroutine read_inputs_xfoil_only(input_file, airfoil_file)
 ! Read airfoil_to_load namelist options
 
   read(iunit, iostat=iostat1, nml=airfoil_to_load)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'airfoil_to_load.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('airfoil_to_load', iostat1, 'stop')
 
 ! Set defaults for operating conditions
 
@@ -871,11 +825,7 @@ subroutine read_inputs_xfoil_only(input_file, airfoil_file)
 ! Read operating conditions and constraints
 
   read(iunit, iostat=iostat1, nml=operating_conditions)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'operating_conditions.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('operating_conditions', iostat1, 'stop')
 
 ! Set default xfoil aerodynamics and paneling options
 
@@ -901,17 +851,9 @@ subroutine read_inputs_xfoil_only(input_file, airfoil_file)
 ! Read xfoil options and put them into derived types
 
   read(iunit, iostat=iostat1, nml=xfoil_run_options)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'xfoil_run_options.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('xfoil_run_options', iostat1, 'warn')
   read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
-  if (iostat1 /= 0) then
-    msg = "Unrecognized variable name in namelist "//&
-    "'xfoil_paneling_options.' Check User Guide for available variables."
-    call my_stop(msg)
-  end if
+  call namelist_check('xfoil_paneling_options', iostat1, 'warn')
 
   xfoil_options%ncrit = ncrit
   xfoil_options%xtript = xtript
@@ -998,6 +940,43 @@ subroutine read_inputs_xfoil_only(input_file, airfoil_file)
   write(*,*)
 
 end subroutine read_inputs_xfoil_only
+
+!=============================================================================80
+!
+! Prints error and stops or warns for bad namelist read
+!
+!=============================================================================80
+subroutine namelist_check(nmlname, errcode, action_missing_nml)
+
+  character(*), intent(in) :: nmlname
+  integer, intent(in) :: errcode
+  character(*), intent(in) :: action_missing_nml
+
+  if (errcode < 0) then
+    write(*,*)
+    if (trim(action_missing_nml) == 'warn') then
+      write(*,'(A)') 'Warning: namelist '//trim(nmlname)//&
+                     ' not found in input file.'
+      write(*,'(A)') 'Using default values.'
+      write(*,*)
+    else
+      write(*,'(A)') 'Warning: namelist '//trim(nmlname)//&
+                     ' is required and was not found in input file.'
+      write(*,*)
+      stop
+    end if
+  else if (errcode > 0) then
+    write(*,*)
+    write(*,'(A)') 'Error: unrecognized variable in namelist '//trim(nmlname)//&
+                   '.'
+    write(*,'(A)') 'See User Guide for correct variable names.'
+    write(*,*)
+    stop
+  else
+    continue
+  end if
+
+end subroutine namelist_check
 
 !=============================================================================80
 !
