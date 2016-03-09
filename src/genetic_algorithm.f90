@@ -114,14 +114,14 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 
   integer, dimension(:), allocatable :: idxparents
   integer :: nconstrained, i, j, fminloc, var, stat, restartcounter, nparents
-  integer :: idxparent1, idxparent2
+  integer :: idxparent1, idxparent2, idxstack1, idxstack2
   double precision :: mincurr, f0, radius, mutate1, mutate2, objchild1,        &
                       objchild2
   double precision, dimension(ga_options%pop) :: objval
   double precision, dimension(size(xmin,1)) :: xrng, child1, child2
   double precision, dimension(size(xmin,1),ga_options%pop) :: dv
-  double precision, dimension(size(xmin,1),4) :: replacedv
-  double precision, dimension(4) :: replaceobjval
+  double precision, dimension(:,:), allocatable :: stackdv
+  double precision, dimension(:), allocatable :: stackobjval
   logical :: use_x0, converged, signal_progress
 
   nconstrained = size(constrained_dvs,1)
@@ -131,6 +131,8 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   nparents = nint(ga_options%pop*ga_options%parent_fraction/2.d0)*2
   nparents = max(nparents, 2)
   allocate(idxparents(nparents))
+  allocate(stackdv(size(xmin,1),ga_options%pop+nparents))
+  allocate(stackobjval(ga_options%pop+nparents))
 
 ! Difference between max and min
 
@@ -146,8 +148,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   end if
 
 !$omp parallel default(shared) private(i, j, var, idxparent1, idxparent2,      &
-!$omp  child1, child2, mutate1, mutate2, objchild1, objchild2, replacedv,      &
-!$omp  replaceobjval)
+!$omp  child1, child2, mutate1, mutate2, objchild1, objchild2)
 
 ! Initialize a random seed
 
@@ -211,6 +212,11 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
                            ga_options%roulette_selection_pressure,             &
                            ga_options%tournament_fraction, idxparents)
 
+!   Put existing designs at front of stacked arrays
+
+    stackdv(:,1:ga_options%pop) = dv
+    stackobjval(1:ga_options%pop) = objval
+
 !$omp end master
 !$omp barrier
 
@@ -257,24 +263,14 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
       objchild1 = objfunc(child1)
       objchild2 = objfunc(child2)
 
-!     Create sorted list of parents:children and replace parents with best 2
+!     Add children at back of stacked arrays
 
-      replacedv(:,1) = dv(:,idxparent1)
-      replacedv(:,2) = dv(:,idxparent2)
-      replacedv(:,3) = child1
-      replacedv(:,4) = child2
-
-      replaceobjval(1) = objval(idxparent1)
-      replaceobjval(2) = objval(idxparent2)
-      replaceobjval(3) = objchild1
-      replaceobjval(4) = objchild2
-
-      call bubble_sort(replacedv, replaceobjval)
-
-      dv(:,idxparent1) = replacedv(:,1)
-      dv(:,idxparent2) = replacedv(:,2)
-      objval(idxparent1) = replaceobjval(1)
-      objval(idxparent2) = replaceobjval(2)
+      idxstack1 = 2*(i-1)+1
+      idxstack2 = 2*i
+      stackdv(:,ga_options%pop+idxstack1) = child1
+      stackdv(:,ga_options%pop+idxstack2) = child2
+      stackobjval(ga_options%pop+idxstack1) = objchild1
+      stackobjval(ga_options%pop+idxstack2) = objchild2
 
     end do offspring_creation
 
@@ -282,29 +278,29 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 
 !$omp master
 
+!   Sort stacked arrays to put worst designs at the back
+
+    call bubble_sort(stackdv, stackobjval)
+
+!   Replace population with best designs from this generation
+
+    dv = stackdv(:,1:ga_options%pop)
+    objval = stackobjval(1:ga_options%pop)
+
 !   Update best overall design, if appropriate
 
-    mincurr = minval(objval,1)
-    fminloc = minloc(objval,1)
+    mincurr = objval(1)
     if (mincurr < fmin) then
-      xopt = dv(:,fminloc)
+      xopt = dv(:,1)
       fmin = mincurr
       signal_progress = .true.
     else
       signal_progress = .false.
     end if
 
-!   Sort designs from low to high objective value
-
-    call bubble_sort(dv, objval)
-
-!   Get radius of best nparents designs (because some poor designs may take
-!   a long time to converge to the optimum due to selection pressure)
-
-    radius = design_radius(dv(:,1:nparents))
-
 !   Display progress
 
+    radius = design_radius(dv)
     if (ga_options%relative_fmin_report) then
       write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
                  (f0 - fmin)/f0*100
@@ -312,7 +308,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
       write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
                  fmin
     end if
-    write(*,*) '  Max radius of considered designs: ', radius
+    write(*,*) '  Max radius of designs: ', radius
 
 !   Write design to file if requested
 !   converterfunc is an optional function supplied to convert design variables
@@ -360,6 +356,8 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 ! Deallocate memory
 
   deallocate(idxparents)
+  deallocate(stackdv)
+  deallocate(stackobjval)
 
 ! Calculate number of function evaluations
 

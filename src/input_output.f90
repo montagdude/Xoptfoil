@@ -214,13 +214,13 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   ga_pop = 80
   ga_tol = 1.D-04
-  ga_maxit = 300
-  parents_selection_method = 'roulette'
+  ga_maxit = 700
+  parents_selection_method = 'tournament'
   parent_fraction = 0.5d0
   roulette_selection_pressure = 8.d0
-  tournament_fraction = 0.1d0
-  crossover_range_factor = 0.4d0
-  mutant_probability = 0.3d0
+  tournament_fraction = 0.025d0
+  crossover_range_factor = 0.5d0
+  mutant_probability = 0.4d0
   chromosome_mutation_rate = 0.01d0
   mutation_range_factor = 0.2d0
 

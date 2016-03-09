@@ -13,7 +13,7 @@
 
 \begin{document}
 
-\title{XoptFoil User Guide}
+\title{XoptFoil Version 1.9.0 User Guide}
 \author{Daniel Prosser}
 \date{\today}
 \maketitle
@@ -238,8 +238,8 @@ design (the seed airfoil), looking for improvements.  A local search is much fas
 a global search, but it also usually does not find as good a final solution.  If this
 input is set to `global\_and\_local', a global search is first performed, followed by a
 local search.}
-\item{\textbf{global\_search}: Optimization algorithm for the global search.  Currently,
-the only available option is `particle\_swarm'.}
+\item{\textbf{global\_search}: Optimization algorithm for the global search.  Either
+`particle\_swarm' or `genetic\_algorithm'.}
 \item{\textbf{local\_search}: Optimization algorithm for the local search.  Currently, the
 only available option is `simplex'.}
 \item{\textbf{seed\_airfoil}: Defines how to set the seed airfoil.  Available options are
@@ -409,6 +409,29 @@ to be symmetrical to use this option (but note that XoptFoil will actually be us
 symmetrical version of the seed airfoil instead of the actual one).}
 \end{enumerate}
 
+\subsection{initialization namelist}
+
+This namelist specifies options for initialization a population of designs for the global
+search methods (particle swarm and genetic algorithm).
+
+\begin{enumerate}
+\item{\textbf{feasible\_init} (.true. or .false.): If true, attempts to place initial
+designs in the feasible space.  If an initial design violates constraints, a large penalty
+value will be added to the objective function.  feasible\_init will re-randomize
+designs that initially have too large an objective function value.  
+This process increases the overall expense of the optimization but also improves the 
+results because more of the initial designs will be good ones.}
+\item{\textbf{feasible\_limit}: The objective function value below which initial
+designs are considered feasible.  Designs that violate constraints are added a penalty
+value on the order of $10^6$, so the feasible limit should be large but at least an order
+of magnitude smaller than $10^6$.  The default value is 50,000.}
+\item{\textbf{feasible\_init\_attempts}: Number of attempts to try to make an initial
+design feasible.  The default is 1000. This number is usually sufficient to get most or
+all of the designs in the feasible space.  However, if many of the designs cannot be made
+feasible within 1000 attempts, you should increase the number. (This may happen if very
+tight geometric constraints are applied.)}
+\end{enumerate}
+
 \subsection{particle\_swarm\_options namelist}
 
 This namelist specifies options for particle swarm optimization, which are used if
@@ -420,36 +443,26 @@ search\_type = `global' or search\_type = `global\_and\_local' and global\_searc
 design space and then use swarming behavior to converge on the global optimimum.  Search
 cost increases linearly with population size.  Usually, around 40 or 50 particles seems to
 work well.}
-\item{\textbf{pso\_speed\_tol}: Tolerance in particle speed before signaling a stopping
-condition.  When every particle's speed is less than this fraction of the initial speed,
-the particle swarm optimization process is considered converged. The default value is
-0.005, or 0.5\% of the initial speed.}
-\item{\textbf{pso\_convergence\_profile}: Either `standard' or `exhaustive'.  This setting
-adjusts some parameters in the particle swarm algorithm which affect how quickly the
-optimization converges.  The standard profile works well and converges quickly.  The
-exhaustive profile usually is able to find a little bit better designs than the standard
-profile, but it also takes much longer to converge (e.g., 700 iterations instead of 150).}
+\item{\textbf{pso\_tol}: Tolerance in max radius of particles before triggering a stop
+condition.  When all particles are within this radius of the population center, the
+particle swarm optimization process will stop even if the max number of iterations has
+not been reached. The default value is 0.0001.}
 \item{\textbf{pso\_maxit}: Maximum number of iterations allowed before the particle swarm
 optimization is stopped.  Ensures that the particle swarm optimization does not go on for
-too long before the stopping condition is met. The default value is 300.  Using the 
-`standard' convergence profile, the optimization will usually converge in less than 300 
-iterations.  However, if you use the `exhaustive' profile, this value should be increased
-to 700 or 800 to ensure it doesn't stop early.}
-\item{\textbf{pso\_feasible\_init} (.true. or .false.): If true, attempts to place initial
-designs in the feasible space.  If an initial design violates constraints, a large penalty
-value will be added to the objective function.  pso\_feasible\_init will re-randomize
-designs that initially have too large an objective function value.  A maximum of 100 
-attempts is allowed to make each design feasible. This process increases the overall 
-expense of the optimization but also improves the results because more of the initial 
-designs will be good ones.}
-\item{\textbf{pso\_feasible\_limit}: The objective function value below which initial
-designs are considered feasible.  Designs that violate constraints are added a penalty
-value on the order of $10^6$, so the feasible limit should be large but at least an order
-of magnitude smaller than $10^6$.  The default value is 50,000.}
-\item{\textbf{pso\_feasible\_init\_attempts}: Number of attempts to try to make an initial
-design feasible.  The default is 100, but you may want to increase this if you are using
-tight constraints (especially the curvature reversals constraint).}
+too long before the stopping condition is met. The default value is 700.  Using the 
+`quick' convergence profile, the optimization will usually converge in less than 700
+iterations. However, if you use the `exhaustive' profile, it likely will not converge
+within the default 700 iterations, but the design will probably not improve much after
+that.}
+\item{\textbf{pso\_convergence\_profile}: Either `exhaustive' or `quick'.  This setting
+adjusts some parameters in the particle swarm algorithm which affect how quickly the
+optimization converges.  The quick profile works well and converges quickly.  The
+exhaustive profile usually is able to find a little bit better designs than the quick
+profile, but it also takes much longer to converge (e.g., 700 iterations instead of 150).}
 \end{enumerate}
+
+\subsection{genetic\_algorithm\_options namelist}
+
 
 \subsection{simplex\_options namelist}
 
@@ -458,7 +471,10 @@ search\_type = `local' or search\_type = `global\_and\_local' and local\_search 
 `simplex'.
 
 \begin{enumerate}
-\item{\textbf{simplex\_tol}: Tolerance in simplex diameter before stopping.}
+\item{\textbf{simplex\_tol}: Tolerance in max radius of designs before triggering a
+stopping condition.  When all designs are within this radius of the simplex center, the
+simplex optimization process will stop even if the max number of iterations has not been
+reached.  The default value is 10$^{-6}$.}
 \item{\textbf{simplex\_maxit}: Maximum number of iterations allowed before the simplex
 optimization is stopped.  Ensures that the simplex optimization does not go on for
 too long before the stopping condition is met.}
