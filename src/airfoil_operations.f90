@@ -32,7 +32,8 @@ module airfoil_operations
 ! Driver subroutine to read or create a seed airfoil
 !
 !=============================================================================80
-subroutine get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, foil)
+subroutine get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, foil,     &
+                            xoffset, zoffset, foilscale)
 
   use vardef,       only : airfoil_type
   use xfoil_driver, only : smooth_paneling
@@ -40,6 +41,7 @@ subroutine get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, foil)
   character(*), intent(in) :: seed_airfoil, airfoil_file
   character(4), intent(in) :: naca_digits
   type(airfoil_type), intent(out) :: foil
+  double precision, intent(out) :: xoffset, zoffset, foilscale
 
   type(airfoil_type) :: tempfoil
   integer :: pointsmcl
@@ -76,7 +78,7 @@ subroutine get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, foil)
 
 ! Translate and scale
 
-  call transform_airfoil(foil)
+  call transform_airfoil(foil, xoffset, zoffset, foilscale)
 
 end subroutine get_seed_airfoil
 
@@ -579,17 +581,17 @@ end function quintic
 !=============================================================================80
 !
 ! Translates and scales an airfoil such that it has a length of 1 and the 
-! leading edge is at the origin
+! leading edge is at the origin. Also outputs transformations performed.
 !
 !=============================================================================80
-subroutine transform_airfoil(foil)
+subroutine transform_airfoil(foil, xoffset, zoffset, foilscale)
 
   use vardef, only : airfoil_type
 
   type(airfoil_type), intent(inout) :: foil
+  double precision, intent(out) :: xoffset, zoffset, foilscale
 
   integer :: npoints, i
-  double precision :: scale_factor
 
   npoints = foil%npoint
 
@@ -599,15 +601,17 @@ subroutine transform_airfoil(foil)
     foil%x(i) = foil%x(i) - foil%xle
     foil%z(i) = foil%z(i) - foil%zle
   end do
+  xoffset = -foil%xle
+  zoffset = -foil%zle
   foil%xle = 0.d0
   foil%zle = 0.d0
 
 ! Scale airfoil so that it has a length of 1
 
-  scale_factor = 1.d0 / maxval(foil%x)
+  foilscale = 1.d0 / maxval(foil%x)
   do i = 1, npoints
-    foil%x(i) = foil%x(i)*scale_factor
-    foil%z(i) = foil%z(i)*scale_factor
+    foil%x(i) = foil%x(i)*foilscale
+    foil%z(i) = foil%z(i)*foilscale
   end do
 
 end subroutine transform_airfoil

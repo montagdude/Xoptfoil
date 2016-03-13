@@ -27,7 +27,9 @@ program main
   use airfoil_operations,  only : get_seed_airfoil, get_split_points,          &
                                   split_airfoil, deallocate_airfoil
   use memory_util,         only : allocate_airfoil_data, deallocate_airfoil_data
-  use optimization_driver, only : optimize, write_final_design
+  use input_sanity,        only : check_seed
+  use optimization_driver, only : matchfoils_preprocessing, optimize,          &
+                                  write_final_design
 
   implicit none
 
@@ -43,7 +45,7 @@ program main
              restart_write_freq 
   double precision, dimension(:), allocatable :: optdesign
   integer, dimension(:), allocatable :: constrained_dvs
-  double precision :: f0, fmin
+  double precision :: f0, fmin, xoffset, zoffset, foilscale
   logical :: restart
 
   write(*,*)
@@ -65,7 +67,8 @@ program main
 
 ! Load seed airfoil into memory, including transformations and smoothing
 
-  call get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, buffer_foil)
+  call get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, buffer_foil,  &
+                        xoffset, zoffset, foilscale)
 
 ! Split up seed airfoil into upper and lower surfaces
 
@@ -99,10 +102,24 @@ program main
 
   call allocate_airfoil_data()
 
+! Set up for matching airfoils
+
+  if (match_foils) then
+    call matchfoils_preprocessing(matchfoil_file)
+  else
+    write(*,*) "Optimizing for requested operating points."
+    write(*,*)
+  end if
+
+! Make sure seed airfoil passes constraints, and get scaling factors for
+! operating points
+
+  call check_seed(xoffset, zoffset, foilscale)
+
 ! Optimize
   
-  call optimize(search_type, global_search, local_search, matchfoil_file,      &
-                constrained_dvs, pso_options, ga_options, ds_options, restart, &
+  call optimize(search_type, global_search, local_search, constrained_dvs,     &
+                pso_options, ga_options, ds_options, restart,                  &
                 restart_write_freq, optdesign, f0, fmin, steps, fevals)
 
 ! Notify of total number of steps and function evals

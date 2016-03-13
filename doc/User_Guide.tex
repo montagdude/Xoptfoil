@@ -439,21 +439,20 @@ search\_type = `global' or search\_type = `global\_and\_local' and global\_searc
 `particle\_swarm'.
 
 \begin{enumerate}
-\item{\textbf{pop}: Number of particles.  These are randomly initialized throughout the
-design space and then use swarming behavior to converge on the global optimimum.  Search
-cost increases linearly with population size.  Usually, around 40 or 50 particles seems to
-work well.}
+\item{\textbf{pso\_pop}: Number of particles.  These are randomly initialized throughout 
+the design space and then use swarming behavior to converge on the global optimimum.  
+Search cost increases linearly with population size.  Usually, around 40 or 50 particles 
+seem to work well.}
 \item{\textbf{pso\_tol}: Tolerance in max radius of particles before triggering a stop
 condition.  When all particles are within this radius of the population center, the
 particle swarm optimization process will stop even if the max number of iterations has
 not been reached. The default value is 0.0001.}
 \item{\textbf{pso\_maxit}: Maximum number of iterations allowed before the particle swarm
-optimization is stopped.  Ensures that the particle swarm optimization does not go on for
-too long before the stopping condition is met. The default value is 700.  Using the 
+optimization is stopped.  The default value is 700.  Using the 
 `quick' convergence profile, the optimization will usually converge in less than 700
 iterations. However, if you use the `exhaustive' profile, it likely will not converge
-within the default 700 iterations, but the design will probably not improve much after
-that.}
+within the default 700 iterations, but the airfoil design will probably not improve much 
+after that.}
 \item{\textbf{pso\_convergence\_profile}: Either `exhaustive' or `quick'.  This setting
 adjusts some parameters in the particle swarm algorithm which affect how quickly the
 optimization converges.  The quick profile works well and converges quickly.  The
@@ -463,6 +462,62 @@ profile, but it also takes much longer to converge (e.g., 700 iterations instead
 
 \subsection{genetic\_algorithm\_options namelist}
 
+This namelist specifies options for genetic algorithm optimization, which are used if
+search\_type = `global' or search\_type = `global\_and\_local' and global\_search =
+`genetic\_algorithm'.
+
+\begin{enumerate}
+\item{\textbf{ga\_pop}: Number of designs in the population.  These are randomly
+initialized throughout the design space and then use reproduction and replacement
+mechanisms to converge on the global optimum.  Search cost increases linearly with
+population size, as long as \textbf{parent\_fraction} remains the same.  Usually, around
+80 to 100 particles seem to work well.}
+\item{\textbf{ga\_tol}: Tolerance in max radius of designs before triggering a stop
+condition.  When all designs are within this radius of the population center, the
+genetic algorithm optimization process will stop even if the max number of iterations has
+not been reached.  The default value is 0.0001. Note: not all designs are considered in
+the design radius computation.  Only the best nparents designs, where nparents is the
+number of designs that reproduce during each iteration, are considered.  This is because
+the worst designs are typically less likely to reproduce (unless
+\textbf{parents\_selection\_method} is `random') and may take a long time to move
+towards the optimum.}
+\item{\textbf{ga\_maxit}: Maximum number of iterations allowed before the genetic
+algorithm optimization process is stopped.  The default value is 700.  It is likely that
+the optimization process will not converge within the default 700 iterations, but the
+airfoil design will probably not improve much after that.}
+\item{\textbf{parents\_selection\_method}: Method of selecting parents during each
+iteration.  Available options are `roulette', `tournament', or `random'.  The first two
+are usually best.  The default is `tournament'.}
+\item{\textbf{parent\_fraction}: Fraction of the total population that reproduces during
+each iteration. The default is 0.5.}
+\item{\textbf{roulette\_selection\_pressure}: Factor to increase the likelihood that the
+best designs are selected as parents when using the roulette parent selection method.  The
+default value is 8.0.}
+\item{\textbf{tournament\_fraction}: Fraction of the total population that is randomly
+entered into the tournament for selecting parents designs, when
+\textbf{parents\_selection\_method} is `tournament'.  For example, if
+\textbf{tournament\_fraction} is 0.1 and \textbf{ga\_pop} is 100, then 10 designs will be
+randomly selected, and the parent will be the best of these 10 designs.  (This process is
+repeated for each parent that is selected.)}
+\item{\textbf{crossover\_range\_factor}: If 0, crossover will result in design variables
+that are linear interpolations between parents.  A value greater than 0 allows
+extrapolation to occur, which is recommended to ensure that the design space is adequately
+searched.  The default value is 0.5, which means crossover can result in design variables
+that are 50\% in excess of the difference in the parent values in either direction.}
+\item{\textbf{mutant\_probability}: The probability of mutation occurring in a given
+offspring.  The default is 0.4, which means that there is a 40\% probability that a given
+offspring design will be able to mutate.}
+\item{\textbf{chromosome\_mutation\_rate}: For mutant designs, the probability that a
+given design variable (a.k.a. chromosome) will mutate. This should be small enough to not
+pollute the ``genes'' of good designs, but large enough that variation is introduced in
+the gene pool.  The default is 0.01, which means that 1\% of the design variables will
+mutate in child designs that are flagged for mutation.}
+\item{\textbf{mutation\_range\_factor}: Maximum magnitude of mutation, as a fraction of
+the initially specified design variable range.  For shape design
+variables, this range is defined by initial\_perturb, and for flap design variables the
+range is the difference between the max and min flap angles.  The default value is 0.2, or
+20\% of the range.}
+\end{enumerate}
 
 \subsection{simplex\_options namelist}
 
@@ -555,8 +610,10 @@ relative path.}
 
 \section{Input file for xfoil\_only}
 
-The xfoil\_only tool uses its own namelist input file.  It is the same as the input file
-for xoptfoil, except that only the following namelists are used:
+The xfoil\_only tool uses its own namelist input file. The default name is
+`inputs\_xfoil\_only.txt,' but a different name can be specified as a command line option.
+The contents of this file are the same as the input file for xoptfoil, except that only
+the following namelists are used:
 
 \begin{itemize}
 \item{airfoil\_to\_load}

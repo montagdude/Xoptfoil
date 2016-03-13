@@ -60,13 +60,34 @@ end function objective_function
 
 !=============================================================================80
 !
+! Objective function with option to not add penalty value (used for seed
+! airfoil)
+!
+!=============================================================================80
+function objective_function_nopenalty(designvars)
+
+  double precision, dimension(:), intent(in) :: designvars
+  double precision :: objective_function_nopenalty
+
+  if (match_foils) then
+    objective_function_nopenalty = matchfoil_objective_function(designvars)
+  else
+    objective_function_nopenalty =                                             &
+                    aero_objective_function(designvars, include_penalty=.false.)
+  end if
+
+end function objective_function_nopenalty
+
+!=============================================================================80
+!
 !  Objective function
 !
 !  Input: design variables (modes for top and bottom shape functions)
+!         include_penalty: optional input to enable/disable penalty function
 !  Output: objective function value based on airfoil performance
 !
 !=============================================================================80
-function aero_objective_function(designvars)
+function aero_objective_function(designvars, include_penalty)
 
   use math_deps,       only : interp_vector, curvature
   use parametrization, only : top_shape_function, bot_shape_function,          &
@@ -75,6 +96,7 @@ function aero_objective_function(designvars)
   use xfoil_inc,       only : AMAX
 
   double precision, dimension(:), intent(in) :: designvars
+  logical, intent(in), optional :: include_penalty
   double precision :: aero_objective_function
 
   double precision, dimension(max(size(xseedt,1),size(xseedb,1))) :: x_interp, &
@@ -100,11 +122,19 @@ function aero_objective_function(designvars)
   double precision :: gapallow, maxthick, ffact
   integer :: check_idx, flap_idx, dvcounter
   double precision, parameter :: eps = 1.0D-08
+  logical :: penalize
 
   nmodest = size(top_shape_function,1)
   nmodesb = size(bot_shape_function,1)
   nptt = size(xseedt,1)
   nptb = size(xseedb,1)
+
+! Enable / disable penalty function
+
+  penalize = .true.
+  if (present(include_penalty)) then
+    if (.not. include_penalty) penalize = .false.
+  end if
 
 ! Set modes for top and bottom surfaces
 
@@ -272,7 +302,7 @@ function aero_objective_function(designvars)
 
 ! Exit if geometry and flap angles don't check out
 
-  if (penaltyval > eps) then
+  if ( (penaltyval > eps) .and. penalize ) then
     aero_objective_function = penaltyval*1.0D+06
     return
   end if
@@ -443,7 +473,8 @@ function aero_objective_function(designvars)
 
 ! Add all penalties to objective function, and make them very large
 
-  aero_objective_function = aero_objective_function + penaltyval*1.0D+06
+  if (penalize) aero_objective_function =                                      &
+                aero_objective_function + penaltyval*1.0D+06
 
 ! Update maxlift and mindrag only if it is a good design
 

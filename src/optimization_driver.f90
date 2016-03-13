@@ -26,34 +26,109 @@ module optimization_driver
 
 !=============================================================================80
 !
+! Preprocessing for non-aerodynamic optimization
+!
+!=============================================================================80
+subroutine matchfoils_preprocessing(matchfoil_file)
+
+  use vardef,             only : airfoil_type, xmatcht, xmatchb, zmatcht,      &
+                                 zmatchb, xseedt, xseedb, symmetrical
+  use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
+                                 split_airfoil, deallocate_airfoil, my_stop
+  use math_deps,          only : interp_vector
+
+  character(*), intent(in) :: matchfoil_file
+
+  type(airfoil_type) :: match_foil
+  integer :: pointst, pointsb
+  double precision, dimension(:), allocatable :: zttmp, zbtmp
+  double precision :: xoffmatch, zoffmatch, scale_match
+
+  write(*,*) 'Note: using the optimizer to match the seed airfoil to the '
+  write(*,*) 'airfoil about to be loaded.'
+  write(*,*)
+
+! Check if symmetrical airfoil was requested (not allowed for this type)
+
+  if (symmetrical)                                                             &
+    call my_stop("Symmetrical airfoil constraint not permitted for non-"//&
+                 "aerodynamic optimizations.")
+
+! Load airfoil to match
+
+  call get_seed_airfoil('from_file', matchfoil_file, '0000', match_foil,       &
+                        xoffmatch, zoffmatch, scale_match)
+
+! Split match_foil into upper and lower halves
+
+  call get_split_points(match_foil, pointst, pointsb, .false.)
+  allocate(xmatcht(pointst))
+  allocate(zmatcht(pointst))
+  allocate(xmatchb(pointsb))
+  allocate(zmatchb(pointsb))
+  call split_airfoil(match_foil, xmatcht, xmatchb, zmatcht, zmatchb, .false.)
+
+! Deallocate derived type version of airfoil being matched
+
+  call deallocate_airfoil(match_foil)
+
+! Interpolate x-vals of foil to match to seed airfoil points to x-vals
+
+  pointst = size(xseedt,1)
+  pointsb = size(xseedb,1)
+  allocate(zttmp(pointst))
+  allocate(zbtmp(pointsb))
+  zttmp(pointst) = zmatcht(size(zmatcht,1))
+  zbtmp(pointsb) = zmatchb(size(zmatchb,1))
+  call interp_vector(xmatcht, zmatcht, xseedt(1:pointst-1),                    &
+                     zttmp(1:pointst-1))
+  call interp_vector(xmatchb, zmatchb, xseedb(1:pointsb-1),                    &
+                     zbtmp(1:pointsb-1))
+
+! Re-set coordinates of foil to match from interpolated points
+    
+  deallocate(xmatcht)
+  deallocate(zmatcht)
+  deallocate(xmatchb)
+  deallocate(zmatchb)
+  allocate(xmatcht(pointst))
+  allocate(zmatcht(pointst))
+  allocate(xmatchb(pointsb))
+  allocate(zmatchb(pointsb))
+  xmatcht = xseedt
+  xmatchb = xseedb
+  zmatcht = zttmp
+  zmatchb = zbtmp
+
+! Deallocate temporary arrays
+
+  deallocate(zttmp)
+  deallocate(zbtmp)
+
+end subroutine matchfoils_preprocessing
+
+!=============================================================================80
+!
 ! Subroutine to drive the optimization
 !
 !=============================================================================80
-subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
-                    constrained_dvs, pso_options, ga_options, ds_options,      &
-                    restart, restart_write_freq, optdesign, f0_ref, fmin,      &
-                    steps, fevals)
+subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
+                    pso_options, ga_options, ds_options, restart,              &
+                    restart_write_freq, optdesign, f0_ref, fmin, steps, fevals)
 
-  use vardef,             only : airfoil_type, match_foils, xmatcht, xmatchb,  &
-                                 zmatcht, zmatchb, xseedt, xseedb, zseedt,     &
-                                 zseedb, growth_allowed, shape_functions,      &
-                                 symmetrical, nflap_optimize, initial_perturb, &
-                                 min_flap_degrees, max_flap_degrees,           &
-                                 flap_degrees, flap_optimize_points,           &
-                                 min_bump_width, output_prefix 
+  use vardef,             only : shape_functions, nflap_optimize,              &
+                                 initial_perturb, min_flap_degrees,            &
+                                 max_flap_degrees, flap_degrees,               &
+                                 flap_optimize_points, min_bump_width,         &
+                                 output_prefix 
   use particle_swarm,     only : pso_options_type, particleswarm
   use genetic_algorithm,  only : ga_options_type, geneticalgorithm
   use simplex_search,     only : ds_options_type, simplexsearch
-  use airfoil_evaluation, only : objective_function, write_function,           &
+  use airfoil_evaluation, only : objective_function,                           &
+                                 objective_function_nopenalty, write_function, &
                                  write_function_restart_cleanup
-  use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
-                                 split_airfoil, allocate_airfoil,              &
-                                 deallocate_airfoil, my_stop
-  use math_deps,          only : interp_vector
-  use input_sanity,       only : check_seed
 
-  character(*), intent(in) :: search_type, global_search, local_search,        &
-                              matchfoil_file
+  character(*), intent(in) :: search_type, global_search, local_search
   type(pso_options_type), intent(in) :: pso_options
   type(ga_options_type), intent(in) :: ga_options
   type(ds_options_type), intent(in) :: ds_options
@@ -64,12 +139,10 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
   integer, intent(out) :: steps, fevals
   logical, intent(in) :: restart
 
-  type(airfoil_type) :: match_foil
-  integer :: pointst, pointsb, counter, nfuncs, ndv
-  double precision, dimension(:), allocatable :: zttmp, zbtmp
+  integer :: counter, nfuncs, ndv
   double precision, dimension(size(optdesign,1)) :: xmin, xmax, x0
-  double precision :: len1, len2, growth1, growth2, t1fact, t2fact, ffact
-  logical :: given_f0_ref, restart_temp, write_designs
+  double precision :: t1fact, t2fact, ffact
+  logical :: restart_temp, write_designs
   integer :: stepsg, fevalsg, stepsl, fevalsl, i, oppoint, stat,               &
              iunit, ioerr, designcounter
   character(100) :: restart_status_file
@@ -79,112 +152,6 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   iunit = 15
   restart_status_file = 'restart_status_'//trim(output_prefix)
-
-! Preliminary things for non-aerodynamic optimization
-
-  if (match_foils) then
-
-    write(*,*) 'Note: using the optimizer to match the seed airfoil to the '
-    write(*,*) 'airfoil about to be loaded.'
-    write(*,*)
-
-!   Check if symmetrical airfoil was requested (not allowed for this type)
-
-    if (symmetrical)                                                           &
-      call my_stop("Symmetrical airfoil constraint not permitted for non-"//&
-                   "aerodynamic optimizations.")
-
-!   Load airfoil to match
-
-    call get_seed_airfoil('from_file', matchfoil_file, '0000', match_foil)
-
-!   Split match_foil into upper and lower halves
-
-    call get_split_points(match_foil, pointst, pointsb, .false.)
-    allocate(xmatcht(pointst))
-    allocate(zmatcht(pointst))
-    allocate(xmatchb(pointsb))
-    allocate(zmatchb(pointsb))
-    call split_airfoil(match_foil, xmatcht, xmatchb, zmatcht, zmatchb, .false.)
-
-!   Deallocate derived type version of airfoil being matched
-
-    call deallocate_airfoil(match_foil)
-
-!   Interpolate x-vals of foil to match to seed airfoil points to x-vals
-
-    pointst = size(xseedt,1)
-    pointsb = size(xseedb,1)
-    allocate(zttmp(pointst))
-    allocate(zbtmp(pointsb))
-    zttmp(pointst) = zmatcht(size(zmatcht,1))
-    zbtmp(pointsb) = zmatchb(size(zmatchb,1))
-    call interp_vector(xmatcht, zmatcht, xseedt(1:pointst-1),                  &
-                       zttmp(1:pointst-1))
-    call interp_vector(xmatchb, zmatchb, xseedb(1:pointsb-1),                  &
-                       zbtmp(1:pointsb-1))
-
-!   Re-set coordinates of foil to match from interpolated points
-    
-    deallocate(xmatcht)
-    deallocate(zmatcht)
-    deallocate(xmatchb)
-    deallocate(zmatchb)
-    allocate(xmatcht(pointst))
-    allocate(zmatcht(pointst))
-    allocate(xmatchb(pointsb))
-    allocate(zmatchb(pointsb))
-    xmatcht = xseedt
-    xmatchb = xseedb
-    zmatcht = zttmp
-    zmatchb = zbtmp
-
-!   Deallocate temporary arrays
-
-    deallocate(zttmp)
-    deallocate(zbtmp)
-
-  else
-
-    write(*,*) "Optimizing for requested operating points."
-    write(*,*)
-
-!   Get allowable panel growth rate
-
-    pointst = size(xseedt,1)
-    pointsb = size(xseedb,1)
-    growth_allowed = 0.d0
-
-!   Top surface growth rates
-
-    len1 = sqrt((xseedt(2)-xseedt(1))**2.d0 + (zseedt(2)-zseedt(1))**2.d0)
-    do i = 2, pointst - 1
-      len2 = sqrt((xseedt(i+1)-xseedt(i))**2.d0 + (zseedt(i+1)-zseedt(i))**2.d0)
-      growth1 = len2/len1
-      growth2 = len1/len2
-      if (max(growth1,growth2) > growth_allowed)                               &
-          growth_allowed = 1.5d0*max(growth1,growth2)
-      len1 = len2
-    end do
-
-!   Bottom surface growth rates
-
-    len1 = sqrt((xseedb(2)-xseedb(1))**2.d0 + (zseedb(2)-zseedb(1))**2.d0)
-    do i = 2, pointsb - 1
-      len2 = sqrt((xseedb(i+1)-xseedb(i))**2.d0 + (zseedb(i+1)-zseedb(i))**2.d0)
-      growth1 = len2/len1
-      growth2 = len1/len2
-      if (max(growth1,growth2) > growth_allowed)                               &
-          growth_allowed = 1.5d0*max(growth1,growth2)
-      len1 = len2
-    end do
-
-  end if   ! Matching airfoils vs. aerodynamic optimization
-
-! Make sure seed airfoil passes constraints, and get scaling factors for
-! operating points
-
-  call check_seed()
 
 ! Perform optimization: global, local, or global + local
 
@@ -236,6 +203,10 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
     end do
 
   end if
+
+! Compute f0_ref, ignoring penalties for violated constraints
+
+  f0_ref = objective_function_nopenalty(x0) 
 
 ! Set default restart status (global or local optimization) from user input
 
@@ -350,7 +321,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 !     Particle swarm optimization
 
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
-                         x0, xmin, xmax, .false., f0_ref, constrained_dvs,     &
+                         x0, xmin, xmax, .true., f0_ref, constrained_dvs,      &
                          pso_options, restart_temp, restart_write_freq,        &
                          designcounter, write_function)
 
@@ -359,7 +330,7 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 !     Genetic algorithm optimization
 
       call geneticalgorithm(optdesign, fmin, stepsg, fevalsg,                  &
-                            objective_function, x0, xmin, xmax, .false.,       &
+                            objective_function, x0, xmin, xmax, .true.,        &
                             f0_ref, constrained_dvs, ga_options, restart_temp, &
                             restart_write_freq, designcounter, write_function)
 
@@ -390,13 +361,10 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
       if (trim(search_type) == 'global_and_local') then
         x0 = optdesign  ! Copy x0 from global search result
-        given_f0_ref = .true.
-      else
-        given_f0_ref = .false.
       end if
 
       call simplexsearch(optdesign, fmin, stepsl, fevalsl, objective_function, &
-                         x0, given_f0_ref, f0_ref, ds_options, restart_temp,   &
+                         x0, .true., f0_ref, ds_options, restart_temp,         &
                          restart_write_freq, designcounter, write_function)
 
     end if
@@ -407,15 +375,6 @@ subroutine optimize(search_type, global_search, local_search, matchfoil_file,  &
 
   steps = stepsg + stepsl
   fevals = fevalsg + fevalsl
-
-! Deallocate memory for match_foil
-
-  if (match_foils) then
-    deallocate(xmatcht)
-    deallocate(zmatcht)
-    deallocate(xmatchb)
-    deallocate(zmatchb)
-  end if
 
 end subroutine optimize
 

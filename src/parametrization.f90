@@ -128,8 +128,7 @@ subroutine create_shape(x, modes, shapetype, shape_function)
   double precision, dimension(:,:), intent(inout) :: shape_function
 
   integer :: npt, nmodes, i, j, counter1, counter2
-  double precision :: power1, power2, scale_factor, st, t1, t2, t1fact, t2fact,&
-                      pi
+  double precision :: power1, power2, dvscale, st, t1, t2, t1fact, t2fact, pi
 
   npt = size(x,1)
 
@@ -177,8 +176,8 @@ subroutine create_shape(x, modes, shapetype, shape_function)
 !   Normalize shape functions
 
     do i = 1, nmodes
-      scale_factor = 1.d0/abs(maxval(shape_function(i,:)))
-      shape_function(i,:) = shape_function(i,:)*scale_factor
+      dvscale = 1.d0/abs(maxval(shape_function(i,:)))
+      shape_function(i,:) = shape_function(i,:)*dvscale
     end do
 
   elseif (trim(shapetype) == 'hicks-henne') then
