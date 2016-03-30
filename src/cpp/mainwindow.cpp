@@ -1,4 +1,4 @@
-#include "navigatorlist.h"
+#include "settingsbrowser.h"
 #include "mainwindow.h"
 
 #include <QWidget>
@@ -18,9 +18,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
   QSplitter *splitter;
   QList<int> default_sizes;
 
-  // Navigator list
+  // Settings browser
 
-  navigatorlist = new NavigatorList(this);
+  settingsbrowser = new SettingsBrowser(this);
 
   // Scroll area
 
@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
   splitter = new QSplitter(this);
   splitter->setOrientation(Qt::Horizontal);
-  splitter->addWidget(navigatorlist);
+  splitter->addWidget(settingsbrowser);
   splitter->addWidget(scrollarea);
   
   // Default sizes

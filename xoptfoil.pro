@@ -7,7 +7,7 @@ TARGET = xoptfoil
 INCLUDEPATH += src/cpp
 
 # Input
-HEADERS += src/cpp/navigatorlist.h src/cpp/mainwindow.h
-SOURCES += src/cpp/navigatorlist.cpp src/cpp/mainwindow.cpp src/cpp/gui_main.cpp 
+HEADERS += src/cpp/settingsbrowser.h src/cpp/mainwindow.h
+SOURCES += src/cpp/settingsbrowser.cpp src/cpp/mainwindow.cpp src/cpp/gui_main.cpp 
 
 QT += widgets

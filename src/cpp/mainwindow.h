@@ -1,6 +1,6 @@
 #pragma once
 
-#include "navigatorlist.h"
+#include "settingsbrowser.h"
 
 #include <QWidget>
 #include <QMainWindow>
@@ -16,7 +16,7 @@ class MainWindow : public QMainWindow
 
     // Items in main window
 
-    NavigatorList *navigatorlist;
+    SettingsBrowser *settingsbrowser;
 
   public:
  

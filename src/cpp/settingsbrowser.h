@@ -6,10 +6,10 @@
 
 /******************************************************************************/
 //
-// Header for navigator list class
+// Header for settings browser class
 //
 /******************************************************************************/
-class NavigatorList : public QListWidget
+class SettingsBrowser : public QListWidget
 {
   private:
 
@@ -29,5 +29,5 @@ class NavigatorList : public QListWidget
 
     // Constructor
 
-    NavigatorList ( QWidget *parent = 0 );
+    SettingsBrowser ( QWidget *parent = 0 );
 };
