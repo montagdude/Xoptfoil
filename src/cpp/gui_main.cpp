@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 
   MainWindow window;
   window.setWindowTitle("XoptFoil");
+  window.resize(800,600);
   window.show();
 
   return xoptfoil.exec();
