@@ -3,6 +3,8 @@
 #include <QWidget>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QString>
+#include <QFont>
 
 /******************************************************************************/
 //
@@ -11,9 +13,13 @@
 /******************************************************************************/
 SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
 {
+  QFont myfont;
+
   // List items
   
+  myfont.setBold(true);
   QListWidgetItem *lbl = new QListWidgetItem("Settings Browser", this);
+  lbl->setFont(myfont);
 
   optimitem = new QListWidgetItem("Optimization", this);
   operitem = new QListWidgetItem("Operating conditions", this);
@@ -24,7 +30,6 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   simplexitem = new QListWidgetItem("Simplex search", this);
   xfrunitem = new QListWidgetItem("Xfoil analysis", this);
   xfpanitem = new QListWidgetItem("Xfoil paneling", this);
-  analysisitem = new QListWidgetItem("Continue to analysis", this);
 
   // Add list items to listwidget
 
@@ -38,7 +43,6 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   insertItem(7, simplexitem);
   insertItem(8, xfrunitem);
   insertItem(9, xfpanitem);
-  insertItem(10, analysisitem);
 
   // Set item properties
 
@@ -49,7 +53,13 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   operitem->setCheckState(Qt::Unchecked);
   constritem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); 
   constritem->setCheckState(Qt::Unchecked);
-  analysisitem->setFlags(analysisitem->flags() & ~Qt::ItemIsEnabled);
+
+  // Set tooltips
+
+  optimitem->setToolTip("There are items left to complete for Optimization.");
+  operitem->setToolTip("There are items left to complete for Operating " +
+                       QString("conditions."));
+  constritem->setToolTip("There are items left to complete for Constraints.");
 
   // Set current item
 
