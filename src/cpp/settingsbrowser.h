@@ -24,6 +24,7 @@ class SettingsBrowser : public QListWidget
     QListWidgetItem *simplexitem;
     QListWidgetItem *xfrunitem;
     QListWidgetItem *xfpanitem;
+    QListWidgetItem *analysisitem;
 
   public:
 

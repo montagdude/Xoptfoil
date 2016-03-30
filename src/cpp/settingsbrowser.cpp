@@ -24,6 +24,7 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   simplexitem = new QListWidgetItem("Simplex search", this);
   xfrunitem = new QListWidgetItem("Xfoil analysis", this);
   xfpanitem = new QListWidgetItem("Xfoil paneling", this);
+  analysisitem = new QListWidgetItem("Continue to analysis", this);
 
   // Add list items to listwidget
 
@@ -37,6 +38,7 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   insertItem(7, simplexitem);
   insertItem(8, xfrunitem);
   insertItem(9, xfpanitem);
+  insertItem(10, analysisitem);
 
   // Set item properties
 
@@ -47,6 +49,7 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   operitem->setCheckState(Qt::Unchecked);
   constritem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); 
   constritem->setCheckState(Qt::Unchecked);
+  analysisitem->setFlags(analysisitem->flags() & ~Qt::ItemIsEnabled);
 
   // Set current item
 
