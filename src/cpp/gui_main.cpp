@@ -1,4 +1,4 @@
-#include "navigatorlist.h"
+#include "mainwindow.h"
 
 #include <QApplication>
 
@@ -10,6 +10,12 @@
 int main(int argc, char *argv[])
 {
   QApplication xoptfoil(argc, argv);
+
+  // Create main window
+
+  MainWindow window;
+  window.setWindowTitle("XoptFoil");
+  window.show();
 
   return xoptfoil.exec();
 }

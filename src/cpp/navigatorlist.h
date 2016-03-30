@@ -11,15 +11,11 @@
 /******************************************************************************/
 class NavigatorList : public QListWidget
 {
-  public:
+  private:
 
-    // Constructor
-
-    NavigatorList ( QWidget *parent = 0 );
-
-    // Public list items
-
-    QListWidgetItem *globalitem;
+    // List items
+    
+    QListWidgetItem *optimitem;
     QListWidgetItem *operitem;
     QListWidgetItem *constritem;
     QListWidgetItem *inititem;
@@ -28,4 +24,10 @@ class NavigatorList : public QListWidget
     QListWidgetItem *simplexitem;
     QListWidgetItem *xfrunitem;
     QListWidgetItem *xfpanitem;
+
+  public:
+
+    // Constructor
+
+    NavigatorList ( QWidget *parent = 0 );
 };
