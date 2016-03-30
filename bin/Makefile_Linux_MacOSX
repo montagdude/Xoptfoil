@@ -49,74 +49,74 @@ $(XEXE): $(XOBJ)
 clean: 
 	rm -f *.mod *.o
 
-math_deps.o: $(DIR)/math_deps.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/math_deps.f90
+math_deps.o: $(DIR)/fortran/math_deps.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/math_deps.f90
 
-vardef.o: $(DIR)/vardef.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/vardef.f90
+vardef.o: $(DIR)/fortran/vardef.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/vardef.f90
 
-xfoil_inc.o: $(DIR)/xfoil_inc.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_inc.f90
+xfoil_inc.o: $(DIR)/fortran/xfoil_inc.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/xfoil_inc.f90
 
-xfoil_math.o: $(DIR)/xfoil_deps/xfoil_math.f
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_math.f
+xfoil_math.o: $(DIR)/fortran/xfoil_deps/xfoil_math.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/fortran/xfoil_deps/xfoil_math.f
 
-my_equivalence.o: $(DIR)/xfoil_deps/my_equivalence.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_deps/my_equivalence.f90
+my_equivalence.o: $(DIR)/fortran/xfoil_deps/my_equivalence.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/xfoil_deps/my_equivalence.f90
 
-xfoil_geom.o: $(DIR)/xfoil_deps/xfoil_geom.f
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_geom.f
+xfoil_geom.o: $(DIR)/fortran/xfoil_deps/xfoil_geom.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/fortran/xfoil_deps/xfoil_geom.f
 
-blpar_inc.o: $(DIR)/xfoil_deps/blpar_inc.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_deps/blpar_inc.f90
+blpar_inc.o: $(DIR)/fortran/xfoil_deps/blpar_inc.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/xfoil_deps/blpar_inc.f90
 
-xbl_inc.o: $(DIR)/xfoil_deps/xbl_inc.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_deps/xbl_inc.f90
+xbl_inc.o: $(DIR)/fortran/xfoil_deps/xbl_inc.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/xfoil_deps/xbl_inc.f90
 
-xfoil_bl.o: $(DIR)/xfoil_deps/xfoil_bl.f
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_bl.f
+xfoil_bl.o: $(DIR)/fortran/xfoil_deps/xfoil_bl.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/fortran/xfoil_deps/xfoil_bl.f
 
-xfoil_aero.o: $(DIR)/xfoil_deps/xfoil_aero.f
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/xfoil_deps/xfoil_aero.f
+xfoil_aero.o: $(DIR)/fortran/xfoil_deps/xfoil_aero.f
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/fortran/xfoil_deps/xfoil_aero.f
 
-xfoil_driver.o: $(DIR)/xfoil_driver.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_driver.f90
+xfoil_driver.o: $(DIR)/fortran/xfoil_driver.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/xfoil_driver.f90
 
-parametrization.o: $(DIR)/parametrization.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/parametrization.f90
+parametrization.o: $(DIR)/fortran/parametrization.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/parametrization.f90
 
-airfoil_operations.o: $(DIR)/airfoil_operations.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/airfoil_operations.f90
+airfoil_operations.o: $(DIR)/fortran/airfoil_operations.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/airfoil_operations.f90
 
-airfoil_evaluation.o: $(DIR)/airfoil_evaluation.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/airfoil_evaluation.f90
+airfoil_evaluation.o: $(DIR)/fortran/airfoil_evaluation.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/airfoil_evaluation.f90
 
-optimization_util.o: $(DIR)/optimization_util.F90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(PREPROC) $(DIR)/optimization_util.F90
+optimization_util.o: $(DIR)/fortran/optimization_util.F90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(PREPROC) $(DIR)/fortran/optimization_util.F90
 
-particle_swarm.o: $(DIR)/particle_swarm.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/particle_swarm.f90
+particle_swarm.o: $(DIR)/fortran/particle_swarm.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/particle_swarm.f90
 
-genetic_algorithm.o: $(DIR)/genetic_algorithm.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/genetic_algorithm.f90
+genetic_algorithm.o: $(DIR)/fortran/genetic_algorithm.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/genetic_algorithm.f90
 
-simplex_search.o: $(DIR)/simplex_search.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/simplex_search.f90
+simplex_search.o: $(DIR)/fortran/simplex_search.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/simplex_search.f90
 
-input_output.o: $(DIR)/input_output.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/input_output.f90
+input_output.o: $(DIR)/fortran/input_output.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/input_output.f90
 
-input_sanity.o: $(DIR)/input_sanity.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/input_sanity.f90
+input_sanity.o: $(DIR)/fortran/input_sanity.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/input_sanity.f90
 
-memory_util.o: $(DIR)/memory_util.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/memory_util.f90
+memory_util.o: $(DIR)/fortran/memory_util.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/memory_util.f90
 
-optimization_driver.o: $(DIR)/optimization_driver.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/optimization_driver.f90
+optimization_driver.o: $(DIR)/fortran/optimization_driver.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/optimization_driver.f90
 
-main.o: $(DIR)/main.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/main.f90
+main.o: $(DIR)/fortran/main.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/main.f90
 
-xfoil_only.o: $(DIR)/xfoil_only.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/xfoil_only.f90
+xfoil_only.o: $(DIR)/fortran/xfoil_only.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/xfoil_only.f90
