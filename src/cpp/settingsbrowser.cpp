@@ -30,7 +30,7 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   psoitem = new QListWidgetItem("Particle swarm", this);
   gaitem = new QListWidgetItem("Genetic algorithm", this);
   simplexitem = new QListWidgetItem("Simplex search", this);
-  xfrunitem = new QListWidgetItem("Xfoil analysis", this);
+  xfanaitem = new QListWidgetItem("Xfoil analysis", this);
   xfpanitem = new QListWidgetItem("Xfoil paneling", this);
 
   // Add list items to listwidget
@@ -43,25 +43,51 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   insertItem(5, psoitem);
   insertItem(6, gaitem);
   insertItem(7, simplexitem);
-  insertItem(8, xfrunitem);
+  insertItem(8, xfanaitem);
   insertItem(9, xfpanitem);
 
   // Set item properties
 
-  lbl->setFlags(Qt::ItemIsEnabled);
-  optimitem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); 
+  lbl->setFlags(lbl->flags() & ~Qt::ItemIsSelectable);
   optimitem->setCheckState(Qt::Unchecked);
-  operitem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); 
+  optimitem->setFlags(optimitem->flags() & ~Qt::ItemIsUserCheckable);
   operitem->setCheckState(Qt::Unchecked);
-  constritem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); 
+  operitem->setFlags(operitem->flags() & ~Qt::ItemIsUserCheckable);
   constritem->setCheckState(Qt::Unchecked);
+  constritem->setFlags(constritem->flags() & ~Qt::ItemIsUserCheckable);
+  inititem->setCheckState(Qt::Checked);
+  inititem->setFlags(inititem->flags() & ~Qt::ItemIsUserCheckable);
+  psoitem->setCheckState(Qt::Checked);
+  psoitem->setFlags(psoitem->flags() & ~Qt::ItemIsUserCheckable);
+  gaitem->setCheckState(Qt::Checked);
+  gaitem->setFlags(gaitem->flags() & ~Qt::ItemIsUserCheckable);
+  simplexitem->setCheckState(Qt::Checked);
+  simplexitem->setFlags(simplexitem->flags() & ~Qt::ItemIsUserCheckable);
+  xfanaitem->setCheckState(Qt::Checked);
+  xfanaitem->setFlags(xfanaitem->flags() & ~Qt::ItemIsUserCheckable);
+  xfpanitem->setCheckState(Qt::Checked);
+  xfpanitem->setFlags(xfpanitem->flags() & ~Qt::ItemIsUserCheckable);
 
   // Set tooltips
 
-  optimitem->setToolTip("There are items left to complete for Optimization.");
-  operitem->setToolTip("There are items left to complete for Operating " +
-                       QString("conditions."));
-  constritem->setToolTip("There are items left to complete for Constraints.");
+  optimitem->setToolTip("There are required items left to complete for " +
+                        QString("Optimization."));
+  operitem->setToolTip("There are required items left to complete for " +
+                       QString("Operating conditions."));
+  constritem->setToolTip("There are required items left to complete for " +
+                         QString("Constraints."));
+  inititem->setToolTip("No required items left to complete for " +
+                       QString("Initialization."));
+  psoitem->setToolTip("No required items left to complete for " +
+                      QString("Particle swarm."));
+  gaitem->setToolTip("No required items left to complete for " +
+                     QString("Genetic algorithm."));
+  simplexitem->setToolTip("No required items left to complete for " +
+                          QString("Simplex search."));
+  xfanaitem->setToolTip("No required items left to complete for " +
+                        QString("Xfoil analysis."));
+  xfpanitem->setToolTip("No required items left to complete for " +
+                        QString("Xfoil paneling."));
 
   // Set current item
 

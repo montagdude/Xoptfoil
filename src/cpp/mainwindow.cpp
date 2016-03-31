@@ -1,10 +1,8 @@
 #include "settingsbrowser.h"
+#include "settingswindow.h"
 #include "mainwindow.h"
 
 #include <QWidget>
-#include <QSplitter>
-#include <QScrollArea>
-#include <QList>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -17,9 +15,6 @@
 /******************************************************************************/
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-  QScrollArea *scrollarea;
-  QSplitter *splitter;
-  QList<int> default_sizes;
   QMenu *filemenu, *airfoilsmenu, *settingsmenu, *optimizemenu;
   QAction *quitact;
   QAction *managefoilsact;
@@ -27,30 +22,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
           *gaact, *simplexact, *xfrunact, *xfpanact;
   QAction *gotooptimact;
 
-  // Settings browser
+  // Create settings window and set as central widget
 
-  settingsbrowser = new SettingsBrowser(this);
-
-  // Scroll area
-
-  scrollarea = new QScrollArea(this);
-
-  // Splitter (allows user to resize widgets)
-
-  splitter = new QSplitter(this);
-  splitter->setOrientation(Qt::Horizontal);
-  splitter->addWidget(settingsbrowser);
-  splitter->addWidget(scrollarea);
-  
-  // Default sizes for central widget items
-
-  default_sizes.append(220);
-  default_sizes.append(680); 
-  splitter->setSizes(default_sizes);
-
-  // Central widget
-  
-  setCentralWidget(splitter);
+  settingswindow = new SettingsWindow(this);
+  setCentralWidget(settingswindow);
 
   // Actions for file menu
 

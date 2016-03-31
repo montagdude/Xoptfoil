@@ -1,6 +1,6 @@
 #pragma once
 
-#include "settingsbrowser.h"
+#include "settingswindow.h"
 
 #include <QWidget>
 #include <QMainWindow>
@@ -14,9 +14,9 @@ class MainWindow : public QMainWindow
 {
   private:
 
-    // Items in main window
+    // Widgets that may be placed in main window
 
-    SettingsBrowser *settingsbrowser;
+    SettingsWindow *settingswindow;
 
   public:
  

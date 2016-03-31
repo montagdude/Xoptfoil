@@ -22,7 +22,7 @@ class SettingsBrowser : public QListWidget
     QListWidgetItem *psoitem;
     QListWidgetItem *gaitem;
     QListWidgetItem *simplexitem;
-    QListWidgetItem *xfrunitem;
+    QListWidgetItem *xfanaitem;
     QListWidgetItem *xfpanitem;
 
   public:
