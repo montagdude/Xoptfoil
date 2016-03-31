@@ -5,6 +5,7 @@
 #include <QListWidgetItem>
 #include <QString>
 #include <QFont>
+#include <QIcon>
 
 /******************************************************************************/
 //
@@ -20,6 +21,7 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   myfont.setBold(true);
   QListWidgetItem *lbl = new QListWidgetItem("Settings Browser", this);
   lbl->setFont(myfont);
+  lbl->setIcon(QIcon(":/icons/settings.png"));
 
   optimitem = new QListWidgetItem("Optimization", this);
   operitem = new QListWidgetItem("Operating conditions", this);

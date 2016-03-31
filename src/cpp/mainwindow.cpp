@@ -20,10 +20,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
   QScrollArea *scrollarea;
   QSplitter *splitter;
   QList<int> default_sizes;
-  QMenu *filemenu, *settingsmenu, *optimizemenu;
-  QAction *quitact, *gotosettingsact, *optimact, *operact, *constract, 
-          *initact, *psoact, *gaact, *simplexact, *xfrunact, *xfpanact,
-          *gotooptimact;
+  QMenu *filemenu, *airfoilsmenu, *settingsmenu, *optimizemenu;
+  QAction *quitact;
+  QAction *managefoilsact;
+  QAction *gotosettingsact, *optimact, *operact, *constract, *initact, *psoact,
+          *gaact, *simplexact, *xfrunact, *xfpanact;
+  QAction *gotooptimact;
 
   // Settings browser
 
@@ -58,6 +60,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
   filemenu = menuBar()->addMenu("&File");
   filemenu->addAction(quitact);
+
+  // Actions for airfoils menu
+
+  managefoilsact = new QAction("&Manage seed airfoils ...", this);
+
+  // Airfoils menu
+
+  airfoilsmenu = menuBar()->addMenu("&Airfoils");
+  airfoilsmenu->addAction(managefoilsact);
 
   // Actions for settings menu
 

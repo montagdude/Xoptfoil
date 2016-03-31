@@ -9,5 +9,6 @@ INCLUDEPATH += src/cpp
 # Input
 HEADERS += src/cpp/settingsbrowser.h src/cpp/mainwindow.h
 SOURCES += src/cpp/settingsbrowser.cpp src/cpp/mainwindow.cpp src/cpp/gui_main.cpp 
+RESOURCES += resources.qrc
 
 QT += widgets
