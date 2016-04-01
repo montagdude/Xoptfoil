@@ -7,6 +7,7 @@
 #include <QString>
 #include <QFont>
 #include <QIcon>
+#include <QSize>
 
 /******************************************************************************/
 //

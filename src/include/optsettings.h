@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QWidget>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QPushButton>
 
 /******************************************************************************/
 //
@@ -9,6 +12,15 @@
 /******************************************************************************/
 class OptSettings : public QWidget
 {
+  private:
+
+    QLineEdit *caseedit;
+    QComboBox *searchbox;
+    QComboBox *globalbox;
+    QPushButton *globalbtn;
+    QComboBox *localbox;
+    QPushButton *localbtn;
+
   public:
 
     // Constructor
