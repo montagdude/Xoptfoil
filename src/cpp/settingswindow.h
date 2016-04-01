@@ -1,10 +1,15 @@
 #pragma once
 
-#include "settingsbrowser.h"
-
 #include <QWidget>
 #include <QSplitter>
-#include <QScrollArea>
+#include <QStackedWidget>
+#include <QString>
+
+// Forward declarations
+
+class SettingsBrowser;
+class OptSettings;
+class OperSettings;
 
 /******************************************************************************/
 //
@@ -17,12 +22,21 @@ class SettingsWindow : public QSplitter
 
     // Widgets contained in splitter
 
+    OptSettings *opt_settings;
+    OperSettings *oper_settings;
+    QStackedWidget *settings_pane;
     SettingsBrowser *settingsbrowser;
-    QScrollArea *scrollarea;
-    
+
   public:
 
     // Constructor
 
     SettingsWindow ( QWidget *parent = 0 );
+
+  public slots:
+
+    // Showing different settings panes
+
+    void showOptSettings ();
+    void showOperSettings ();
 };

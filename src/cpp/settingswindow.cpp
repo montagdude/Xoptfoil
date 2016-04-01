@@ -1,10 +1,13 @@
+#include "optsettings.h"
+#include "opersettings.h"
 #include "settingsbrowser.h"
 #include "settingswindow.h"
 
 #include <QWidget>
 #include <QSplitter>
-#include <QScrollArea>
+#include <QStackedWidget>
 #include <QList>
+#include <QString>
 
 /******************************************************************************/
 //
@@ -17,15 +20,42 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QSplitter(parent)
 
   // Widgets contained in splitter
   
+  opt_settings = new OptSettings(this);
+  oper_settings = new OperSettings(this);
+  settings_pane = new QStackedWidget(this);
+  settings_pane->addWidget(opt_settings);
+  settings_pane->addWidget(oper_settings);
   settingsbrowser = new SettingsBrowser(this);
-  scrollarea = new QScrollArea(this);
-  setOrientation(Qt::Horizontal);
+
+  // Add widgets to splitter and set orientation
+
   addWidget(settingsbrowser);
-  addWidget(scrollarea);
+  addWidget(settings_pane);
+  setOrientation(Qt::Horizontal);
 
   // Default sizes for widgets
   
   default_sizes.append(220);
   default_sizes.append(680);
   setSizes(default_sizes);
+}
+
+/******************************************************************************/
+//
+// Switches to optimization settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showOptSettings ()
+{
+  settings_pane->setCurrentWidget(opt_settings);
+}
+
+/******************************************************************************/
+//
+// Switches to operating conditions settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showOperSettings ()
+{
+  settings_pane->setCurrentWidget(oper_settings);
 }

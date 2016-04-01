@@ -1,3 +1,4 @@
+#include "settingswindow.h"
 #include "settingsbrowser.h"
 
 #include <QWidget>
@@ -12,9 +13,13 @@
 // Constructor
 //
 /******************************************************************************/
-SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
+SettingsBrowser::SettingsBrowser(SettingsWindow *parent) : QListWidget(parent)
 {
   QFont myfont;
+
+  // Store pointer to settings window
+
+  settingswindow = parent;
 
   // List items
   
@@ -89,7 +94,29 @@ SettingsBrowser::SettingsBrowser(QWidget *parent) : QListWidget(parent)
   xfpanitem->setToolTip("No required items left to complete for " +
                         QString("Xfoil paneling."));
 
+  // Connect selection signal/slot
+
+  connect(this, &QListWidget::currentItemChanged, this, 
+          &SettingsBrowser::selectionChanged); 
+
   // Set current item
 
   setCurrentItem(optimitem);
+}
+
+/******************************************************************************/
+//
+// Signals parent SettingsWindow to change settings pane
+//
+/******************************************************************************/
+void SettingsBrowser::selectionChanged ()
+{
+  if (currentItem()->text() == "Optimization")
+  {
+    settingswindow->showOptSettings();
+  }
+  else if (currentItem()->text() == "Operating conditions")
+  {
+    settingswindow->showOperSettings();
+  }
 }

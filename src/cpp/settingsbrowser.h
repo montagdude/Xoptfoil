@@ -4,6 +4,10 @@
 #include <QListWidget>
 #include <QListWidgetItem>
 
+// Forward declarations
+
+class SettingsWindow;
+
 /******************************************************************************/
 //
 // Header for settings browser class
@@ -12,6 +16,10 @@
 class SettingsBrowser : public QListWidget
 {
   private:
+
+    // Stored pointer to settings window
+
+    SettingsWindow *settingswindow;
 
     // List items
     
@@ -25,9 +33,15 @@ class SettingsBrowser : public QListWidget
     QListWidgetItem *xfanaitem;
     QListWidgetItem *xfpanitem;
 
+  private slots:
+
+    // Occurs when selection is changed
+
+    void selectionChanged ();
+
   public:
 
     // Constructor
 
-    SettingsBrowser ( QWidget *parent = 0 );
+    SettingsBrowser ( SettingsWindow *parent = 0 );
 };

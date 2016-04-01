@@ -85,5 +85,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
   // Connect signals/slots
 
-  connect(quitact, &QAction::triggered, qApp, QApplication::quit);
+  connect(quitact, &QAction::triggered, qApp, &QApplication::quit);
+  connect(optimact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showOptSettings);
+  connect(operact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showOperSettings);
 }

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "settingswindow.h"
-
 #include <QWidget>
 #include <QMainWindow>
+
+// Forward declarations
+
+class SettingsWindow;
 
 /******************************************************************************/
 //
