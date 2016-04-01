@@ -1,15 +1,26 @@
 ######################################################################
-# QMake project file
+# Project file for qmake
 ######################################################################
 
 TEMPLATE = app
 TARGET = xoptfoil
-INCLUDEPATH += src/cpp
-CPPDIR = src/cpp
+INCLUDEPATH += src/include
 
 # Input
-HEADERS += $${CPPDIR}/settingsbrowser.h $${CPPDIR}/optsettings.h $${CPPDIR}/opersettings.h $${CPPDIR}/settingswindow.h $${CPPDIR}/mainwindow.h
-SOURCES += $${CPPDIR}/settingsbrowser.cpp $${CPPDIR}/optsettings.cpp $${CPPDIR}/opersettings.cpp $${CPPDIR}/settingswindow.cpp $${CPPDIR}/mainwindow.cpp $${CPPDIR}/gui_main.cpp 
+
+HEADERS += src/include/optsettings.h \
+           src/include/opersettings.h \
+           src/include/constrsettings.h \
+           src/include/settingsbrowser.h \
+           src/include/settingswindow.h \
+           src/include/mainwindow.h
+SOURCES += src/cpp/optsettings.cpp \
+           src/cpp/opersettings.cpp \
+           src/cpp/constrsettings.cpp \
+           src/cpp/settingsbrowser.cpp \
+           src/cpp/settingswindow.cpp \
+           src/cpp/mainwindow.cpp \
+           src/cpp/gui_main.cpp
 RESOURCES += resources.qrc
 
 QT += widgets

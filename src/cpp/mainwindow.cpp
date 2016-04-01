@@ -90,4 +90,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
           &SettingsWindow::showOptSettings);
   connect(operact, &QAction::triggered, settingswindow, 
           &SettingsWindow::showOperSettings);
+  connect(constract, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showConstrSettings);
 }

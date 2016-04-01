@@ -119,4 +119,8 @@ void SettingsBrowser::selectionChanged ()
   {
     settingswindow->showOperSettings();
   }
+  else if (currentItem()->text() == "Constraints")
+  {
+    settingswindow->showConstrSettings();
+  }
 }

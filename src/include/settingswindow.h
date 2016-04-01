@@ -3,13 +3,12 @@
 #include <QWidget>
 #include <QSplitter>
 #include <QStackedWidget>
+#include <QScrollArea>
 #include <QString>
 
 // Forward declarations
 
 class SettingsBrowser;
-class OptSettings;
-class OperSettings;
 
 /******************************************************************************/
 //
@@ -22,8 +21,9 @@ class SettingsWindow : public QSplitter
 
     // Widgets contained in splitter
 
-    OptSettings *opt_settings;
-    OperSettings *oper_settings;
+    QScrollArea *opt_settings;
+    QScrollArea *oper_settings;
+    QScrollArea *constr_settings;
     QStackedWidget *settings_pane;
     SettingsBrowser *settingsbrowser;
 
@@ -39,4 +39,5 @@ class SettingsWindow : public QSplitter
 
     void showOptSettings ();
     void showOperSettings ();
+    void showConstrSettings ();
 };

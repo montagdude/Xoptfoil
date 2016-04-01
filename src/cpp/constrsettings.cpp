@@ -1,4 +1,4 @@
-#include "opersettings.h"
+#include "constrsettings.h"
 
 #include <QLabel>
 #include <QVBoxLayout>
@@ -6,17 +6,17 @@
 
 /******************************************************************************/
 //
-// Constructor for operating conditions settings class
+// Constructor for constraint settings class
 //
 /******************************************************************************/
-OperSettings::OperSettings(QWidget *parent) : QWidget(parent)
+ConstrSettings::ConstrSettings(QWidget *parent) : QWidget(parent)
 {
   QLabel *lbl;
   QVBoxLayout *vbox;
 
-  // Label for operating conditions settings
+  // Label for constraints settings
 
-  lbl = new QLabel("<b>Operating conditions settings</b>", this);
+  lbl = new QLabel("<b>Constraints settings</b>", this);
 
   // Layout
 
