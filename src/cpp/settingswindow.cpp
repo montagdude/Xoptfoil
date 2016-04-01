@@ -1,6 +1,12 @@
 #include "optsettings.h"
 #include "opersettings.h"
 #include "constrsettings.h"
+#include "initsettings.h"
+#include "psosettings.h"
+#include "gasettings.h"
+#include "simplexsettings.h"
+#include "xfanasettings.h"
+#include "xfpansettings.h"
 #include "settingsbrowser.h"
 #include "settingswindow.h"
 
@@ -28,10 +34,28 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QSplitter(parent)
   oper_settings->setWidget(new OperSettings(this));
   constr_settings = new QScrollArea(this);
   constr_settings->setWidget(new ConstrSettings(this));
+  init_settings = new QScrollArea(this);
+  init_settings->setWidget(new InitSettings(this));
+  pso_settings = new QScrollArea(this);
+  pso_settings->setWidget(new PSOSettings(this));
+  ga_settings = new QScrollArea(this);
+  ga_settings->setWidget(new GASettings(this));
+  simplex_settings = new QScrollArea(this);
+  simplex_settings->setWidget(new SimplexSettings(this));
+  xfana_settings = new QScrollArea(this);
+  xfana_settings->setWidget(new XfAnaSettings(this));
+  xfpan_settings = new QScrollArea(this);
+  xfpan_settings->setWidget(new XfPanSettings(this));
   settings_pane = new QStackedWidget(this);
   settings_pane->addWidget(opt_settings);
   settings_pane->addWidget(oper_settings);
   settings_pane->addWidget(constr_settings);
+  settings_pane->addWidget(init_settings);
+  settings_pane->addWidget(pso_settings);
+  settings_pane->addWidget(ga_settings);
+  settings_pane->addWidget(simplex_settings);
+  settings_pane->addWidget(xfana_settings);
+  settings_pane->addWidget(xfpan_settings);
   settingsbrowser = new SettingsBrowser(this);
 
   // Add widgets to splitter and set orientation
@@ -75,4 +99,64 @@ void SettingsWindow::showOperSettings ()
 void SettingsWindow::showConstrSettings ()
 {
   settings_pane->setCurrentWidget(constr_settings);
+}
+
+/******************************************************************************/
+//
+// Switches to initialization settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showInitSettings ()
+{
+  settings_pane->setCurrentWidget(init_settings);
+}
+
+/******************************************************************************/
+//
+// Switches to particle swarm settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showPSOSettings ()
+{
+  settings_pane->setCurrentWidget(pso_settings);
+}
+
+/******************************************************************************/
+//
+// Switches to genetic algorithm settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showGASettings ()
+{
+  settings_pane->setCurrentWidget(ga_settings);
+}
+
+/******************************************************************************/
+//
+// Switches to simplex settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showSimplexSettings ()
+{
+  settings_pane->setCurrentWidget(simplex_settings);
+}
+
+/******************************************************************************/
+//
+// Switches to Xfoil analysis settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showXfAnaSettings ()
+{
+  settings_pane->setCurrentWidget(xfana_settings);
+}
+
+/******************************************************************************/
+//
+// Switches to Xfoil paneling settings pane
+//
+/******************************************************************************/
+void SettingsWindow::showXfPanSettings ()
+{
+  settings_pane->setCurrentWidget(xfpan_settings);
 }

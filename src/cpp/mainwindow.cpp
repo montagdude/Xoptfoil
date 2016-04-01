@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
   QAction *quitact;
   QAction *managefoilsact;
   QAction *gotosettingsact, *optimact, *operact, *constract, *initact, *psoact,
-          *gaact, *simplexact, *xfrunact, *xfpanact;
+          *gaact, *simplexact, *xfanaact, *xfpanact;
   QAction *gotooptimact;
 
   // Create settings window and set as central widget
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
   psoact = new QAction("&Particle swarm", this);
   gaact = new QAction("&Genetic algorithm", this); 
   simplexact = new QAction("Si&mplex search", this);
-  xfrunact = new QAction("&Xfoil analysis", this);
+  xfanaact = new QAction("&Xfoil analysis", this);
   xfpanact = new QAction("X&foil paneling", this);
 
   // Settings menu
@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
   settingsmenu->addAction(psoact);
   settingsmenu->addAction(gaact);
   settingsmenu->addAction(simplexact);
-  settingsmenu->addAction(xfrunact);
+  settingsmenu->addAction(xfanaact);
   settingsmenu->addAction(xfpanact);
 
   // Actions for optimization menu
@@ -92,4 +92,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
           &SettingsWindow::showOperSettings);
   connect(constract, &QAction::triggered, settingswindow, 
           &SettingsWindow::showConstrSettings);
+  connect(initact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showInitSettings);
+  connect(psoact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showPSOSettings);
+  connect(gaact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showGASettings);
+  connect(simplexact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showSimplexSettings);
+  connect(xfanaact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showXfAnaSettings);
+  connect(xfpanact, &QAction::triggered, settingswindow, 
+          &SettingsWindow::showXfPanSettings);
 }

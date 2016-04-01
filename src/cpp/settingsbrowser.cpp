@@ -123,4 +123,28 @@ void SettingsBrowser::selectionChanged ()
   {
     settingswindow->showConstrSettings();
   }
+  else if (currentItem()->text() == "Initialization")
+  {
+    settingswindow->showInitSettings();
+  }
+  else if (currentItem()->text() == "Particle swarm")
+  {
+    settingswindow->showPSOSettings();
+  }
+  else if (currentItem()->text() == "Genetic algorithm")
+  {
+    settingswindow->showGASettings();
+  }
+  else if (currentItem()->text() == "Simplex search")
+  {
+    settingswindow->showSimplexSettings();
+  }
+  else if (currentItem()->text() == "Xfoil analysis")
+  {
+    settingswindow->showXfAnaSettings();
+  }
+  else if (currentItem()->text() == "Xfoil paneling")
+  {
+    settingswindow->showXfPanSettings();
+  }
 }

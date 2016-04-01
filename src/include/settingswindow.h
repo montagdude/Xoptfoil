@@ -24,6 +24,12 @@ class SettingsWindow : public QSplitter
     QScrollArea *opt_settings;
     QScrollArea *oper_settings;
     QScrollArea *constr_settings;
+    QScrollArea *init_settings;
+    QScrollArea *pso_settings;
+    QScrollArea *ga_settings;
+    QScrollArea *simplex_settings;
+    QScrollArea *xfana_settings;
+    QScrollArea *xfpan_settings;
     QStackedWidget *settings_pane;
     SettingsBrowser *settingsbrowser;
 
@@ -40,4 +46,10 @@ class SettingsWindow : public QSplitter
     void showOptSettings ();
     void showOperSettings ();
     void showConstrSettings ();
+    void showInitSettings ();
+    void showPSOSettings ();
+    void showGASettings ();
+    void showSimplexSettings ();
+    void showXfAnaSettings ();
+    void showXfPanSettings ();
 };
