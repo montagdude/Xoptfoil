@@ -16,8 +16,9 @@
 /******************************************************************************/
 OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 {
-  QLabel *lbl, *caselbl, *searchlbl, *globallbl, *locallbl;
+  QLabel *lbl, *caselbl, *searchlbl, *globallbl, *locallbl, *seedlbl;
   QGridLayout *grid;
+  QHBoxLayout *hbox1, *hbox2, *hbox3, *hbox4;
   QVBoxLayout *vbox;
 
   // Label for optimization settings
@@ -43,8 +44,8 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   globalbox = new QComboBox(this);
   globalbox->addItem("Particle swarm");
   globalbox->addItem("Genetic algorithm");
-  globalbtn = new QPushButton(QIcon(":/icons/settings.png"), "", this);
-  globalbtn->setToolTip("Particle swarm settings");
+  globalbtn = new QPushButton(QIcon(":/icons/go.png"), 
+                              " Particle swarm settings", this);
   globalbtn->setFlat(true);
   globalbtn->setIconSize(QSize(20,20));
 
@@ -53,10 +54,31 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   locallbl = new QLabel("Local search", this);
   localbox = new QComboBox(this);
   localbox->addItem("Simplex search");
-  localbtn = new QPushButton(QIcon(":/icons/settings.png"), "", this);
-  localbtn->setToolTip("Simplex search settings");
+  localbtn = new QPushButton(QIcon(":/icons/go.png"), 
+                             " Simplex search settings", this);
   localbtn->setFlat(true);
   localbtn->setIconSize(QSize(20,20));
+
+  // Seed airfoil selection
+
+  seedlbl = new QLabel("Seed airfoil", this);
+  seedbox = new QComboBox(this);
+  seedbox->addItem("From file");
+  seedbox->addItem("NACA 4-digit");
+
+  // Select seed airfoil from file
+
+  seedfilebtn = new QPushButton(QIcon(":/icons/browse.png"), " Browse", this);
+  seedfilebtn->setFlat(true);
+  seedfilebtn->setIconSize(QSize(20,20));
+
+  // NACA 4 digits
+
+  digitlbl = new QLabel("NACA digits", this);
+  digitlbl->setEnabled(false);
+  digitedit = new QLineEdit("0012");
+  digitedit->setMaxLength(4);
+  digitedit->setEnabled(false);
 
   // Grid layout
   
@@ -67,10 +89,27 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   grid->addWidget(searchbox, 1, 1);
   grid->addWidget(globallbl, 2, 0);
   grid->addWidget(globalbox, 2, 1);
-  grid->addWidget(globalbtn, 2, 2);
+  hbox1 = new QHBoxLayout();
+  hbox1->addWidget(globalbtn);
+  hbox1->addStretch(0);
+  grid->addLayout(hbox1, 2, 2);
   grid->addWidget(locallbl, 3, 0);
   grid->addWidget(localbox, 3, 1);
-  grid->addWidget(localbtn, 3, 2);
+  hbox2 = new QHBoxLayout();
+  hbox2->addWidget(localbtn);
+  hbox2->addStretch(0);
+  grid->addLayout(hbox2, 3, 2);
+  grid->addWidget(seedlbl, 4, 0);
+  grid->addWidget(seedbox, 4, 1);
+  hbox3 = new QHBoxLayout();
+  hbox3->addWidget(seedfilebtn);
+  hbox3->addStretch(0);
+  grid->addLayout(hbox3, 4, 2);
+  hbox4 = new QHBoxLayout();
+  hbox4->addWidget(digitlbl);
+  hbox4->addWidget(digitedit);
+  hbox4->addStretch(0);
+  grid->addLayout(hbox4, 5, 2);
 
   // Box layout
 
@@ -80,4 +119,31 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   vbox->addStretch(0);
 
   setLayout(vbox);
+
+  // Connect signals and slots (note: this method seems necessary for
+  // signals with an argument; also needs Q_OBJECT in header)
+
+  connect(seedbox, SIGNAL(currentIndexChanged(int)), this, 
+          SLOT(seedBoxChanged(int)));
+}
+
+/******************************************************************************/
+//
+// Defines behavior when seed airfoil selection box index is changed
+//
+/******************************************************************************/
+void OptSettings::seedBoxChanged ( int idx )
+{
+  if (idx == 0)
+  {
+    digitlbl->setEnabled(false);
+    digitedit->setEnabled(false);
+    seedfilebtn->setEnabled(true);
+  }
+  else if (idx == 1)
+  {
+    seedfilebtn->setEnabled(false);
+    digitlbl->setEnabled(true);
+    digitedit->setEnabled(true);
+  }
 }

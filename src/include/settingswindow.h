@@ -17,6 +17,8 @@ class SettingsBrowser;
 /******************************************************************************/
 class SettingsWindow : public QSplitter
 {
+  Q_OBJECT
+
   private:
 
     // Widgets contained in splitter

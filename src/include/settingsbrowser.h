@@ -15,6 +15,8 @@ class SettingsWindow;
 /******************************************************************************/
 class SettingsBrowser : public QListWidget
 {
+  Q_OBJECT
+
   private:
 
     // Stored pointer to settings window
