@@ -19,25 +19,17 @@
 /******************************************************************************/
 OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 {
-  QLabel *lbl, *caselbl, *searchlbl, *globallbl, *locallbl, *seedlbl;
-  QLabel *advlbl, *shapelbl, *nshapetlbl, *nshapeblbl, *initperturblbl;
-  QLabel *minbumplbl, *restlbl;
+  QLabel *globallbl, *locallbl;
   QGridLayout *grid1, *grid2;
   QHBoxLayout *hbox1, *hbox2, *hbox3, *hbox4;
   QVBoxLayout *vbox;
 
-  // Label for optimization settings
-
-  lbl = new QLabel("<b>Basic optimization settings</b>", this);
-
   // Case name
 
-  caselbl = new QLabel("Case name", this);
   caseedit = new QLineEdit("optfoil", this);
 
   // Search type
 
-  searchlbl = new QLabel("Search type", this);
   searchbox = new QComboBox(this);
   searchbox->addItem("Global + local");
   searchbox->addItem("Global");
@@ -66,7 +58,6 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 
   // Seed airfoil selection
 
-  seedlbl = new QLabel("Seed airfoil", this);
   seedbox = new QComboBox(this);
   seedbox->addItem("From file");
   seedbox->addItem("NACA 4-digit");
@@ -90,9 +81,9 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   // Top grid layout (basic settings)
   
   grid1 = new QGridLayout();
-  grid1->addWidget(caselbl, 0, 0);
+  grid1->addWidget(new QLabel("Case name", this), 0, 0);
   grid1->addWidget(caseedit, 0, 1);
-  grid1->addWidget(searchlbl, 1, 0);
+  grid1->addWidget(new QLabel("Search type", this), 1, 0);
   grid1->addWidget(searchbox, 1, 1);
   grid1->addWidget(globallbl, 2, 0);
   grid1->addWidget(globalbox, 2, 1);
@@ -106,7 +97,7 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   hbox2->addWidget(localbtn);
   hbox2->addStretch(0);
   grid1->addLayout(hbox2, 3, 2);
-  grid1->addWidget(seedlbl, 4, 0);
+  grid1->addWidget(new QLabel("Seed airfoil", this), 4, 0);
   grid1->addWidget(seedbox, 4, 1);
   hbox3 = new QHBoxLayout();
   hbox3->addWidget(seedfilelbl);
@@ -118,21 +109,14 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   hbox4->addWidget(digitedit);
   grid1->addLayout(hbox4, 5, 2);
 
-  // Advanced settings label
-
-  advlbl = new QLabel("<b>Advanced settings</b>", this);
-
   // Shape functions
 
-  shapelbl = new QLabel("Shape functions", this);
   shapebox = new QComboBox(this);
   shapebox->addItem("Hicks-Henne");
   shapebox->addItem("NACA");
 
   // Number of shape functions
 
-  nshapetlbl = new QLabel("Number of functions for top surface", this);
-  nshapeblbl = new QLabel("Number of functions for bottom surface", this);
   nshapetbox = new QSpinBox(this);
   nshapebbox = new QSpinBox(this);
   nshapetbox->setMinimum(1);
@@ -142,15 +126,18 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 
   // Initial perturbation
 
-  initperturblbl = new QLabel("Initial perturbation", this);
   initperturbedit = new QLineEdit(this);
   initperturbedit->setText("0.025");
   initperturbedit->setToolTip("Max change in airfoil surface " +
                               QString("during initialization"));
 
+  // Minimum bump width
+
+  minbumpbox = new QLineEdit(this);
+  minbumpbox->setText("0.1");
+
   // Restart write frequency
 
-  restlbl = new QLabel("Restart write frequency", this);
   restbox = new QSpinBox(this);
   restbox->setMinimum(1);
   restbox->setValue(20);
@@ -160,35 +147,31 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   writedesignbox = new QCheckBox("Write design progression to files", this);
   writedesignbox->setChecked(true);
 
-  // Minimum bump width
-
-  minbumplbl = new QLabel("Minimum bump width", this);
-  minbumpbox = new QLineEdit(this);
-  minbumpbox->setText("0.1");
-
   // Bottom grid layout (advanced settings)
 
   grid2 = new QGridLayout();
-  grid2->addWidget(shapelbl, 0, 0);
+  grid2->addWidget(new QLabel("Shape functions", this), 0, 0);
   grid2->addWidget(shapebox, 0, 1);
-  grid2->addWidget(nshapetlbl, 1, 0);
+  grid2->addWidget(new QLabel("Number of functions for top surface", this), 
+                   1, 0);
   grid2->addWidget(nshapetbox, 1, 1);
-  grid2->addWidget(nshapeblbl, 2, 0);
+  grid2->addWidget(new QLabel("Number of functions for bottom surface", this),
+                   2, 0);
   grid2->addWidget(nshapebbox, 2, 1);
-  grid2->addWidget(initperturblbl, 3, 0);
+  grid2->addWidget(new QLabel("Initial perturbation", this), 3, 0);
   grid2->addWidget(initperturbedit, 3, 1);
-  grid2->addWidget(minbumplbl, 4, 0);
+  grid2->addWidget(new QLabel("Minimum bump width", this), 4, 0);
   grid2->addWidget(minbumpbox, 4, 1);
-  grid2->addWidget(restlbl, 5, 0);
+  grid2->addWidget(new QLabel("Retart write frequency", this), 5, 0);
   grid2->addWidget(restbox, 5, 1);
   grid2->addWidget(writedesignbox, 6, 0);
 
   // Box layout
 
   vbox = new QVBoxLayout();
-  vbox->addWidget(lbl);
+  vbox->addWidget(new QLabel("<b>Optimization settings</b>", this));
   vbox->addLayout(grid1);
-  vbox->addWidget(advlbl);
+  vbox->addWidget(new QLabel("<b>Advanced settings</b>", this));
   vbox->addLayout(grid2);
   vbox->addStretch(0);
 
