@@ -5,6 +5,7 @@
 TEMPLATE = app
 TARGET = xoptfoil
 INCLUDEPATH += src/include
+CONFIG += debug
 
 # Input
 

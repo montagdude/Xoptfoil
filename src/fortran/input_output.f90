@@ -113,7 +113,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   seed_airfoil = 'four_digit'
   naca_digits = '0012'
   shape_functions = 'hicks-henne'
-  min_bump_width = 0.5d0
+  min_bump_width = 0.1d0
   nfunctions_top = 4
   nfunctions_bot = 4
   initial_perturb = 0.025d0

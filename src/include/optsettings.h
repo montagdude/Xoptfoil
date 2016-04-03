@@ -3,6 +3,8 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QSpinBox>
+#include <QCheckBox>
 #include <QPushButton>
 #include <QLabel>
 
@@ -24,9 +26,18 @@ class OptSettings : public QWidget
     QComboBox *localbox;
     QPushButton *localbtn;
     QComboBox *seedbox;
+    QLabel *seedfilelbl;
+    QLineEdit *seedfilebox;
     QPushButton *seedfilebtn;
     QLabel *digitlbl;
     QLineEdit *digitedit;
+    QComboBox *shapebox;
+    QSpinBox *nshapetbox;
+    QSpinBox *nshapebbox;
+    QLineEdit *initperturbedit;
+    QLineEdit *minbumpbox;
+    QSpinBox *restbox;
+    QCheckBox *writedesignbox;
 
   private slots:
 
