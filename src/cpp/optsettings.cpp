@@ -82,16 +82,20 @@ OptSettings::OptSettings(SettingsWindow *parent) : QWidget(parent)
   digitbox1 = new QSpinBox(this);
   digitbox1->setMinimum(0);
   digitbox1->setValue(0);
+  digitbox1->setEnabled(false);
   digitbox2 = new QSpinBox(this);
   digitbox2->setMinimum(0);
   digitbox2->setMaximum(9);
   digitbox2->setValue(0);
+  digitbox2->setEnabled(false);
   digitbox3 = new QSpinBox(this);
   digitbox3->setMinimum(0);
   digitbox3->setValue(1);
+  digitbox3->setEnabled(false);
   digitbox4 = new QSpinBox(this);
   digitbox4->setMinimum(0);
   digitbox4->setValue(2);
+  digitbox4->setEnabled(false);
 
   // Top grid layout (basic settings)
   

@@ -4,7 +4,7 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QScrollArea>
-#include <QString>
+#include <QPushButton>
 
 // Forward declarations
 
@@ -32,6 +32,7 @@ class SettingsWindow : public QSplitter
     QScrollArea *simplex_settings;
     QScrollArea *xfana_settings;
     QScrollArea *xfpan_settings;
+    QPushButton *applysettingsbtn;
     QStackedWidget *settings_pane;
     SettingsBrowser *settingsbrowser;
 

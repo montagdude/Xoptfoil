@@ -14,8 +14,10 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QScrollArea>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QList>
-#include <QString>
 
 /******************************************************************************/
 //
@@ -25,6 +27,9 @@
 SettingsWindow::SettingsWindow(QWidget *parent) : QSplitter(parent)
 {
   QList<int> default_sizes;
+  QHBoxLayout *hbox;
+  QVBoxLayout *vbox;
+  QWidget *settingscontainer;
 
   // Widgets contained in splitter
   
@@ -56,12 +61,20 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QSplitter(parent)
   settings_pane->addWidget(simplex_settings);
   settings_pane->addWidget(xfana_settings);
   settings_pane->addWidget(xfpan_settings);
+  applysettingsbtn = new QPushButton("Apply all settings", this);
+  settingscontainer = new QWidget(this);
+  hbox = new QHBoxLayout();
+  hbox->addStretch(0);
+  hbox->addWidget(applysettingsbtn);
+  vbox = new QVBoxLayout(settingscontainer);
+  vbox->addWidget(settings_pane);
+  vbox->addLayout(hbox);
   settingsbrowser = new SettingsBrowser(this);
 
   // Add widgets to splitter and set orientation
 
   addWidget(settingsbrowser);
-  addWidget(settings_pane);
+  addWidget(settingscontainer);
   setOrientation(Qt::Horizontal);
 
   // Default sizes for widgets
