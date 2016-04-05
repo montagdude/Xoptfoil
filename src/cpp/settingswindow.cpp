@@ -79,6 +79,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QSplitter(parent)
 void SettingsWindow::showOptSettings ()
 {
   settings_pane->setCurrentWidget(opt_settings);
+  settingsbrowser->setCurrentRow(1);
 }
 
 /******************************************************************************/
@@ -89,6 +90,7 @@ void SettingsWindow::showOptSettings ()
 void SettingsWindow::showOperSettings ()
 {
   settings_pane->setCurrentWidget(oper_settings);
+  settingsbrowser->setCurrentRow(2);
 }
 
 /******************************************************************************/
@@ -99,6 +101,7 @@ void SettingsWindow::showOperSettings ()
 void SettingsWindow::showConstrSettings ()
 {
   settings_pane->setCurrentWidget(constr_settings);
+  settingsbrowser->setCurrentRow(3);
 }
 
 /******************************************************************************/
@@ -109,6 +112,7 @@ void SettingsWindow::showConstrSettings ()
 void SettingsWindow::showInitSettings ()
 {
   settings_pane->setCurrentWidget(init_settings);
+  settingsbrowser->setCurrentRow(4);
 }
 
 /******************************************************************************/
@@ -119,6 +123,7 @@ void SettingsWindow::showInitSettings ()
 void SettingsWindow::showPSOSettings ()
 {
   settings_pane->setCurrentWidget(pso_settings);
+  settingsbrowser->setCurrentRow(5);
 }
 
 /******************************************************************************/
@@ -129,6 +134,7 @@ void SettingsWindow::showPSOSettings ()
 void SettingsWindow::showGASettings ()
 {
   settings_pane->setCurrentWidget(ga_settings);
+  settingsbrowser->setCurrentRow(6);
 }
 
 /******************************************************************************/
@@ -139,6 +145,7 @@ void SettingsWindow::showGASettings ()
 void SettingsWindow::showSimplexSettings ()
 {
   settings_pane->setCurrentWidget(simplex_settings);
+  settingsbrowser->setCurrentRow(7);
 }
 
 /******************************************************************************/
@@ -149,6 +156,7 @@ void SettingsWindow::showSimplexSettings ()
 void SettingsWindow::showXfAnaSettings ()
 {
   settings_pane->setCurrentWidget(xfana_settings);
+  settingsbrowser->setCurrentRow(8);
 }
 
 /******************************************************************************/
@@ -159,4 +167,5 @@ void SettingsWindow::showXfAnaSettings ()
 void SettingsWindow::showXfPanSettings ()
 {
   settings_pane->setCurrentWidget(xfpan_settings);
+  settingsbrowser->setCurrentRow(9);
 }

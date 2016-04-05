@@ -16,11 +16,11 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
   QMenu *filemenu, *airfoilsmenu, *settingsmenu, *optimizemenu;
-  QAction *quitact;
-  QAction *managefoilsact;
+  QAction *workdiract, *saveact, *savenmlact, *openact, *readnmlact, *quitact;
   QAction *gotosettingsact, *optimact, *operact, *constract, *initact, *psoact,
           *gaact, *simplexact, *xfanaact, *xfpanact;
-  QAction *gotooptimact;
+  QAction *managefoilsact;
+  QAction *gotooptimact, *beginoptimact, *pauseoptimact, *stopoptimact;
 
   // Create settings window and set as central widget
 
@@ -29,21 +29,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
   // Actions for file menu
 
+  workdiract = new QAction("&Set working directory", this);
+  saveact = new QAction("Save &case", this);
+  openact = new QAction("&Open case", this);
+  savenmlact = new QAction("Save settings to &namelist file", this);
+  readnmlact = new QAction("&Read settings from namelist file", this);
   quitact = new QAction("&Quit", this);
 
   // File menu
 
   filemenu = menuBar()->addMenu("&File");
+  filemenu->addAction(workdiract);
+  filemenu->addAction(saveact);
+  filemenu->addAction(openact);
+  filemenu->addAction(savenmlact);
+  filemenu->addAction(readnmlact);
+  filemenu->addSeparator();
   filemenu->addAction(quitact);
-
-  // Actions for airfoils menu
-
-  managefoilsact = new QAction("&Manage seed airfoils ...", this);
-
-  // Airfoils menu
-
-  airfoilsmenu = menuBar()->addMenu("&Airfoils");
-  airfoilsmenu->addAction(managefoilsact);
 
   // Actions for settings menu
 
@@ -77,11 +79,29 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
  
   gotooptimact = new QAction("&Go to optimization window ...", this);
   gotooptimact->setEnabled(false);
+  beginoptimact = new QAction("&Begin optimization", this);
+  beginoptimact->setEnabled(false);
+  pauseoptimact = new QAction("&Pause optimization", this);
+  pauseoptimact->setEnabled(false);
+  stopoptimact = new QAction("&Stop optimization", this);
+  stopoptimact->setEnabled(false);
 
   // Optimization menu
    
   optimizemenu = menuBar()->addMenu("&Optimization");
   optimizemenu->addAction(gotooptimact);
+  optimizemenu->addAction(beginoptimact);
+  optimizemenu->addAction(pauseoptimact);
+  optimizemenu->addAction(stopoptimact);
+
+  // Actions for airfoils menu
+
+  managefoilsact = new QAction("&Manage seed airfoils ...", this);
+
+  // Airfoils menu
+
+  airfoilsmenu = menuBar()->addMenu("&Airfoils");
+  airfoilsmenu->addAction(managefoilsact);
 
   // Connect signals/slots
 

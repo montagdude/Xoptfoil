@@ -1,3 +1,4 @@
+#include "settingswindow.h"
 #include "optsettings.h"
 
 #include <QLabel>
@@ -5,6 +6,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QCheckBox>
 #include <QSize>
 #include <QString>
@@ -17,12 +19,15 @@
 // Constructor for optimization settings class
 //
 /******************************************************************************/
-OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
+OptSettings::OptSettings(SettingsWindow *parent) : QWidget(parent)
 {
-  QLabel *globallbl, *locallbl;
   QGridLayout *grid1, *grid2;
   QHBoxLayout *hbox1, *hbox2, *hbox3, *hbox4;
   QVBoxLayout *vbox;
+
+  // Store pointer to settings window
+
+  settingswindow = parent;
 
   // Case name
 
@@ -74,9 +79,19 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 
   digitlbl = new QLabel("NACA digits", this);
   digitlbl->setEnabled(false);
-  digitedit = new QLineEdit("0012");
-  digitedit->setMaxLength(4);
-  digitedit->setEnabled(false);
+  digitbox1 = new QSpinBox(this);
+  digitbox1->setMinimum(0);
+  digitbox1->setValue(0);
+  digitbox2 = new QSpinBox(this);
+  digitbox2->setMinimum(0);
+  digitbox2->setMaximum(9);
+  digitbox2->setValue(0);
+  digitbox3 = new QSpinBox(this);
+  digitbox3->setMinimum(0);
+  digitbox3->setValue(1);
+  digitbox4 = new QSpinBox(this);
+  digitbox4->setMinimum(0);
+  digitbox4->setValue(2);
 
   // Top grid layout (basic settings)
   
@@ -102,11 +117,14 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
   hbox3 = new QHBoxLayout();
   hbox3->addWidget(seedfilelbl);
   hbox3->addWidget(seedfilebox);
+  hbox3->addWidget(seedfilebtn);
   grid1->addLayout(hbox3, 4, 2);
-  grid1->addWidget(seedfilebtn, 4, 3);
   hbox4 = new QHBoxLayout();
   hbox4->addWidget(digitlbl);
-  hbox4->addWidget(digitedit);
+  hbox4->addWidget(digitbox1);
+  hbox4->addWidget(digitbox2);
+  hbox4->addWidget(digitbox3);
+  hbox4->addWidget(digitbox4);
   grid1->addLayout(hbox4, 5, 2);
 
   // Shape functions
@@ -126,15 +144,22 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 
   // Initial perturbation
 
-  initperturbedit = new QLineEdit(this);
-  initperturbedit->setText("0.025");
-  initperturbedit->setToolTip("Max change in airfoil surface " +
-                              QString("during initialization"));
+  initperturbbox = new QDoubleSpinBox(this);
+  initperturbbox->setDecimals(3);
+  initperturbbox->setValue(0.025);
+  initperturbbox->setMinimum(0.0);
+  initperturbbox->setSingleStep(0.005);
+  initperturbbox->setToolTip("Max change in airfoil surface " +
+                             QString("during initialization"));
 
   // Minimum bump width
 
-  minbumpbox = new QLineEdit(this);
-  minbumpbox->setText("0.1");
+  minbumpbox = new QDoubleSpinBox(this);
+  minbumpbox->setValue(0.1);
+  minbumpbox->setSingleStep(0.1);
+  minbumpbox->setMinimum(0.0);
+  minbumpbox->setMaximum(1.0);
+  minbumpbox->setDecimals(2);
 
   // Restart write frequency
 
@@ -159,17 +184,17 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
                    2, 0);
   grid2->addWidget(nshapebbox, 2, 1);
   grid2->addWidget(new QLabel("Initial perturbation", this), 3, 0);
-  grid2->addWidget(initperturbedit, 3, 1);
+  grid2->addWidget(initperturbbox, 3, 1);
   grid2->addWidget(new QLabel("Minimum bump width", this), 4, 0);
   grid2->addWidget(minbumpbox, 4, 1);
-  grid2->addWidget(new QLabel("Retart write frequency", this), 5, 0);
+  grid2->addWidget(new QLabel("Restart write frequency", this), 5, 0);
   grid2->addWidget(restbox, 5, 1);
   grid2->addWidget(writedesignbox, 6, 0);
 
   // Box layout
 
   vbox = new QVBoxLayout();
-  vbox->addWidget(new QLabel("<b>Optimization settings</b>", this));
+  vbox->addWidget(new QLabel("<b>Basic optimization settings</b>", this));
   vbox->addLayout(grid1);
   vbox->addWidget(new QLabel("<b>Advanced settings</b>", this));
   vbox->addLayout(grid2);
@@ -177,11 +202,107 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 
   setLayout(vbox);
 
-  // Connect signals and slots (note: this method seems necessary for
+  // Connect signals and slots (note: SIGNAL/SLOT syntax seems necessary for
   // signals with an argument; also needs Q_OBJECT in header)
 
+  connect(searchbox, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(searchBoxChanged(int)));
+  connect(globalbox, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(globalBoxChanged(int)));
+  connect(globalbtn, &QPushButton::clicked, this, 
+          &OptSettings::globalBtnClicked);
+  connect(localbtn, &QPushButton::clicked, this, 
+          &OptSettings::localBtnClicked);
   connect(seedbox, SIGNAL(currentIndexChanged(int)), this, 
           SLOT(seedBoxChanged(int)));
+}
+
+/******************************************************************************/
+//
+// Defines behavior when search type box index is changed
+// 
+/******************************************************************************/
+void OptSettings::searchBoxChanged ( int idx )
+{
+  // Global + local
+  
+  if (idx == 0)
+  {
+    globallbl->setEnabled(true);
+    globalbox->setEnabled(true);
+    globalbtn->setEnabled(true);
+    locallbl->setEnabled(true);
+    localbox->setEnabled(true);
+    localbtn->setEnabled(true);
+  }
+
+  // Global
+  
+  else if (idx == 1)
+  {
+    globallbl->setEnabled(true);
+    globalbox->setEnabled(true);
+    globalbtn->setEnabled(true);
+    locallbl->setEnabled(false);
+    localbox->setEnabled(false);
+    localbtn->setEnabled(false);
+  }
+
+  // Local
+  
+  else if (idx == 2)
+  {
+    globallbl->setEnabled(false);
+    globalbox->setEnabled(false);
+    globalbtn->setEnabled(false);
+    locallbl->setEnabled(true);
+    localbox->setEnabled(true);
+    localbtn->setEnabled(true);
+  }
+}
+
+/******************************************************************************/
+//
+// Defines behavior when global search box index is changed
+//
+/******************************************************************************/
+void OptSettings::globalBoxChanged ( int idx )
+{
+  // Particle swarm
+
+  if (idx == 0) { globalbtn->setText("Particle swarm settings"); }
+
+  // Genetic algorithm
+  
+  else if (idx == 1) { globalbtn->setText("Genetic algorithm settings"); }
+}
+
+/******************************************************************************/
+//
+// Defines behavior when global search settings button is clicked
+//
+/******************************************************************************/
+void OptSettings::globalBtnClicked ()
+{
+  // Particle swarm settings
+
+  if (globalbox->currentIndex() == 0) { settingswindow->showPSOSettings(); }
+
+  // Genetic algorithm settings
+
+  else if (globalbox->currentIndex() == 1) { settingswindow->showGASettings(); }
+}
+
+/******************************************************************************/
+//
+// Defines behavior when local search settings button is clicked
+//
+/******************************************************************************/
+void OptSettings::localBtnClicked ()
+{
+  // Simplex search settings
+
+  if (localbox->currentIndex() == 0) { settingswindow->showSimplexSettings();}
 }
 
 /******************************************************************************/
@@ -191,20 +312,31 @@ OptSettings::OptSettings(QWidget *parent) : QWidget(parent)
 /******************************************************************************/
 void OptSettings::seedBoxChanged ( int idx )
 {
+  // Seed airfoil from file
+  
   if (idx == 0)
   {
     digitlbl->setEnabled(false);
-    digitedit->setEnabled(false);
+    digitbox1->setEnabled(false);
+    digitbox2->setEnabled(false);
+    digitbox3->setEnabled(false);
+    digitbox4->setEnabled(false);
     seedfilelbl->setEnabled(true);
     seedfilebox->setEnabled(true);
     seedfilebtn->setEnabled(true);
   }
+
+  // NACA 4-digit
+  
   else if (idx == 1)
   {
     seedfilelbl->setEnabled(false);
     seedfilebox->setEnabled(false);
     seedfilebtn->setEnabled(false);
     digitlbl->setEnabled(true);
-    digitedit->setEnabled(true);
+    digitbox1->setEnabled(true);
+    digitbox2->setEnabled(true);
+    digitbox3->setEnabled(true);
+    digitbox4->setEnabled(true);
   }
 }

@@ -95,14 +95,14 @@ SettingsBrowser::SettingsBrowser(SettingsWindow *parent) : QListWidget(parent)
   xfpanitem->setToolTip("No required items left to complete for " +
                         QString("Xfoil paneling."));
 
+  // Set current item
+
+  setCurrentItem(optimitem);
+
   // Connect selection signal/slot
 
   connect(this, &QListWidget::currentItemChanged, this, 
           &SettingsBrowser::selectionChanged); 
-
-  // Set current item
-
-  setCurrentItem(optimitem);
 }
 
 /******************************************************************************/
