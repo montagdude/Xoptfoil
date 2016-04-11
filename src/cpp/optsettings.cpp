@@ -13,6 +13,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QFileDialog>
 
 /******************************************************************************/
 //
@@ -219,6 +220,8 @@ OptSettings::OptSettings(SettingsWindow *parent) : QWidget(parent)
           &OptSettings::localBtnClicked);
   connect(seedbox, SIGNAL(currentIndexChanged(int)), this, 
           SLOT(seedBoxChanged(int)));
+  connect(seedfilebtn, &QPushButton::clicked, this,
+          &OptSettings::seedBtnClicked);
 }
 
 /******************************************************************************/
@@ -343,4 +346,17 @@ void OptSettings::seedBoxChanged ( int idx )
     digitbox3->setEnabled(true);
     digitbox4->setEnabled(true);
   }
+}
+
+/******************************************************************************/
+//
+// Sets seed airfoil from file browser
+//
+/******************************************************************************/
+void OptSettings::seedBtnClicked ()
+{
+  QString fname;
+  
+  fname = QFileDialog::getOpenFileName(this, "Seed airfoil selection");
+  if (fname != "") { seedfilebox->setText(fname); }
 }

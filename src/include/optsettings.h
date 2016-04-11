@@ -59,6 +59,7 @@ class OptSettings : public QWidget
     void globalBtnClicked ();
     void localBtnClicked ();
     void seedBoxChanged ( int idx );
+    void seedBtnClicked ();
 
   public:
 
