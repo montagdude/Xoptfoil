@@ -13,7 +13,7 @@
 
 \begin{document}
 
-\title{XoptFoil Version 1.9.0 User Guide}
+\title{XoptFoil Version 1.9.1 User Guide}
 \author{Daniel Prosser}
 \date{\today}
 \maketitle
@@ -141,6 +141,26 @@ want to compile it yourself but don't want to use the parallel version, comment 
 called OMP\_FLAG (by placing a \# character in front). Two executables are
 created: xoptfoil.exe, which is the main optimizer, and xfoil\_only.exe, which can be 
 used to run XFoil by itself for an airfoil at a given set of operating conditions.
+
+\subsubsection{Parallel Optimizer Compiling Problem on Windows}
+
+As of this writing, the latest version of MinGW GCC (4.9.3-1) does not support OpenMP.
+Therefore, if you attempt to compile with parallel support on Windows, you will get an
+error and XoptFoil will not compile.  The way to fix this is to install an older version
+of GCC.  First, using the MinGW graphical installer, remove all packages that are at 
+version 4.9.3-1 (but do not remove any other packages). Simply browse through the list of
+packages, mark all packages for removal that list ``Installed Version'' as 4.9.3-1, and 
+then select ``Apply all changes'' from the menu.  Then, from the command line, type 
+the following commands to install the older versions of these packages:
+
+\begin{verbatim}
+mingw-get install "gcc=4.8.1-4"
+mingw-get install "gcc-fortran=4.8.1-4"
+\end{verbatim}
+
+The initial removal of all installed 4.9.3-1 packages and installation of the two above
+should replace everything that you need, and you should be able to compile the parallel
+version of XoptFoil again.
 
 \subsection{Mac OSX}
 
