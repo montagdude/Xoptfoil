@@ -100,7 +100,8 @@ function aero_objective_function(designvars, include_penalty)
   double precision :: aero_objective_function
 
   double precision, dimension(max(size(xseedt,1),size(xseedb,1))) :: x_interp, &
-                                                 zt_interp, zb_interp, thickness
+                                               zt_interp, zb_interp, thickness,&
+                                               mcl
   double precision, dimension(size(xseedt,1)) :: zt_new
   double precision, dimension(size(xseedb,1)) :: zb_new
   double precision, dimension(size(xseedt,1)+size(xseedb,1)-1) :: curv
@@ -120,6 +121,8 @@ function aero_objective_function(designvars, include_penalty)
   double precision :: increment, curv1, curv2
   integer :: nreversals, ndvs
   double precision :: gapallow, maxthick, ffact
+  double precision :: xte, zte, maxcamber
+  double precision :: chordline(2)
   integer :: check_idx, flap_idx, dvcounter
   double precision, parameter :: eps = 1.0D-08
   logical :: penalize
@@ -247,6 +250,13 @@ function aero_objective_function(designvars, include_penalty)
 
   penaltyval = penaltyval + max(0.d0,min_thickness-maxthick)/0.1d0
   penaltyval = penaltyval + max(0.d0,maxthick-max_thickness)/0.1d0
+
+! Compute chord line vector (in case TE and LE are not both at z = 0)
+
+  xte = 0.5*(xseedt(nptt) + xseedb(nptb))
+  zte = 0.5*(zt_new(nptt) + zb_new(nptb))
+  chordline(1) = xte - xseed(1)
+  chordline(2) = zte - zt_new(1)
 
 ! Check for curvature reversals
 
