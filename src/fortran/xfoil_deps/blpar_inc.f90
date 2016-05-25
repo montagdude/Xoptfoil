@@ -27,11 +27,9 @@ module blpar_inc
 !-    CTCON  =  Ctau weighting coefficient (implied by G-beta constants)
 !
   REAL*8 :: SCCON, GACON, GBCON, GCCON, DLCON, CTRCON, CTRCEX, DUXCON, CTCON
-  REAL*8 :: CFFAC
-
-! Make variables threadprivate for OpenMP
-
   !$omp threadprivate(SCCON, GACON, GBCON, GCCON, DLCON, CTRCON, CTRCEX)
-  !$omp threadprivate(DUXCON, CTCON, CFFAC)
+  !$omp threadprivate(DUXCON, CTCON)
+  REAL*8 :: CFFAC
+  !$omp threadprivate(CFFAC)
 
 end module blpar_inc

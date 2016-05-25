@@ -54,6 +54,7 @@ function objective_function(designvars)
     objective_function = matchfoil_objective_function(designvars)
   else
     objective_function = aero_objective_function(designvars)
+if (objective_function < 0.75) print *, "objfunc: ", objective_function
   end if
 
 end function objective_function
@@ -93,7 +94,7 @@ function aero_objective_function(designvars, include_penalty)
   use parametrization, only : top_shape_function, bot_shape_function,          &
                               create_airfoil
   use xfoil_driver,    only : run_xfoil
-  use xfoil_inc,       only : AMAX
+  use xfoil_inc,       only : AMAX, CAMBR
 
   double precision, dimension(:), intent(in) :: designvars
   logical, intent(in), optional :: include_penalty
@@ -118,11 +119,10 @@ function aero_objective_function(designvars, include_penalty)
   double precision, dimension(noppoint) :: clcheck, cdcheck, cmcheck, rmscheck
   double precision, dimension(noppoint) :: actual_flap_degrees
   logical, dimension(noppoint) :: checkpt
+  logical :: check
   double precision :: increment, curv1, curv2
   integer :: nreversals, ndvs
   double precision :: gapallow, maxthick, ffact
-  double precision :: xte, zte, maxcamber
-  double precision :: chordline(2)
   integer :: check_idx, flap_idx, dvcounter
   double precision, parameter :: eps = 1.0D-08
   logical :: penalize
@@ -240,8 +240,7 @@ function aero_objective_function(designvars, include_penalty)
     if (xseedt(i) > 0.5d0) then
       gapallow = tegap + 2.d0 * heightfactor * (x_interp(nptint) -             &
                                                 x_interp(i))
-      if (thickness(i) < gapallow)                                             &
-        penaltyval = penaltyval + (gapallow - thickness(i))/0.001d0
+      penaltyval = penaltyval + max(0.d0,gapallow-thickness(i))/0.001d0
     end if
 
   end do
@@ -250,13 +249,6 @@ function aero_objective_function(designvars, include_penalty)
 
   penaltyval = penaltyval + max(0.d0,min_thickness-maxthick)/0.1d0
   penaltyval = penaltyval + max(0.d0,maxthick-max_thickness)/0.1d0
-
-! Compute chord line vector (in case TE and LE are not both at z = 0)
-
-  xte = 0.5*(xseedt(nptt) + xseedb(nptb))
-  zte = 0.5*(zt_new(nptt) + zb_new(nptb))
-  chordline(1) = xte - xseed(1)
-  chordline(2) = zte - zt_new(1)
 
 ! Check for curvature reversals
 
@@ -314,6 +306,8 @@ function aero_objective_function(designvars, include_penalty)
 
   if ( (penaltyval > eps) .and. penalize ) then
     aero_objective_function = penaltyval*1.0D+06
+if (aero_objective_function < 0.75)                                            &
+print *, "aero_objective_function1: ", aero_objective_function
     return
   end if
 
@@ -323,6 +317,24 @@ function aero_objective_function(designvars, include_penalty)
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
                  xfoil_options, lift, drag, moment, viscrms)
+
+! Add penalty for too large panel angles
+
+  penaltyval = penaltyval + max(0.0d0,AMAX-25.d0)/5.d0
+
+! Add penalty for camber outside of constraints
+
+  penaltyval = penaltyval + max(0.d0,CAMBR-max_camber)/0.025d0
+  penaltyval = penaltyval + max(0.d0,min_camber-CAMBR)/0.025d0
+
+! Exit if panel angles and camber constraints don't check out
+
+  if ( (penaltyval > eps) .and. penalize ) then
+    aero_objective_function = penaltyval*1.0D+06
+if (aero_objective_function < 0.75)                                            &
+print *, "aero_objective_function2: ", aero_objective_function
+    return
+  end if
 
 ! Determine if points need to be checked for xfoil consistency
 
@@ -335,9 +347,17 @@ function aero_objective_function(designvars, include_penalty)
 
     if (maxlift(1) == -100.d0) exit
 
-    if ((lift(i) > (1.d0 + checktol)*maxlift(i)) .or.                          &
-        (drag(i) < (1.d0 - checktol)*mindrag(i))) then
+!   Check when lift or drag values are suspect
 
+    check = .false.
+    if (trim(optimization_type(i)) == 'min-drag') then
+      if (drag(i) < (1.d0 - checktol)*mindrag(i)) check = .true.
+    else
+      if ((lift(i) > (1.d0 + checktol)*maxlift(i)) .or.                        &
+          (drag(i) < (1.d0 - checktol)*mindrag(i))) check = .true.
+    end if
+
+    if (check) then
       checkpt(i) = .true.
       ncheckpt = ncheckpt + 1
       checkpt_list(i) = ncheckpt
@@ -476,11 +496,6 @@ function aero_objective_function(designvars, include_penalty)
     end if
   end do
 
-! Add penalty for too large panel angles
-
-  maxpanang = AMAX
-  penaltyval = penaltyval + max(0.0d0,maxpanang-25.d0)/5.d0
-
 ! Add all penalties to objective function, and make them very large
 
   if (penalize) aero_objective_function =                                      &
@@ -497,13 +512,8 @@ function aero_objective_function(designvars, include_penalty)
     end do
   end if
 
-!Bug check
-!if (aero_objective_function < 0.5) then
-!  print *, "penaltyval: ", penaltyval
-!  do i = 1, noppoint
-!    print *, drag(i), checkpt(i)
-!  end do
-!end if
+if (aero_objective_function < 0.75)                                            &
+print *, "aero_objective_function3: ", aero_objective_function
 
 end function aero_objective_function
 

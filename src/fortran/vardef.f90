@@ -52,7 +52,8 @@ module vardef
 
   type(airfoil_type) :: curr_foil
   double precision :: min_thickness, max_thickness, min_te_angle,              &
-                      growth_allowed, min_flap_degrees, max_flap_degrees
+                      growth_allowed, min_flap_degrees, max_flap_degrees,      &
+                      min_camber, max_camber
   double precision :: curv_threshold
   integer :: max_curv_reverse
   character(4) :: seed_violation_handling

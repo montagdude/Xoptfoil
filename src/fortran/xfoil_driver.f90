@@ -328,8 +328,6 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
 ! Final check for NaNs
 
-!$omp master
-
   do i = 1, noppoint
     if (isnan(lift(i))) then
       lift(i) = -0.1d0
@@ -398,8 +396,6 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
     end do
 
   end if
-
-!$omp end master
 
 end subroutine run_xfoil
 

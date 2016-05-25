@@ -33,7 +33,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
   use vardef
   use math_deps,          only : interp_vector, curvature
   use xfoil_driver,       only : run_xfoil
-  use xfoil_inc,          only : AMAX
+  use xfoil_inc,          only : AMAX, CAMBR
   use airfoil_operations, only : my_stop
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
 
@@ -274,6 +274,34 @@ subroutine check_seed(xoffset, zoffset, foilscale)
                  use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
                  xfoil_options, lift, drag, moment, viscrms)
 
+! Penalty for too large panel angles
+
+  if (AMAX > 25.d0) then
+    write(text,'(F8.4)') AMAX
+    text = adjustl(text)
+    write(*,*) "Max panel angle: "//trim(text)
+    call my_stop("Seed airfoil panel angles are too large. Try adjusting "//   &
+                 "xfoil_paneling_options.", stoptype)
+  end if
+
+! Camber too high
+
+  if (CAMBR > max_camber) then
+    write(text,'(F8.4)') CAMBR
+    text = adjustl(text)
+    write(*,*) "Camber: "//trim(text)
+    call my_stop("Seed airfoil violates max_camber constraint.", stoptype)
+  end if
+
+! Camber too low
+
+  if (CAMBR < min_camber) then
+    write(text,'(F8.4)') CAMBR
+    text = adjustl(text)
+    write(*,*) "Camber: "//trim(text)
+    call my_stop("Seed airfoil violates min_camber constraint.", stoptype)
+  end if
+
 ! Check for unconverged points
 
   do i = 1, noppoint
@@ -331,17 +359,6 @@ subroutine check_seed(xoffset, zoffset, foilscale)
     end if
     scale_factor(i) = 1.d0/checkval
   end do
-
-! Penalty for too large panel angles
-
-  maxpanang = AMAX
-  if (maxpanang > 25.d0) then
-    write(text,'(F8.4)') maxpanang
-    text = adjustl(text)
-    write(*,*) "Max panel angle: "//trim(text)
-    call my_stop("Seed airfoil panel angles are too large. Try adjusting "//   &
-                 "xfoil_paneling_options.", stoptype)
-  end if
 
 end subroutine check_seed
 

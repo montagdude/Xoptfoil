@@ -77,7 +77,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   namelist /constraints/ seed_violation_handling, min_thickness, max_thickness,&
                          moment_constraint_type, min_moment, min_te_angle,     &
                          check_curvature, max_curv_reverse, curv_threshold,    &
-                         symmetrical, min_flap_degrees, max_flap_degrees
+                         symmetrical, min_flap_degrees, max_flap_degrees,      &
+                         min_camber, max_camber
   namelist /initialization/ feasible_init, feasible_limit,                     &
                             feasible_init_attempts
   namelist /particle_swarm_options/ pso_pop, pso_tol, pso_maxit,               &
@@ -156,6 +157,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   seed_violation_handling = 'stop'
   min_thickness = 0.06d0
   max_thickness = 1000.d0
+  min_camber = -1000.d0
+  max_camber = 1000.d0
   moment_constraint_type(:) = 'use_seed'
   min_moment(:) = -1.d0
   min_te_angle = 5.d0

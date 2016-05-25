@@ -259,6 +259,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
       objval(i) = objfunc(dv(:,i))
       if (objval(i) < minvals(i)) then
+if (objval(i) < 0.75d0) print *, "In loop: ", objval(i)
         minvals(i) = objval(i)
         bestdesigns(:,i) = dv(:,i)
       end if
@@ -300,6 +301,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 !$omp master
 
+print *, minval(objval,1), fmin
 !   Reduce inertial parameter
 
     wcurr = wcurr - convrate*(wcurr - wlow)
@@ -309,7 +311,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     radius = design_radius(dv)
     if (pso_options%relative_fmin_report) then
       write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
-                 (f0 - fmin)/f0*100
+                 (f0 - fmin)/f0*100.d0
     else
       write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
                  fmin
