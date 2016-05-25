@@ -74,12 +74,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
             use_flap, x_flap, y_flap, flap_selection, flap_degrees, weighting, &
             optimization_type 
-  namelist /constraints/ seed_violation_handling, min_thickness, max_thickness,&
-                         moment_constraint_type, min_moment, min_te_angle,     &
-                         check_curvature, max_curv_reverse_top,                &
-                         max_curv_reverse_bot, curv_threshold, symmetrical,    &
-                         min_flap_degrees, max_flap_degrees, min_camber,       &
-                         max_camber
+  namelist /constraints/ min_thickness, max_thickness, moment_constraint_type, &
+                         min_moment, min_te_angle, check_curvature,            &
+                         max_curv_reverse_top, max_curv_reverse_bot,           &
+                         curv_threshold, symmetrical, min_flap_degrees,        &
+                         max_flap_degrees, min_camber, max_camber
   namelist /initialization/ feasible_init, feasible_limit,                     &
                             feasible_init_attempts
   namelist /particle_swarm_options/ pso_pop, pso_tol, pso_maxit,               &
@@ -155,7 +154,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   flap_degrees(:) = 0.d0
   weighting(:) = 1.d0
 
-  seed_violation_handling = 'stop'
   min_thickness = 0.06d0
   max_thickness = 1000.d0
   min_camber = -1000.d0
@@ -164,7 +162,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   min_moment(:) = -1.d0
   min_te_angle = 5.d0
   check_curvature = .false.
-  max_curv_reverse_top = 1
+  max_curv_reverse_top = 0
   max_curv_reverse_bot = 1
   curv_threshold = 0.30d0
   symmetrical = .false.
@@ -482,7 +480,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Constraints namelist
 
   write(*,'(A)') " &constraints"
-  write(*,*) " seed_violation_handling = "//trim(seed_violation_handling)
   write(*,*) " min_thickness = ", min_thickness
   write(*,*) " max_thickness = ", max_thickness
   do i = 1, noppoint
@@ -500,6 +497,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " symmetrical = ", symmetrical
   write(*,*) " min_flap_degrees = ", min_flap_degrees
   write(*,*) " max_flap_degrees = ", max_flap_degrees
+  write(*,*) " min_camber = ", min_camber
+  write(*,*) " max_camber = ", max_camber
   write(*,'(A)') " /"
   write(*,*)
 
@@ -655,9 +654,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 ! Constraints
 
-  if (trim(seed_violation_handling) /= 'stop' .and.                            &
-      trim(seed_violation_handling) /= 'warn')                                 &
-    call my_stop("seed_violation_handling must be 'stop' or 'warn'.")
   if (min_thickness <= 0.d0) call my_stop("min_thickness must be > 0.")
   if (max_thickness <= 0.d0) call my_stop("max_thickness must be > 0.")
   do i = 1, noppoint
@@ -668,15 +664,22 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                  "or 'none'.")
   end do
   if (min_te_angle <= 0.d0) call my_stop("min_te_angle must be > 0.")
-  if (curv_threshold <= 0.d0) call my_stop("curv_threshold must be > 0.")
+  if (check_curvature .and. (curv_threshold <= 0.d0))                          &
+    call my_stop("curv_threshold must be > 0.")
+  if (check_curvature .and. (max_curv_reverse_top < 0))                        &
+    call my_stop("max_curv_reverse_top must be >= 0.")
+  if (check_curvature .and. (max_curv_reverse_bot < 0))                        &
+    call my_stop("max_curv_reverse_bot must be >= 0.")
   if (symmetrical)                                                             &
     write(*,*) "Mirroring top half of seed airfoil for symmetrical constraint."
   if (min_flap_degrees >= max_flap_degrees)                                    &
-    call my_stop("min_flap_degrees must be less than max_flap_degrees.")
+    call my_stop("min_flap_degrees must be < max_flap_degrees.")
   if (min_flap_degrees <= -90.d0)                                              &
-    call my_stop("min_flap_degrees must be greater than -90.")
+    call my_stop("min_flap_degrees must be > -90.")
   if (max_flap_degrees >= 90.d0)                                               &
-    call my_stop("max_flap_degrees must be less than 90.")
+    call my_stop("max_flap_degrees must be < 90.")
+  if (min_camber >= max_camber)                                                &
+    call my_stop("min_camber must be < max_camber.")
 
 ! Initialization options
     

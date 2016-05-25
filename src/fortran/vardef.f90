@@ -56,7 +56,6 @@ module vardef
                       min_camber, max_camber
   double precision :: curv_threshold
   integer :: max_curv_reverse_top, max_curv_reverse_bot
-  character(4) :: seed_violation_handling
   character(8), dimension(max_op_points) :: moment_constraint_type
   double precision, dimension(max_op_points) :: min_moment
   character(11) :: shape_functions
