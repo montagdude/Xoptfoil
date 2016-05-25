@@ -259,7 +259,6 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
       objval(i) = objfunc(dv(:,i))
       if (objval(i) < minvals(i)) then
-if (objval(i) < 0.75d0) print *, "In loop: ", objval(i)
         minvals(i) = objval(i)
         bestdesigns(:,i) = dv(:,i)
       end if
@@ -301,7 +300,6 @@ if (objval(i) < 0.75d0) print *, "In loop: ", objval(i)
 
 !$omp master
 
-print *, minval(objval,1), fmin
 !   Reduce inertial parameter
 
     wcurr = wcurr - convrate*(wcurr - wlow)

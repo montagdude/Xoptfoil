@@ -54,7 +54,6 @@ function objective_function(designvars)
     objective_function = matchfoil_objective_function(designvars)
   else
     objective_function = aero_objective_function(designvars)
-if (objective_function < 0.75) print *, "objfunc: ", objective_function
   end if
 
 end function objective_function
@@ -105,7 +104,8 @@ function aero_objective_function(designvars, include_penalty)
                                                mcl
   double precision, dimension(size(xseedt,1)) :: zt_new
   double precision, dimension(size(xseedb,1)) :: zb_new
-  double precision, dimension(size(xseedt,1)+size(xseedb,1)-1) :: curv
+  double precision, dimension(size(xseedt,1)) :: curvt
+  double precision, dimension(size(xseedb,1)) :: curvb
   integer :: nmodest, nmodesb, nptt, nptb, i, dvtbnd1, dvtbnd2, dvbbnd1,       &
              dvbbnd2, ncheckpt, nptint
   double precision :: penaltyval
@@ -121,10 +121,11 @@ function aero_objective_function(designvars, include_penalty)
   logical, dimension(noppoint) :: checkpt
   logical :: check
   double precision :: increment, curv1, curv2
-  integer :: nreversals, ndvs
+  integer :: nreversalst, nreversalsb, ndvs
   double precision :: gapallow, maxthick, ffact
   integer :: check_idx, flap_idx, dvcounter
-  double precision, parameter :: eps = 1.0D-08
+  double precision, parameter :: epsexit = 1.0D-04
+  double precision, parameter :: epsupdate = 1.0D-08
   logical :: penalize
 
   nmodest = size(top_shape_function,1)
@@ -254,26 +255,35 @@ function aero_objective_function(designvars, include_penalty)
 
   if (check_curvature) then
 
-!   Compute curvature
+!   Compute curvature on top and bottom
 
-    curv = curvature(curr_foil%npoint, curr_foil%x, curr_foil%z)
+    curvt = curvature(nptt, xseedt, zt_new)
+    curvb = curvature(nptb, xseedb, zb_new)
 
 !   Check number of reversals that exceed the threshold
 
-    nreversals = 0
+    nreversalst = 0
     curv1 = 0.d0
-
-    do i = 2, nptt + nptb - 2
-
-      if (abs(curv(i)) >= curv_threshold) then
-        curv2 = curv(i)
-        if (curv2*curv1 < 0.d0) nreversals = nreversals + 1
+    do i = 2, nptt - 1
+      if (abs(curvt(i)) >= curv_threshold) then
+        curv2 = curvt(i)
+        if (curv2*curv1 < 0.d0) nreversalst = nreversalst + 1
         curv1 = curv2
       end if
-
     end do
 
-    penaltyval = penaltyval + max(0.d0,dble(nreversals-max_curv_reverse))
+    nreversalsb = 0
+    curv1 = 0.d0
+    do i = 2, nptb - 1
+      if (abs(curvb(i)) >= curv_threshold) then
+        curv2 = curvb(i)
+        if (curv2*curv1 < 0.d0) nreversalsb = nreversalsb + 1
+        curv1 = curv2
+      end if
+    end do
+
+    penaltyval = penaltyval + max(0.d0,dble(nreversalst-max_curv_reverse_top))
+    penaltyval = penaltyval + max(0.d0,dble(nreversalsb-max_curv_reverse_bot))
 
   end if
 
@@ -304,10 +314,8 @@ function aero_objective_function(designvars, include_penalty)
 
 ! Exit if geometry and flap angles don't check out
 
-  if ( (penaltyval > eps) .and. penalize ) then
+  if ( (penaltyval > epsexit) .and. penalize ) then
     aero_objective_function = penaltyval*1.0D+06
-if (aero_objective_function < 0.75)                                            &
-print *, "aero_objective_function1: ", aero_objective_function
     return
   end if
 
@@ -329,10 +337,8 @@ print *, "aero_objective_function1: ", aero_objective_function
 
 ! Exit if panel angles and camber constraints don't check out
 
-  if ( (penaltyval > eps) .and. penalize ) then
+  if ( (penaltyval > epsexit) .and. penalize ) then
     aero_objective_function = penaltyval*1.0D+06
-if (aero_objective_function < 0.75)                                            &
-print *, "aero_objective_function2: ", aero_objective_function
     return
   end if
 
@@ -503,7 +509,7 @@ print *, "aero_objective_function2: ", aero_objective_function
 
 ! Update maxlift and mindrag only if it is a good design
 
-  if (penaltyval <= eps) then
+  if (penaltyval <= epsupdate) then
     do i = 1, noppoint
 !$omp critical
       if (lift(i) > maxlift(i)) maxlift(i) = lift(i)
@@ -511,9 +517,6 @@ print *, "aero_objective_function2: ", aero_objective_function
 !$omp end critical
     end do
   end if
-
-if (aero_objective_function < 0.75)                                            &
-print *, "aero_objective_function3: ", aero_objective_function
 
 end function aero_objective_function
 

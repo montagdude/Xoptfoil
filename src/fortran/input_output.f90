@@ -76,9 +76,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
             optimization_type 
   namelist /constraints/ seed_violation_handling, min_thickness, max_thickness,&
                          moment_constraint_type, min_moment, min_te_angle,     &
-                         check_curvature, max_curv_reverse, curv_threshold,    &
-                         symmetrical, min_flap_degrees, max_flap_degrees,      &
-                         min_camber, max_camber
+                         check_curvature, max_curv_reverse_top,                &
+                         max_curv_reverse_bot, curv_threshold, symmetrical,    &
+                         min_flap_degrees, max_flap_degrees, min_camber,       &
+                         max_camber
   namelist /initialization/ feasible_init, feasible_limit,                     &
                             feasible_init_attempts
   namelist /particle_swarm_options/ pso_pop, pso_tol, pso_maxit,               &
@@ -163,7 +164,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   min_moment(:) = -1.d0
   min_te_angle = 5.d0
   check_curvature = .false.
-  max_curv_reverse = 3
+  max_curv_reverse_top = 1
+  max_curv_reverse_bot = 1
   curv_threshold = 0.30d0
   symmetrical = .false.
   min_flap_degrees = -5.d0
@@ -492,7 +494,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   end do
   write(*,*) " min_te_angle = ", min_te_angle
   write(*,*) " check_curvature = ", check_curvature
-  write(*,*) " max_curv_reverse = ", max_curv_reverse
+  write(*,*) " max_curv_reverse_top = ", max_curv_reverse_top
+  write(*,*) " max_curv_reverse_bot = ", max_curv_reverse_bot
   write(*,*) " curv_threshold = ", curv_threshold
   write(*,*) " symmetrical = ", symmetrical
   write(*,*) " min_flap_degrees = ", min_flap_degrees
@@ -665,7 +668,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                  "or 'none'.")
   end do
   if (min_te_angle <= 0.d0) call my_stop("min_te_angle must be > 0.")
-  if (max_curv_reverse < 1) call my_stop("max_curv_reverse must be > 0.")
   if (curv_threshold <= 0.d0) call my_stop("curv_threshold must be > 0.")
   if (symmetrical)                                                             &
     write(*,*) "Mirroring top half of seed airfoil for symmetrical constraint."

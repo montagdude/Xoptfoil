@@ -41,12 +41,13 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 
   double precision, dimension(:), allocatable :: x_interp, thickness
   double precision, dimension(:), allocatable :: zt_interp, zb_interp
-  double precision, dimension(size(xseedt,1)+size(xseedb,1)-1) :: curv
+  double precision, dimension(size(xseedt,1)) :: curvt
+  double precision, dimension(size(xseedb,1)) :: curvb
   double precision :: penaltyval, tegap, gapallow, maxthick, heightfactor
   double precision :: panang1, panang2, maxpanang, curv1, curv2
   double precision :: checkval, len1, len2, growth1, growth2, xtrans, ztrans
   double precision, dimension(noppoint) :: lift, drag, moment, viscrms
-  integer :: i, nptt, nptb, nreversals, nptint, pointst, pointsb
+  integer :: i, nptt, nptb, nreversalst, nreversalsb, nptint 
   character(30) :: text, text2
   character(4) :: stoptype
 
@@ -60,14 +61,12 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 
 ! Get allowable panel growth rate
 
-  pointst = size(xseedt,1)
-  pointsb = size(xseedb,1)
   growth_allowed = 0.d0
 
 ! Top surface growth rates
 
   len1 = sqrt((xseedt(2)-xseedt(1))**2.d0 + (zseedt(2)-zseedt(1))**2.d0)
-  do i = 2, pointst - 1
+  do i = 2, nptt - 1
     len2 = sqrt((xseedt(i+1)-xseedt(i))**2.d0 + (zseedt(i+1)-zseedt(i))**2.d0)
     growth1 = len2/len1
     growth2 = len1/len2
@@ -79,7 +78,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 ! Bottom surface growth rates
 
   len1 = sqrt((xseedb(2)-xseedb(1))**2.d0 + (zseedb(2)-zseedb(1))**2.d0)
-  do i = 2, pointsb - 1
+  do i = 2, nptb - 1
     len2 = sqrt((xseedb(i+1)-xseedb(i))**2.d0 + (zseedb(i+1)-zseedb(i))**2.d0)
     growth1 = len2/len1
     growth2 = len1/len2
@@ -207,19 +206,18 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 
   if (check_curvature) then
 
-!   Compute curvature
+!   Compute curvature on top and bottom surfaces
 
-    curv = curvature(curr_foil%npoint, curr_foil%x, curr_foil%z)
+    curvt = curvature(nptt, xseedt, zseedt)
+    curvb = curvature(nptb, xseedb, zseedb)
 
 !   Check number of reversals that exceed the threshold
 
-    nreversals = 0
+    nreversalst = 0
     curv1 = 0.d0
-
-    do i = 2, nptt + nptb - 2
-
-      if (abs(curv(i)) >= curv_threshold) then
-        curv2 = curv(i)
+    do i = 2, nptt - 1
+      if (abs(curvt(i)) >= curv_threshold) then
+        curv2 = curvt(i)
         if (curv2*curv1 < 0.d0) then
           xtrans = curr_foil%x(i)/foilscale - xoffset
           write(text,'(F8.4)') xtrans
@@ -227,20 +225,48 @@ subroutine check_seed(xoffset, zoffset, foilscale)
           ztrans = curr_foil%z(i)/foilscale - zoffset
           write(text2,'(F8.4)') ztrans
           text2 = adjustl(text2)
-          write(*,*) "Curvature reversal detected near (x, z) = ("//&
+          write(*,*) "Curvature reversal on top surface near (x, z) = ("//&
                          trim(text)//", "//trim(text2)//")"
-          write(text,'(F8.4)') curv(i)
+          write(text,'(F8.4)') curvt(i)
           text = adjustl(text)
           write(*,*) "Curvature: "//trim(text)
-          nreversals = nreversals + 1
+          nreversalst = nreversalst + 1
         end if
         curv1 = curv2
       end if
-
     end do
 
-    if (nreversals > max_curv_reverse)                                         &
-      call my_stop("Seed airfoil violates max_curv_reverse constraint.",       &
+    if (nreversalst > max_curv_reverse_top)                                    &
+      call my_stop("Seed airfoil violates max_curv_reverse_top constraint.",   &
+                   stoptype)
+
+!   Bottom surface
+
+    nreversalsb = 0
+    curv1 = 0.d0
+    do i = 2, nptb - 1
+      if (abs(curvb(i)) >= curv_threshold) then
+        curv2 = curvb(i)
+        if (curv2*curv1 < 0.d0) then
+          xtrans = curr_foil%x(i)/foilscale - xoffset
+          write(text,'(F8.4)') xtrans
+          text = adjustl(text)
+          ztrans = curr_foil%z(i)/foilscale - zoffset
+          write(text2,'(F8.4)') ztrans
+          text2 = adjustl(text2)
+          write(*,*) "Curvature reversal on bot surface near (x, z) = ("//&
+                         trim(text)//", "//trim(text2)//")"
+          write(text,'(F8.4)') curvb(i)
+          text = adjustl(text)
+          write(*,*) "Curvature: "//trim(text)
+          nreversalsb = nreversalsb + 1
+        end if
+        curv1 = curv2
+      end if
+    end do
+
+    if (nreversalsb > max_curv_reverse_bot)                                    &
+      call my_stop("Seed airfoil violates max_curv_reverse_bot constraint.",   &
                    stoptype)
 
   end if
