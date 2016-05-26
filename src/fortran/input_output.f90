@@ -63,9 +63,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                       tournament_fraction, crossover_range_factor,             &
                       mutant_probability, chromosome_mutation_rate,            &
                       mutation_range_factor
+  integer :: nbot_actual, nmoment_constraint
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
   character(10) :: pso_convergence_profile, parents_selection_method
+  character :: choice
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
             seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
@@ -156,8 +158,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   min_thickness = 0.06d0
   max_thickness = 1000.d0
-  min_camber = -1000.d0
-  max_camber = 1000.d0
+  min_camber = -0.1d0
+  max_camber = 0.1d0
   moment_constraint_type(:) = 'use_seed'
   min_moment(:) = -1.d0
   min_te_angle = 5.d0
@@ -193,6 +195,19 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Normalize weightings for operating points
 
   weighting = weighting/sum(weighting(1:noppoint))
+
+! Ask about removing pitching moment constraints for symmetrical optimization
+
+  if (symmetrical) then
+    nmoment_constraint = 0
+    do i = 1, noppoint
+      if (trim(moment_constraint_type(i)) /= 'none')                           &
+        nmoment_constraint = nmoment_constraint + 1
+    end do
+    
+    if (nmoment_constraint > 0) choice = ask_moment_constraints()
+    if (choice == 'y') moment_constraint_type(:) = 'none'
+  end if
 
 ! Set default initialization options
 
@@ -234,6 +249,14 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
       'global') then
+
+!   The number of bottom shape functions actually used (0 for symmetrical)
+
+    if (symmetrical) then
+      nbot_actual = 0
+    else
+      nbot_actual = nfunctions_bot
+    end if
   
 !   Set design variables with side constraints
 
@@ -243,8 +266,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
       allocate(constrained_dvs(nflap_optimize))
       counter = 0
-      do i = nfunctions_top + nfunctions_bot + 1,                              &
-             nfunctions_top + nfunctions_bot + nflap_optimize
+      do i = nfunctions_top + nbot_actual + 1,                                 &
+             nfunctions_top + nbot_actual + nflap_optimize
         counter = counter + 1
         constrained_dvs(counter) = i
       end do
@@ -253,10 +276,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
 !     For Hicks-Henne, also constrain bump locations and width
 
-      allocate(constrained_dvs(2*nfunctions_top + 2*nfunctions_bot +           &
+      allocate(constrained_dvs(2*nfunctions_top + 2*nbot_actual +              &
                                nflap_optimize))
       counter = 0
-      do i = 1, nfunctions_top + nfunctions_bot
+      do i = 1, nfunctions_top + nbot_actual
         counter = counter + 1
         idx = 3*(i-1) + 2      ! DV index of bump location, shape function i
         constrained_dvs(counter) = idx
@@ -264,8 +287,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
         idx = 3*(i-1) + 3      ! Index of bump width, shape function i
         constrained_dvs(counter) = idx
       end do
-      do i = 3*(nfunctions_top + nfunctions_bot) + 1,                          &
-             3*(nfunctions_top + nfunctions_bot) + nflap_optimize
+      do i = 3*(nfunctions_top + nbot_actual) + 1,                             &
+             3*(nfunctions_top + nbot_actual) + nflap_optimize
         counter = counter + 1
         constrained_dvs(counter) = i
       end do
@@ -1005,5 +1028,45 @@ subroutine read_clo(input_file, output_prefix)
   end if
 
 end subroutine read_clo
+
+!=============================================================================80
+!
+! Asks user to turn off pitching moment constraints
+!
+!=============================================================================80
+function ask_moment_constraints()
+
+  character :: ask_moment_constraints
+  logical :: valid_choice
+
+! Get user input
+
+  valid_choice = .false.
+  do while (.not. valid_choice)
+  
+    write(*,*)
+    write(*,'(A)') 'Warning: pitching moment constraints not recommended for '
+    write(*,'(A)', advance='no') 'symmetrical airfoil optimization. '//&
+                                 'Turn them off now? (y/n): '
+    read(*,'(A)') ask_moment_constraints
+
+    if ( (ask_moment_constraints == 'y') .or.                                  &
+         (ask_moment_constraints == 'Y') ) then
+      valid_choice = .true.
+      ask_moment_constraints = 'y'
+      write(*,*)
+      write(*,*) "Setting moment_constraint_type(:) = 'none'."
+    else if ( (ask_moment_constraints == 'n') .or.                             &
+         (ask_moment_constraints == 'N') ) then
+      valid_choice = .true.
+      ask_moment_constraints = 'n'
+    else
+      write(*,'(A)') 'Please enter y or n.'
+      valid_choice = .false.
+    end if
+
+  end do
+
+end function ask_moment_constraints
 
 end module input_output

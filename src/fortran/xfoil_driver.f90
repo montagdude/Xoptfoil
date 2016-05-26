@@ -330,19 +330,19 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
   do i = 1, noppoint
     if (isnan(lift(i))) then
-      lift(i) = -0.1d0
-      viscrms(i) = 1000.d0
+      lift(i) = -1.D+08
+      viscrms(i) = 1.D+08
     end if
     if (isnan(drag(i))) then
-      drag(i) = 1000.d0
-      viscrms(i) = 1000.d0
+      drag(i) = 1.D+08
+      viscrms(i) = 1.D+08
     end if
     if (isnan(moment(i))) then
-      moment(i) = -10.0d0
-      viscrms(i) = 1000.d0
+      moment(i) = -1.D+08
+      viscrms(i) = 1.D+08
     end if
     if (isnan(viscrms(i))) then
-      viscrms(i) = 1000.d0
+      viscrms(i) = 1.D+08
     end if
   end do
 

@@ -100,8 +100,7 @@ function aero_objective_function(designvars, include_penalty)
   double precision :: aero_objective_function
 
   double precision, dimension(max(size(xseedt,1),size(xseedb,1))) :: x_interp, &
-                                               zt_interp, zb_interp, thickness,&
-                                               mcl
+                                               zt_interp, zb_interp, thickness
   double precision, dimension(size(xseedt,1)) :: zt_new
   double precision, dimension(size(xseedb,1)) :: zb_new
   double precision, dimension(size(xseedt,1)) :: curvt
