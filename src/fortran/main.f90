@@ -49,7 +49,7 @@ program main
   logical :: restart
 
   write(*,*)
-  write(*,*) 'This is XoptFoil: airfoil optimization with XFOIL'
+  write(*,*) 'This is Xoptfoil: airfoil optimization with Xfoil'
   write(*,*) 'Copyright 2014 -- 2016 Daniel Prosser'
 
 ! Set default names and read command line arguments

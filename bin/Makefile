@@ -1,18 +1,18 @@
 ####### General Compiler Flags ######################################
 
-#RELEASEFLAGS=-g -O3 -static
-#FCFLAGS=$(RELEASEFLAGS)
+RELEASEFLAGS=-g -O3 -static
+FCFLAGS=$(RELEASEFLAGS)
 #FCFLAGS=-g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -Wall
 #The below flags are needed for static linking with openmp
 #FCFLAGS=-g -O3 -static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -flto
-FCFLAGS=-g -O3
+#FCFLAGS=-g -O3
 
 #####################################################################
 
 ####### GNU Compiler Flags ##########################################
 
 FC=gfortran
-OMP_FLAG=-fopenmp
+#OMP_FLAG=-fopenmp
 XFOIL_REAL8_FLAG=-fdefault-real-8
 
 #####################################################################
