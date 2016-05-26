@@ -161,7 +161,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   moment_constraint_type(:) = 'use_seed'
   min_moment(:) = -1.d0
   min_te_angle = 5.d0
-  check_curvature = .false.
+  check_curvature = .true.
   max_curv_reverse_top = 0
   max_curv_reverse_bot = 1
   curv_threshold = 0.30d0
