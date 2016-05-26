@@ -1,4 +1,3 @@
-%Compiling guide for XoptFoil
 \documentclass[11pt]{article}
 
 \usepackage{amssymb}
@@ -13,7 +12,7 @@
 
 \begin{document}
 
-\title{XoptFoil Version 1.9.1 User Guide}
+\title{Xoptfoil Version 1.9.2 User Guide}
 \author{Daniel Prosser}
 \date{\today}
 \maketitle
@@ -22,7 +21,7 @@
 
 \section{Compiling}
 
-For convenience, precompiled versions of XoptFoil and its related tools are
+For convenience, precompiled versions of Xoptfoil and its related tools are
 located in the bin/x86-64 directory for Windows and Linux. These should work as long as
 your CPU architecture is of x86-64 type, but to run the parallel version you will need to
 compile it yourself. If your computer has more than one core, it will be greatly
@@ -39,7 +38,7 @@ manager for your distro.  For example, on Ubuntu or Linux Mint, issue the comman
 sudo apt-get install gfortran
 \end{verbatim}
 
-Next, navigate to the XoptFoil/bin directory.  A Makefile is included for compiling. Issue
+Next, navigate to the Xoptfoil/bin directory.  A Makefile is included for compiling. Issue
 the following command:
 
 \begin{verbatim}
@@ -59,9 +58,9 @@ make
 
 The Makefile contains various compiler options.  The default ones should work fine, but
 you can feel free to change them if you want (look up gfortran compiler flags online).
-XoptFoil is written so that it can run in parallel on computers with multiple
+Xoptfoil is written so that it can run in parallel on computers with multiple
 cores/threads.  This option is disabled in the precompiled binary, because it depends on
-the pthreads system library.  You can enable it by compiling XoptFoil yourself.  If you
+the pthreads system library.  You can enable it by compiling Xoptfoil yourself.  If you
 want to compile it yourself but don't want to use the parallel version, comment the flag
 called OMP\_FLAG (by placing a \# character in front). Two executables are
 created: xoptfoil, which is the main optimizer, and xfoil\_only, which can be used to run 
@@ -77,7 +76,7 @@ MinGW is \url{mingw.org}.  The installation instructions are at
 installed, click Continue to open the MinGW installation manager.  The next step is to
 select the components to install.  You will want to select mingw32-gcc-fortran 
 (which will install gfortran, the Fortran
-compiler used to build XoptFoil) and mingw32-base, which includes some other tools
+compiler used to build Xoptfoil) and mingw32-base, which includes some other tools
 which will be needed.  The dialog should look something like the one in Fig.
 \ref{fig:installmingw1}(a) (note the selected items).
 
@@ -109,9 +108,9 @@ system environment variable by appending ``;C:$\backslash$MinGW$\backslash$bin''
 to the end (unless you changed the installation directory to something other than
 ``C:$\backslash$MinGW'' when you ran the intallation manager).
 
-The next step is to compile XoptFoil. This is process is automated using a program called
-Make.  On MinGW, this tool is called mingw32-make.  To compile XoptFoil using Make, run the
-following command from the command line inside the XoptFoil$\backslash$bin directory:
+The next step is to compile Xoptfoil. This is process is automated using a program called
+Make.  On MinGW, this tool is called mingw32-make.  To compile Xoptfoil using Make, run the
+following command from the command line inside the Xoptfoil$\backslash$bin directory:
 
 \begin{verbatim}
 mingw32-make -f Makefile_Windows
@@ -134,9 +133,9 @@ mingw32-make
 
 The Makefile contains various compiler options.  The default ones should work fine, but
 you can feel free to change them if you want (look up gfortran compiler flags online).
-XoptFoil is written so that it can run in parallel on computers with multiple
+Xoptfoil is written so that it can run in parallel on computers with multiple
 cores/threads.  This option is disabled in the precompiled binary, because it depends on
-the pthreads system library.  You can enable it by compiling XoptFoil yourself.  If you
+the pthreads system library.  You can enable it by compiling Xoptfoil yourself.  If you
 want to compile it yourself but don't want to use the parallel version, comment the flag
 called OMP\_FLAG (by placing a \# character in front). Two executables are
 created: xoptfoil.exe, which is the main optimizer, and xfoil\_only.exe, which can be 
@@ -146,7 +145,7 @@ used to run XFoil by itself for an airfoil at a given set of operating condition
 
 As of this writing, the latest version of MinGW GCC (4.9.3-1) does not support OpenMP.
 Therefore, if you attempt to compile with parallel support on Windows, you will get an
-error and XoptFoil will not compile.  The way to fix this is to install an older version
+error and Xoptfoil will not compile.  The way to fix this is to install an older version
 of GCC.  First, using the MinGW graphical installer, remove all packages that are at 
 version 4.9.3-1 (but do not remove any other packages). Simply browse through the list of
 packages, mark all packages for removal that list ``Installed Version'' as 4.9.3-1, and 
@@ -160,11 +159,11 @@ mingw-get install "gcc-fortran=4.8.1-4"
 
 The initial removal of all installed 4.9.3-1 packages and installation of the two above
 should replace everything that you need, and you should be able to compile the parallel
-version of XoptFoil again.
+version of Xoptfoil again.
 
 \subsection{Mac OSX}
 
-In order to compile XoptFoil, you will need a compiler.  It is recommended to use the GNU
+In order to compile Xoptfoil, you will need a compiler.  It is recommended to use the GNU
 Fortran compiler, gfortran.  On Mac OSX, gfortran binaries are available at 
 \url{http://gcc.gnu.org/wiki/GFortranBinaries#MacOS}.  Follow the instructions on that
 website to install gfortran.  You will also need to install a program called Make.  Make
@@ -173,13 +172,13 @@ automatically place the make executable in a directory within your path. Once yo
 gfortran and Make installed, the rest of the compiling process is identical to the Linux
 instructions above.
 
-\section{Running XoptFoil}\label{sec:running}
+\section{Running Xoptfoil}\label{sec:running}
 
-XoptFoil is a command-line based program.  Once you have compiled binaries for your
+Xoptfoil is a command-line based program.  Once you have compiled binaries for your
 machine (see the Compiling Guide), running the program is very easy.  Simply open a
-terminal (``Command Prompt'' in Windows) and navigate to the directory where the XoptFoil
+terminal (``Command Prompt'' in Windows) and navigate to the directory where the Xoptfoil
 executable resides.  For Windows, a simple batch script is included that will open a
-command prompt in the current directory when you double-click on it.  To run XoptFoil,
+command prompt in the current directory when you double-click on it.  To run Xoptfoil,
 simply type the following at the command prompt:
 
 \begin{verbatim}
@@ -192,9 +191,9 @@ xoptfoil.exe
 ./xoptfoil
 \end{verbatim}
 
-\noindent if you are on Linux or Mac OSX.  This will run XoptFoil in the current working
-directory.  XoptFoil uses an input file called `inputs.txt,' which must also be in the
-working directory.  If the input file is not in the working directory where XoptFoil is
+\noindent if you are on Linux or Mac OSX.  This will run Xoptfoil in the current working
+directory.  Xoptfoil uses an input file called `inputs.txt,' which must also be in the
+working directory.  If the input file is not in the working directory where Xoptfoil is
 run, the program will notify you that it can't find the file and then stop.  For that
 reason, it's important that you follow the directions above to run the program to ensure
 that the working directory will be set correctly.  If you double-click on the executable
@@ -202,7 +201,7 @@ instead of running it from the command prompt, it's possible that the working di
 won't be set to the directory where `inputs.txt' resides, and the program won't be able to
 find it.
 
-By default, XoptFoil writes the final optimized airfoil to an output file called
+By default, Xoptfoil writes the final optimized airfoil to an output file called
 `optfoil.dat.'  However, you can change the name of both the input and output file, if
 desired, by supplying command-line options (CLOs) when you run the program.  If only one 
 CLO is present, it is
@@ -220,7 +219,7 @@ xoptfoil.exe case1.txt case1_coordinates
 
 \section{Input file}
 
-XoptFoil reads a Fortran namelist input file called `inputs.txt' (unless a different name
+Xoptfoil reads a Fortran namelist input file called `inputs.txt' (unless a different name
 is specified as a CLO, as described above).  This file stores
 conditions for optimization, such as the optimization type, parameterization settings,
 aerodynamic operating conditions and constraints, the seed airfoil, XFoil options, etc.
@@ -240,9 +239,9 @@ Each namelist begins with a `\&' character followed immediately by the title, an
 a '/' character.  Variables for each namelist are then listed with their respective
 values.  To change an input, simply change the value to the right of the `=' sign.  Note
 that text-based inputs (for example, the name of the seed airfoil file) need to be
-surrounded by single or double quotes.  The inputs for each of the XoptFoil namelists,
+surrounded by single or double quotes.  The inputs for each of the Xoptfoil namelists,
 stored in `inputs.txt,' are explained in the following sections. Sample input files are
-included with XoptFoil.
+included with Xoptfoil.
 
 \subsection{optimization\_options namelist}
 
@@ -374,17 +373,21 @@ constraints in the code to ensure convergence of XFoil viscous calculations and 
 unusual designs which XFoil may not be able to handle well.
 
 \begin{enumerate}
-\item{\textbf{seed\_violation\_handling}: What action to take if the seed airfoil violates
-a constraint.  The options are `stop' or `warn'.}
-\item{\textbf{min\_thickness}: The minimum allowable max thickness of designs, as a
+\item{\textbf{min\_thickness}: The minimum allowable thickness of designs, as a
 fraction of the chord (for example, 0.08 means 8\% thickness).  A minimum allowable
 thickness is usually required for structural reasons.  If you don't want to impose this
 constraint, just set it to 0.}
-\item{\textbf{max\_thickness}: The maximum allowable max thickness of designs, as a
+\item{\textbf{max\_thickness}: The maximum allowable thickness of designs, as a
 fraction of the chord (for example, 0.08 means 8\% thickness). This can be used to set an
 upper bound on max airfoil thickness.  If you don't want to use this constraint, just set
 it to a very large number like 1000 (or just don't specify a max\_thickness, as 1000 is
 the default value).}
+\item{\textbf{min\_camber}: The minimum allowable camber of designs, as a fraction of the
+chord (for example, 0.02 means 2\% camber). If you don't want to impose this constraint,
+set it to some large negative value (the default is -0.10).}
+\item{\textbf{max\_camber}: The maximum allowable camber of designs, as a fraction of the
+chord (for example, 0.02 means 2\% camber). If you don't want to impose this constraint,
+set it to some large positive value (the default is 0.10).}
 \item{\textbf{moment\_constraint\_type(\#)} (where \# is an integer ranging from 1 to
 noppoint): How to implement the pitching moment constraint for the specified operating
 point. Either `none', `specify', or `use\_seed'.  If `none', then no pitching moment 
@@ -410,22 +413,27 @@ want to impose this constraint, just set it to 0.}
 reversals constraint.  If you don't want to apply a curvature reversals constraint, set
 this to .false., because checking the curvature adds computational cost.  Set this to
 .true. if you wish to specify a constraint on the number of curvature reversals.}
-\item{\textbf{max\_curv\_reverse}: Maximum allowed number of curvature reversals within a
-specified curvature tolerance.  If you wish to use this constraint, you must enable
-check\_curvature.}
-\item{\textbf{curv\_threshhold}: Curvature thresshold for detecting reversals.  The local
+\item{\textbf{max\_curv\_reverse\_top}: Maximum allowed number of curvature reversals on
+the top surface within the specified curvature threshold.  If you wish to use this 
+constraint, you must enable check\_curvature. The default is 0. Increasing it may improve
+the predicted performance but also may produce more wavy designs.}
+\item{\textbf{max\_curv\_reverse\_bot}: Maximum allowed number of curvature reversals on
+the bottom surface within the specified curvature threshold.  If you wish to use this 
+constraint, you must enable check\_curvature. The default is 1, so a single curvature
+reversal is allowed on the bottom surface.  Increasing it may improve the predicted
+performance but also may produce more wavy designs.}
+\item{\textbf{curv\_threshold}: Curvature thresshold for detecting reversals.  The local
 curvature can be thought of as 1/r, where r is the local radius.  So, for instance, a
-curvature threshhold of 0.2 means that any reversals with a radius greater than 5.0 will
+curvature threshold of 0.2 means that any reversals with a radius greater than 5.0 will
 be ignored.  If you make this value too small, it may be very hard for the optimizer to
-come up with feasible designs.  In my testing, a threshhold of 0.2 seems to work fairly
-well, but you may need to increase pso\_feasible\_init\_attempts and
-simplex\_feasible\_init\_attempts so that most of the initial designs are feasible.}
+come up with feasible designs, so you may need to increase feasible\_init\_attempts. The
+default is 0.1.} 
 \item{\textbf{symmetrical} (.true. or .false.): Whether to only generate symmetrical 
 airfoils.  If true, only the top surface of the seed airfoil will be modified, and the
 bottom surface will be replaced by a mirrored version of the top surface. This option is
 useful if you want to ensure that the final optimized airfoil is symmetrical.  The seed 
 airfoil does not need
-to be symmetrical to use this option (but note that XoptFoil will actually be using a
+to be symmetrical to use this option (but note that Xoptfoil will actually be using a
 symmetrical version of the seed airfoil instead of the actual one).}
 \end{enumerate}
 
@@ -668,7 +676,7 @@ optimization.  Only written if the option write\_designs is set to .true.  Each 
 is identified under one of the ``zone t=...'' labels.  You can plot these using the design
 visualizer tool. See section \ref{sec:design_visualizer} for more information.}
 \item{\textbf{A number of files with the pattern restart\_*\_optfoil}: Restart data
-written by XoptFoil.  These files are required to restart a prior optimization that was
+written by Xoptfoil.  These files are required to restart a prior optimization that was
 terminated early. More information is available in Section \ref{sec:restarting}.}
 \end{enumerate}
 
@@ -678,18 +686,18 @@ else via the second command-line option when xoptfoil is run. See section
 
 \section{Restarting an optimization}\label{sec:restarting}
 
-Because XoptFoil can take several hours to optimize an airfoil design, sometimes it is
+Because Xoptfoil can take several hours to optimize an airfoil design, sometimes it is
 desirable to terminate an optimization early and pick up again later.  Terminating an
 ongoing optimization my be done either by typing CTRL+C in the command window or by
-closing the command window.  XoptFoil can restart a prior optimization
+closing the command window.  Xoptfoil can restart a prior optimization
 by reading restart files that are written periodically. The file restart\_status\_optfoil
 saves the current optimization method being used, either global optimization (i.e.,
 particle swarm) or local optimization (simplex).  The file restart\_pso\_optfoil contains
 data required by the particle swarm optimizer to restart a prior optimization. Similarly,
 the file restart\_simplex\_optfoil contains restart data for the simplex search. (In each
 of these, if the user specifies a case name other than `optfoil' as a command-line option
-to XoptFoil, the file names will be changed accordingly.)  Each of these files must be
-present in the working directory when XoptFoil is run in order to restart properly.
+to Xoptfoil, the file names will be changed accordingly.)  Each of these files must be
+present in the working directory when Xoptfoil is run in order to restart properly.
 
 The two relevant inputs are \textbf{restart} and \textbf{restart\_write\_freq} in the
 optimization\_options namelist.  For a new optimization, \textbf{restart} should be set to
@@ -763,8 +771,7 @@ Found 52 airfoil polars plus seed airfoil.
 Options:
 [0] Exit
 [1] Plot a specific design
-[2] Animate all designs
-[3] Monitor an ongoing optimization
+[2] Animate all designs [3] Monitor an ongoing optimization
 [4] Change plotting options
 
 Enter a choice [0-4]: 
