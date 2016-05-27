@@ -1,29 +1,33 @@
-This is XoptFoil, an airfoil optimization code using the XFoil aerodynamics
+This is Xoptfoil, an airfoil optimization code using the Xfoil aerodynamics
 engine.
 
 Copyright 2014--2016 Daniel Prosser.
 
-XoptFoil uses the GNU Public License Version 3, a copy of which can be found in the license directory.
+Xoptfoil uses the GNU Public License Version 3, a copy of which can be found in the license directory.
 
 Code features:
 -- Supports up to 30 operating points during optimization and multiple user-defined constraints
 -- Each operating point has a specified lift coefficient or angle of attack, Reynolds number, Mach number, and flap deflection
 -- Different optimization objectives (minimize drag, maximize glide slope, minimize sink rate, or maximize lift) can be set at each operating point
 -- Each operating point is assigned a relative weight (importance) by the user
--- Available constraints include thickness, pitching moment, and trailing edge wedge angle
--- Currently included optimization algorithms: Particle Swarm and Nelder-Mead Simplex algorithm
--- The optimizer is robust: many checks for reasonable geometry and XFoil convergence in place
--- Particle swarm optimizer runs in parallel (not in the precompiled binaries, though; you have to compile it yourself for that)
--- XFoil engine accurately predicts transition, separation bubbles, and stall at low Reynolds numbers
+-- Available constraints include thickness, camber, curvature, pitching moment, and trailing edge wedge angle
+-- Currently included optimization algorithms: particle swarm, genetic algorithm, and Nelder-Mead simplex algorithm
+-- The optimizer is robust: many checks for reasonable geometry and Xfoil convergence in place
+-- Particle swarm and genetic algorithm run in parallel (must be compiled manually; pre-compiled binaries are serial)
+-- Xfoil engine accurately predicts transition, separation bubbles, and stall at low Reynolds numbers
 
-Compiling instructions are included in the INSTALL file and in the user guide.
+Compiling instructions are included in the User Guide.
 
-Options are stored in the fortran namelist file inputs.txt.  This file sets basic optimization options, operating conditions, constraints, and XFoil paneling and run settings.
+Options are stored in the fortran namelist file inputs.txt.  This file sets basic optimization options, operating conditions, constraints, and Xfoil paneling and run settings.
 
-In addition to the optimization code, when you build the source you also get a tool to compute coordinates and polars for each incrementally-improved airfoil generated during the optimization.  These can then be plotted using Matlab or Tecplot to create visualizations.  An executable to run XFoil alone is also included, which has its own input file called inputs_xfoil_only.txt.
+In addition to the optimization code, an tool to run Xfoil alone is include, as well as a python/matplotlib script to visualize optimization progress.
 
 Version notes
 -------------------------------------------------------------------------------
+Version 1.9.3
+-- Ask user to automatically remove pitching moment constraints for symmetrical airfoil optimizatoin.
+-- Fix bug for symmetrical airfoil optimization.
+
 Version 1.9.2
 -- Added min_camber and max_camber constraints.
 -- Split max_curv_reverse constraints into max_curv_reverse_top and max_curv_reverse_bot, allowing you to control the number of reversals on the top and bottom surfaces independently.  Set default to 0 for top and 1 for bottom.
@@ -32,7 +36,7 @@ Version 1.9.2
 
 Version 1.9.1-1
 -- Fixed bug in Makefiles not compiling due to change in src/ directory structure (thanks babangs on RCGroups).
--- Added information to User Guide on how to get around problem with latest MinGW (Windows compiler).  The latest version does not include OpenMP support, so to compile the parallel version of XoptFoil, it is necessary to revert to an older version of the compiler.
+-- Added information to User Guide on how to get around problem with latest MinGW (Windows compiler).  The latest version does not include OpenMP support, so to compile the parallel version of Xoptfoil, it is necessary to revert to an older version of the compiler.
 
 Version 1.9.1
 -- Set default for min_bump_width to correct value of 0.1 instead of 0.5.  This would have only affected runs that did not already have min_bump_width set in the input file.
@@ -45,7 +49,7 @@ Version 1.9.0
 -- Feasible initialization inputs are now in their own namelist, since they are common to genetic algorithm and particle swarm.  In existing input files, some inputs in the particle_swarm namelist have changed.  See User Guide for correct variable names.
 
 Version 1.8.0
--- XoptFoil can now restart from a previous optimization. Set restart=.true. in optimization_options of the input file to restart.  Some output files from the previous run are also required; see the user guide for more information.
+-- Xoptfoil can now restart from a previous optimization. Set restart=.true. in optimization_options of the input file to restart.  Some output files from the previous run are also required; see the user guide for more information.
 -- design_visualizer.py now explicitly asks for the case name instead of getting it from a command line argument.
 
 Version 1.7.2
@@ -61,7 +65,7 @@ Version 1.7.0
 -- Updated documentation with new changes and changes from v1.6.0 that hadn't been incorporated in the documentation.
 
 Version 1.6.0
--- Flap angle can now be optimized by XoptFoil at any desired operating point or prescribed.
+-- Flap angle can now be optimized by Xoptfoil at any desired operating point or prescribed.
 -- Pitching moment constraints are now set per operating point instead of using a global min value.
 -- New pso_convergence_profile setting: use the default 'standard' settings or a new 'exhaustive' option, which usually finds better designs at the expense of longer time to converge.
 -- Convergence criterion has been changed for the particle swarm optimization.  Now only a single tolerance based on particle speed (called pso_speed_tol) is needed; the settings pso_nstop has been removed.
@@ -104,7 +108,7 @@ Version 1.3
 
 Version 1.2
 -- Added parallel support with OpenMP for computers with multiple cores and threads to speed up the optimization process.
--- XFoil consistency check removed from input file.  This is now handled automatically and only in cases where it might be needed, so the user doesn't have to worry about it anymore.
+-- Xfoil consistency check removed from input file.  This is now handled automatically and only in cases where it might be needed, so the user doesn't have to worry about it anymore.
 -- Parallel and serial binaries are included for Linux and Windows on x86-64 architecture.  These have been compiled linking any needed runtime libraries (e.g. for OpenMP) statically so there should be no runtime errors about not being able to load a shared library.
 
 Version 1.1.1
@@ -112,7 +116,7 @@ Version 1.1.1
 
 Version 1.1
 -- Added Hicks-Henne shape functions for parameterization.  See the user guide for more information on using them.
--- Added consistency checks for XFoil, which the user can enable for any operating point.  This prevents the optimizer from converging to unrealistic
+-- Added consistency checks for Xfoil, which the user can enable for any operating point.  This prevents the optimizer from converging to unrealistic
    designs. See the user guide for more information.
 -- Added references on shape functions, a user guide, and a compiling guide.
 -- Releases now include executables for Linux and Windows compiled on x86-64 architecture.
