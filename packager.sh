@@ -10,7 +10,7 @@ if [ "$version" == "" ]; then
 fi
 
 # Create directory
-dir="XoptFoil_${version}"
+dir="Xoptfoil_${version}"
 cdir="."
 if [ -d "$dir" ]; then
   rm -rf $dir
