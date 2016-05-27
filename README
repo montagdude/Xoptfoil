@@ -25,7 +25,7 @@ In addition to the optimization code, an tool to run Xfoil alone is include, as 
 Version notes
 -------------------------------------------------------------------------------
 Version 1.9.3
--- Ask user to automatically remove pitching moment constraints for symmetrical airfoil optimizatoin.
+-- Ask user to automatically remove pitching moment constraints for symmetrical airfoil optimization.
 -- Fix bug for symmetrical airfoil optimization.
 
 Version 1.9.2
