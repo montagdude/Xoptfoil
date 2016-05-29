@@ -103,10 +103,14 @@ download and install the compilers you need.
 
 At this point, the needed compilers are installed.  The next thing you need to do is to
 make sure your computer can find them.  Follow the instructions under ``Environment
-Settings'' on the MinGW Getting Started web page.  You will be modifying the Path
-system environment variable by appending ``;C:$\backslash$MinGW$\backslash$bin''
-to the end (unless you changed the installation directory to something other than
-``C:$\backslash$MinGW'' when you ran the intallation manager).
+Settings'' on the MinGW Getting Started web page.  You will be creating (if it doesn't
+exist) or modifying (if it already exists) the PATH user environment variable.  If this
+variable doesn't exist for the user, create it, giving it the name PATH and entering
+``C:$\backslash$MinGW$\backslash$bin'' as the value.  If it already exists, edit it,
+appending ``;C:$\backslash$MinGW$\backslash$bin'' to the end.  (If you changed the
+installation directory to something other than ``C:$\backslash$MinGW'' when you ran the
+installation manager, then enter the appropriate location instead of
+``C:$\backslash$MinGW.'')
 
 The next step is to compile Xoptfoil. This is process is automated using a program called
 Make.  On MinGW, this tool is called mingw32-make.  To compile Xoptfoil using Make, run the
