@@ -392,6 +392,7 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
                                  create_airfoil
   use airfoil_evaluation, only : xfoil_geom_options, xfoil_options
   use xfoil_driver,       only : run_xfoil
+  use xfoil_inc,          only : ALFA, DTOR
 
   double precision, dimension(:), intent(in) :: optdesign
   character(*), intent(in) :: shapetype
@@ -467,13 +468,6 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
       dvcounter = dvcounter + 1
     end do
 
-!   Analyze airfoil at requested operating conditions with Xfoil
-
-    call run_xfoil(final_airfoil, xfoil_geom_options, op_point(1:noppoint),    &
-                   op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),&
-                   use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),  &
-                   xfoil_options, lift, drag, moment, viscrms)
-
 !   Write summary to screen and file
 
     aero_file = trim(output_prefix)//'_performance_summary.dat'
@@ -487,6 +481,15 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
     write(iunit,'(A)')                                                         &
                    " ----------------------------------------------------------"
     do i = 1, noppoint
+
+!     Analyze airfoil at each operating point (this way ALFA can be pulled out
+!     as we go)
+
+      call run_xfoil(final_airfoil, xfoil_geom_options, op_point(i:i),         &
+                     op_mode(i:i), reynolds(i:i), mach(i:i), use_flap, x_flap, &
+                     y_flap, actual_flap_degrees(i:i), xfoil_options,          &
+                     lift(i:i), drag(i:i), moment(i:i), viscrms(i:i))
+
       write(text,*) i
       text = adjustl(text)
       if (flap_selection(i) == "specify") then
@@ -506,6 +509,8 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
         write(iunit,'(A25,F9.5,A12)') " Flap setting (degrees): ",             &
                                   actual_flap_degrees(i), flapnote
       endif
+      write(*,'(A18,F9.5)') " Angle of attack: ", ALFA/DTOR
+      write(iunit,'(A18,F9.5)') " Angle of attack: ", ALFA/DTOR
       write(*,'(A19,F9.5)') " Lift coefficient: ", lift(i)
       write(iunit,'(A19,F6.4)') " Lift coefficient: ", lift(i)
       write(*,'(A19,F9.5)') " Drag coefficient: ", drag(i)
