@@ -24,6 +24,10 @@ In addition to the optimization code, an tool to run Xfoil alone is include, as 
 
 Version notes
 -------------------------------------------------------------------------------
+Version 1.9.4
+-- Show angle of attack in performance summary.
+-- Update example case to reflect changes in constraints settings in recent versions.
+
 Version 1.9.3
 -- Ask user to automatically remove pitching moment constraints for symmetrical airfoil optimization.
 -- Fix bug for symmetrical airfoil optimization.
