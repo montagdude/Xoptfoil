@@ -796,181 +796,59 @@ end subroutine read_inputs
 
 !=============================================================================80
 !
-! Subroutine to read inputs from namelist file - for xfoil_only
+! User selects airfoil to analyze for xfoil_only
 !
 !=============================================================================80
-subroutine read_inputs_xfoil_only(input_file, airfoil_file)
+subroutine choose_airfoil(seed_airfoil, airfoil_file, naca_digits)
 
-  use vardef,             only : max_op_points, noppoint, op_mode, op_point,   &
-                                 reynolds, mach, use_flap, x_flap, y_flap,     &
-                                 flap_degrees
-  use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
-  use airfoil_operations, only : my_stop
- 
-  character(*), intent(in) :: input_file
-  character(80), intent(out) :: airfoil_file
+  character(80), intent(inout) :: seed_airfoil, airfoil_file
+  character(4), intent(inout) :: naca_digits
 
-  logical :: viscous_mode, silent_mode, fix_unconverged, reinitialize
-  integer :: bl_maxit, npan
-  double precision :: ncrit, xtript, xtripb, vaccel
-  double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
-  integer :: i, iunit, ioerr, iostat1
-  character(30) :: text
+  character(1) :: choice
+  logical :: valid_choice
 
-  namelist /airfoil_to_load/ airfoil_file
-  namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
-            use_flap, x_flap, y_flap, flap_degrees
-  namelist /xfoil_run_options/ ncrit, xtript, xtripb, viscous_mode,            &
-            silent_mode, bl_maxit, vaccel, fix_unconverged, reinitialize
-  namelist /xfoil_paneling_options/ npan, cvpar, cterat, ctrrat, xsref1,       &
-            xsref2, xpref1, xpref2
+! Get airfoil choice
 
-! Open input file
-
-  iunit = 12
-  open(unit=iunit, file=input_file, status='old', iostat=ioerr)
-  if (ioerr /= 0) then
+  valid_choice = .false.
+  do while (.not. valid_choice)
     write(*,*)
-    write(*,*) 'Error: could not find input file '//trim(input_file)//'.'
+    write(*,*) "Which airfoil do you want to analyze? (select an option):"
+    write(*,*) "1) Use seed airfoil from input file"
+    write(*,*) "2) Load an airfoil from a file"
+    write(*,*) "3) Generate a NACA 4-digit airfoil"
     write(*,*)
-    stop
+    write(*,'(A)',advance="no") " Selection: "
+    read(*,*) choice
+  
+    if (choice == "1") then
+      valid_choice = .true.
+    else if (choice == "2") then
+      seed_airfoil = "from_file"
+      valid_choice = .true.
+    else if (choice == "3") then
+      seed_airfoil = "four_digit"
+      valid_choice = .true.
+    else
+      write(*,*) "Please enter 1, 2, or 3 at the prompt."
+      valid_choice = .false.
+    end if
+  end do
+
+! For from_file or four_digit, get further input
+
+  if (choice /= "1") then
+    if (trim(seed_airfoil) == "from_file") then
+      write(*,*)
+      write(*,'(A)',advance="no") " Enter airfoil file name: "
+      read(*,*) airfoil_file
+    else if (trim(seed_airfoil) == "four_digit") then
+      write(*,*)
+      write(*,'(A)',advance="no") " Enter NACA 4-digit code: "
+      read(*,*) naca_digits
+    end if
   end if
 
-! Read airfoil_to_load namelist options
-
-  read(iunit, iostat=iostat1, nml=airfoil_to_load)
-  call namelist_check('airfoil_to_load', iostat1, 'stop')
-
-! Set defaults for operating conditions
-
-  noppoint = 1
-  use_flap = .false.
-  x_flap = 0.75d0
-  y_flap = 0.d0
-  op_mode(:) = 'spec-cl'
-  op_point(:) = 0.d0
-  reynolds(:) = 1.0D+05
-  mach(:) = 0.d0
-  flap_degrees = 0.d0
-
-! Read operating conditions and constraints
-
-  read(iunit, iostat=iostat1, nml=operating_conditions)
-  call namelist_check('operating_conditions', iostat1, 'stop')
-
-! Set default xfoil aerodynamics and paneling options
-
-  xfoil_options%ncrit = 9.d0
-  xfoil_options%xtript = 1.d0
-  xfoil_options%xtripb = 1.d0
-  xfoil_options%viscous_mode = .true.
-  xfoil_options%silent_mode = .true.
-  xfoil_options%maxit = 100
-  xfoil_options%vaccel = 0.01d0
-  xfoil_options%fix_unconverged = .true.
-  xfoil_options%reinitialize = .true.
-
-  xfoil_geom_options%npan = 160
-  xfoil_geom_options%cvpar = 1.d0
-  xfoil_geom_options%cterat = 0.15d0
-  xfoil_geom_options%ctrrat = 0.2d0
-  xfoil_geom_options%xsref1 = 1.d0
-  xfoil_geom_options%xsref2 = 1.d0
-  xfoil_geom_options%xpref1 = 1.d0
-  xfoil_geom_options%xpref2 = 1.d0
-
-! Read xfoil options and put them into derived types
-
-  read(iunit, iostat=iostat1, nml=xfoil_run_options)
-  call namelist_check('xfoil_run_options', iostat1, 'warn')
-  read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
-  call namelist_check('xfoil_paneling_options', iostat1, 'warn')
-
-  xfoil_options%ncrit = ncrit
-  xfoil_options%xtript = xtript
-  xfoil_options%xtripb = xtripb
-  xfoil_options%viscous_mode = viscous_mode
-  xfoil_options%silent_mode = silent_mode
-  xfoil_options%maxit = bl_maxit
-  xfoil_options%vaccel = vaccel
-  xfoil_options%fix_unconverged = fix_unconverged
-  xfoil_options%reinitialize = reinitialize
-
-  xfoil_geom_options%npan = npan
-  xfoil_geom_options%cvpar = cvpar
-  xfoil_geom_options%cterat = cterat
-  xfoil_geom_options%ctrrat = ctrrat
-  xfoil_geom_options%xsref1 = xsref1
-  xfoil_geom_options%xsref2 = xsref2
-  xfoil_geom_options%xpref1 = xpref1
-  xfoil_geom_options%xpref2 = xpref2
-
-! Close the input file
-
-  close(iunit)
-
-! Echo namelist options for checking purposes
-
-  write(*,*)
-  write(*,*) 'Echoing program options:'
-  write(*,*)
-
-! airfoil_to_load namelist
-
-  write(*,'(A)') " &airfoil_to_load"
-  write(*,*) " airfoil_file = '"//trim(airfoil_file)//"'"
-  write(*,'(A)') " /"
-  write(*,*)
-
-! Operating conditions namelist
-
-  write(*,'(A)') " &operating_conditions"
-  write(*,*) " noppoint = ", noppoint
-  write(*,*) " use_flap = ", use_flap
-  write(*,*) " x_flap = ", x_flap
-  write(*,*) " y_flap = ", y_flap
-  do i = 1, noppoint
-    write(text,*) i
-    text = adjustl(text)
-    write(*,*) " op_mode("//trim(text)//") = '"//trim(op_mode(i))//"'"
-    write(*,*) " op_point("//trim(text)//") = ", op_point(i)
-    write(*,'(A,es17.8)') "  reynolds("//trim(text)//") = ", reynolds(i)
-    write(*,*) " mach("//trim(text)//") = ", mach(i)
-    write(*,*) " flap_degrees("//trim(text)//") = ", flap_degrees(i)
-  end do
-  write(*,'(A)') " /"
-  write(*,*)
-
-! Xfoil run options namelist
-
-  write(*,'(A)') " &xfoil_run_options"
-  write(*,*) " ncrit = ", xfoil_options%ncrit
-  write(*,*) " xtript = ", xfoil_options%xtript
-  write(*,*) " xtripb = ", xfoil_options%xtripb
-  write(*,*) " viscous_mode = ", xfoil_options%viscous_mode
-  write(*,*) " silent_mode = ", xfoil_options%silent_mode
-  write(*,*) " bl_maxit = ", xfoil_options%maxit
-  write(*,*) " vaccel = ", xfoil_options%vaccel
-  write(*,*) " fix_unconverged = ", xfoil_options%fix_unconverged
-  write(*,*) " reinitialize = ", xfoil_options%reinitialize
-  write(*,'(A)') " /"
-  write(*,*)
-
-! Xfoil paneling options namelist
-
-  write(*,'(A)') " &xfoil_paneling_options"
-  write(*,*) " npan = ", xfoil_geom_options%npan
-  write(*,*) " cvpar = ", xfoil_geom_options%cvpar
-  write(*,*) " cterat = ", xfoil_geom_options%cterat
-  write(*,*) " ctrrat = ", xfoil_geom_options%ctrrat
-  write(*,*) " xsref1 = ", xfoil_geom_options%xsref1
-  write(*,*) " xsref2 = ", xfoil_geom_options%xsref2
-  write(*,*) " xpref1 = ", xfoil_geom_options%xpref1
-  write(*,*) " xpref2 = ", xfoil_geom_options%xpref2
-  write(*,'(A)') " /"
-  write(*,*)
-
-end subroutine read_inputs_xfoil_only
+end subroutine choose_airfoil
 
 !=============================================================================80
 !

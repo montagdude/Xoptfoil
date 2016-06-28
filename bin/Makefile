@@ -12,7 +12,7 @@ FCFLAGS=-g -O3
 ####### GNU Compiler Flags ##########################################
 
 FC=gfortran
-#OMP_FLAG=-fopenmp
+OMP_FLAG=-fopenmp
 XFOIL_REAL8_FLAG=-fdefault-real-8
 
 #####################################################################
@@ -37,7 +37,7 @@ endif
 
 OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization_util.o particle_swarm.o genetic_algorithm.o simplex_search.o input_output.o input_sanity.o memory_util.o optimization_driver.o main.o
 EXE=xoptfoil
-XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o input_output.o xfoil_only.o
+XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization_util.o particle_swarm.o genetic_algorithm.o simplex_search.o input_output.o xfoil_only.o 
 XEXE=xfoil_only
 DIR=../src
 

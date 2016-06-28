@@ -20,26 +20,44 @@ program xfoil_only
 ! Runs xfoil by for an airfoil, but still uses the same input file as xoptfoil
 ! Doesn't do any transformations or scaling on the input airfoil
 
-  use vardef,             only : airfoil_type, max_op_points, noppoint,        &
-                                 op_mode, op_point, reynolds, mach, use_flap,  &
-                                 x_flap, y_flap, flap_degrees
-  use input_output,       only : read_inputs_xfoil_only, read_clo
+  use vardef
+  use input_output,       only : read_inputs, read_clo, choose_airfoil
+  use particle_swarm,     only : pso_options_type
+  use genetic_algorithm,  only : ga_options_type
+  use simplex_search,     only : ds_options_type
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
-  use airfoil_operations, only : load_airfoil, deallocate_airfoil
+  use airfoil_operations, only : load_airfoil, naca_four_digit,                &
+                                 deallocate_airfoil
   use xfoil_driver,       only : run_xfoil, xfoil_init, xfoil_cleanup
 
+  implicit none
+
   type(airfoil_type) :: foil
-  character(80) :: airfoil_file, input_file, output_prefix
+  character(80) :: search_type, global_search, local_search, seed_airfoil,     &
+                   airfoil_file, matchfoil_file
+  character(4) :: naca_digits
+  character(80) :: input_file
+  type(pso_options_type) :: pso_options
+  type(ga_options_type) :: ga_options
+  type(ds_options_type) :: ds_options
+  integer, dimension(:), allocatable :: constrained_dvs
+  integer :: restart_write_freq
+  logical :: restart
   double precision, dimension(:), allocatable :: lift, drag, moment, viscrms
 
 ! Set default names and read command line arguments
 
-  input_file = 'inputs_xfoil_only.txt'
+  input_file = 'inputs.txt'
+  output_prefix = 'optfoil'
   call read_clo(input_file, output_prefix)
 
 ! Read inputs from namelist file
 
-  call read_inputs_xfoil_only(input_file, airfoil_file)
+  call read_inputs(input_file, search_type, global_search, local_search,       &
+                   seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
+                   nparams_bot, restart, restart_write_freq, constrained_dvs,  &
+                   pso_options, ga_options, ds_options, matchfoil_file)
+  xfoil_options%silent_mode = .false. 
 
 ! Allocate some things
 
@@ -48,9 +66,17 @@ program xfoil_only
   allocate(moment(noppoint))
   allocate(viscrms(noppoint))
 
-! Load airfoil from file
+! Ask which airfoil to analyze
 
-  call load_airfoil(airfoil_file, foil)
+  call choose_airfoil(seed_airfoil, airfoil_file, naca_digits)
+
+! Get airfoil to analyze, but don't do any transformations
+
+  if (trim(seed_airfoil) == "from_file") then
+    call load_airfoil(airfoil_file, foil)
+  else if (trim(seed_airfoil) == "four_digit") then
+    call naca_four_digit(naca_digits, 200, foil)
+  end if
 
 ! Allocate xfoil variables
 
