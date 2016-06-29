@@ -114,8 +114,9 @@ function aero_objective_function(designvars, include_penalty)
   character(7), dimension(noppoint) :: opm_check
   double precision, dimension(noppoint) :: opp_check, re_check, ma_check 
   double precision, dimension(noppoint) :: fd_check
-  double precision, dimension(noppoint) :: lift, drag, moment, viscrms
-  double precision, dimension(noppoint) :: clcheck, cdcheck, cmcheck, rmscheck
+  double precision, dimension(noppoint) :: alpha, lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: alcheck, clcheck, cdcheck, cmcheck, &
+                                           rmscheck
   double precision, dimension(noppoint) :: actual_flap_degrees
   logical, dimension(noppoint) :: checkpt
   logical :: check
@@ -323,7 +324,7 @@ function aero_objective_function(designvars, include_penalty)
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
-                 xfoil_options, lift, drag, moment, viscrms)
+                 xfoil_options, alpha, lift, drag, moment, viscrms)
 
 ! Add penalty for too large panel angles
 
@@ -387,8 +388,8 @@ function aero_objective_function(designvars, include_penalty)
     call run_xfoil(curr_foil, xfoil_geom_options, opp_check(1:ncheckpt),       &
                    opm_check(1:ncheckpt), re_check(1:ncheckpt),                &
                    ma_check(1:ncheckpt), use_flap, x_flap, y_flap,             &
-                   fd_check(1:ncheckpt), xfoil_options, clcheck, cdcheck,      &
-                   cmcheck, rmscheck)
+                   fd_check(1:ncheckpt), xfoil_options, alcheck, clcheck,      &
+                   cdcheck, cmcheck, rmscheck)
 
 !   Keep the more conservative of the two runs
 
@@ -611,7 +612,7 @@ function write_airfoil_optimization_progress(designvars, designcounter)
   double precision, dimension(size(xseedb,1)) :: zb_new
   integer :: nmodest, nmodesb, nptt, nptb, i, dvtbnd1, dvtbnd2, dvbbnd1,       &
              dvbbnd2 
-  double precision, dimension(noppoint) :: lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: alpha, lift, drag, moment, viscrms
   double precision, dimension(noppoint) :: actual_flap_degrees
   double precision :: ffact
   integer :: ndvs, flap_idx, dvcounter
@@ -685,7 +686,7 @@ function write_airfoil_optimization_progress(designvars, designcounter)
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
-                 xfoil_options, lift, drag, moment, viscrms)
+                 xfoil_options, alpha, lift, drag, moment, viscrms)
 
 ! Set output file names and identifiers
 

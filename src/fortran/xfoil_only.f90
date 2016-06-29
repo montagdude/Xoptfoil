@@ -43,7 +43,8 @@ program xfoil_only
   integer, dimension(:), allocatable :: constrained_dvs
   integer :: restart_write_freq
   logical :: restart
-  double precision, dimension(:), allocatable :: lift, drag, moment, viscrms
+  double precision, dimension(:), allocatable :: alpha, lift, drag, moment,    &
+                                                 viscrms
 
 ! Set default names and read command line arguments
 
@@ -61,6 +62,7 @@ program xfoil_only
 
 ! Allocate some things
 
+  allocate(alpha(noppoint))
   allocate(lift(noppoint))
   allocate(drag(noppoint))
   allocate(moment(noppoint))
@@ -87,7 +89,7 @@ program xfoil_only
   call run_xfoil(foil, xfoil_geom_options, op_point(1:noppoint),               &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
-                 xfoil_options, lift, drag, moment, viscrms)
+                 xfoil_options, alpha, lift, drag, moment, viscrms)
 
 ! Deallocate xfoil variables
 
@@ -96,6 +98,7 @@ program xfoil_only
 ! Deallocate some things
 
   call deallocate_airfoil(foil)
+  deallocate(alpha)
   deallocate(lift)
   deallocate(drag)
   deallocate(moment)

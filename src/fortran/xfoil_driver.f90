@@ -164,16 +164,14 @@ end subroutine xfoil_apply_flap_deflection
 ! for specified cl.  
 ! 
 ! Outputs:
-!   thickmax: max thickness
-!   thickmin: min thickness aft of x = 0.5
-!   xthickmin: location of min thickness aft of x = 0.5
-!   Cl, Cd, Cm each operating point
+!   alpha, Cl, Cd, Cm each operating point
 !   viscrms: rms for viscous calculations (check for convergence)
 !
 !=============================================================================80
 subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
                      reynolds_numbers, mach_numbers, use_flap, x_flap, y_flap, &
-                     flap_degrees, xfoil_options, lift, drag, moment, viscrms)
+                     flap_degrees, xfoil_options, alpha, lift, drag, moment,   &
+                     viscrms)
 
   use xfoil_inc
   use vardef,    only : airfoil_type
@@ -187,12 +185,11 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
   logical, intent(in) :: use_flap
   character(7), dimension(:), intent(in) :: op_modes
   type(xfoil_options_type), intent(in) :: xfoil_options
-  double precision, dimension(size(operating_points,1)), intent(out) ::        &
-                    lift, drag, moment, viscrms
+  double precision, dimension(size(operating_points,1)), intent(out) :: alpha, &
+                                                     lift, drag, moment, viscrms
 
   integer :: i, noppoint
   logical, dimension(size(operating_points,1)) :: point_converged, point_fixed 
-  double precision, dimension(size(operating_points,1)) :: alpha
   double precision :: newpoint
   character(30) :: text
   character(150) :: message
