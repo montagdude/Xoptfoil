@@ -159,6 +159,7 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
   fevalsg = 0
   stepsl = 0
   fevalsl = 0
+  designcounter = 0
 
   ndv = size(optdesign,1)
 

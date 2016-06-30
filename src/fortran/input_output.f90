@@ -641,10 +641,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if (trim(shape_functions) /= 'hicks-henne' .and.                             &
       trim(shape_functions) /= 'naca')                                         &
     call my_stop("shape_functions must be 'hicks-henne' or 'naca'.")
-  if (nfunctions_top < 1)                                                      &
-    call my_stop("nfunctions_top must be > 0.")
-  if (nfunctions_bot < 1)                                                      &
-    call my_stop("nfunctions_bot must be > 0.")
+  if (nfunctions_top < 0)                                                      &
+    call my_stop("nfunctions_top must be >= 0.")
+  if (nfunctions_bot < 0)                                                      &
+    call my_stop("nfunctions_bot must be >= 0.")
   if (initial_perturb <= 0.d0)                                                 &
     call my_stop("initial_perturb must be > 0.")
   if (min_bump_width <= 0.d0)                                                  &

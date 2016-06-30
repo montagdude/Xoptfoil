@@ -16,12 +16,14 @@ answers are below that.
 7) How do I plot the results?
 8) How do shape functions work?
 9) How does flap optimization work?
-10) What's the difference between Hicks-Henne and NACA shape functions?
-11) What's the difference between particle swarm and genetic algorithm?
-12) How do I optimize for high lift?
-13) What if most of the initial designs can't be initialized in the feasible
+10) What if I just want to find out the optimal flap settings for an existing
+    airfoil, without modifying its shape?
+11) What's the difference between Hicks-Henne and NACA shape functions?
+12) What's the difference between particle swarm and genetic algorithm?
+13) How do I optimize for high lift?
+14) What if most of the initial designs can't be initialized in the feasible
     space?
-14) Why do some outputs show so many digits after the decimal point?
+15) Why do some outputs show so many digits after the decimal point?
 
 ================================================================================
 
@@ -35,3 +37,12 @@ answers are below that.
    from the command prompt in the user guide (see Section 2: Running Xoptfoil).
 
 2) What's the difference between min-drag, min-sink, and max-lift?
+
+   Min-drag minimizes Cd at a given operating point.  Max-lift maximizes Cl.
+   Min-sink maximizes Cl^1.5/Cd.  However, note that max-lift and min-sink are
+   equivalent to min-drag for any operating points where Cl is specified (using
+   op_mode = 'spec-cl'), because Cl is no longer a variable.  Since in most
+   cases the designer knows what Cl should be, but not necessarily the angle of
+   attack, most of the time min-drag is the best choice.  One exception is
+   described in question 13: "How do I optimize for high lift?" and there are
+   probably others as well.

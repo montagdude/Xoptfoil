@@ -140,6 +140,6 @@ program main
   deallocate(zseedt)
   deallocate(zseedb)
   deallocate(optdesign)
-  deallocate(constrained_dvs)
+  if (allocated(constrained_dvs)) deallocate(constrained_dvs)
 
 end program main
