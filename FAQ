@@ -1,0 +1,37 @@
+Here is a list of frequently asked questions I've put together based on
+feedback from the Xoptfoil thread on RCGroups:
+
+http://www.rcgroups.com/forums/showthread.php?t=2095696
+
+The questions are just listed directly below for reference.  The full questions/
+answers are below that.
+
+1) On Windows, When I double-click the Xoptfoil executable to run it, a window 
+   pops up but then closes right away.  What should I do?
+2) What's the difference between min-drag, min-sink, and max-lift?
+3) My output airfoils look wavy or bumpy.  What can I do?
+4) What if my seed airfoil doesn't pass all the constraints?
+5) What are all the different output files for?
+6) Can I stop an optimization that's taking a long time and restart it later?
+7) How do I plot the results?
+8) How do shape functions work?
+9) How does flap optimization work?
+10) What's the difference between Hicks-Henne and NACA shape functions?
+11) What's the difference between particle swarm and genetic algorithm?
+12) How do I optimize for high lift?
+13) What if most of the initial designs can't be initialized in the feasible
+    space?
+14) Why do some outputs show so many digits after the decimal point?
+
+================================================================================
+
+1) On Windows, When I double-click the Xoptfoil executable to run it, a window 
+   pops up but then closes right away.  What should I do?
+
+   It probably means that there is an error in your input file, or maybe one of 
+   the required input files is not present.  You should run Xoptfoil from the 
+   command prompt, which will prevent the window from closing, so you'll be able
+   to see the what the error was.  You can find instructions for how to run it 
+   from the command prompt in the user guide (see Section 2: Running Xoptfoil).
+
+2) What's the difference between min-drag, min-sink, and max-lift?
