@@ -6,28 +6,34 @@ http://www.rcgroups.com/forums/showthread.php?t=2095696
 The questions are just listed directly below for reference.  The full questions/
 answers are below that.
 
-1) On Windows, When I double-click the Xoptfoil executable to run it, a window 
+1) Where do I get detailed information on setting up and running Xoptfoil?
+2) On Windows, When I double-click the Xoptfoil executable to run it, a window 
    pops up but then closes right away.  What should I do?
-2) What's the difference between min-drag, min-sink, and max-lift?
-3) My output airfoils look wavy or bumpy.  What can I do?
-4) What if my seed airfoil doesn't pass all the constraints?
-5) What are all the different output files for?
-6) Can I stop an optimization that's taking a long time and restart it later?
-7) How do I plot the results?
-8) How do shape functions work?
-9) How does flap optimization work?
-10) What if I just want to find out the optimal flap settings for an existing
+3) What's the difference between min-drag, min-sink, and max-lift?
+4) My output airfoils look wavy or bumpy.  What can I do?
+5) What if my seed airfoil doesn't pass all the constraints?
+6) What are all the different output files for?
+7) Can I stop an optimization that's taking a long time and restart it later?
+8) How do I plot the results?
+9) How do shape functions work?
+10) What's the difference between Hicks-Henne and NACA shape functions?
+11) How does flap optimization work?
+12) What if I just want to find out the optimal flap settings for an existing
     airfoil, without modifying its shape?
-11) What's the difference between Hicks-Henne and NACA shape functions?
-12) What's the difference between particle swarm and genetic algorithm?
-13) How do I optimize for high lift?
-14) What if most of the initial designs can't be initialized in the feasible
+13) What's the difference between particle swarm and genetic algorithm?
+14) How do I optimize for high lift?
+15) What if most of the initial designs can't be initialized in the feasible
     space?
-15) Why do some outputs show so many digits after the decimal point?
+16) Why do some outputs show so many digits after the decimal point?
 
 ================================================================================
 
-1) On Windows, When I double-click the Xoptfoil executable to run it, a window 
+1) Where do I get detailed information on setting up and running Xoptfoil?
+
+   You can find out pretty much everything you need to know by looking at the
+   user guide, which can be found in the doc directory.
+
+2) On Windows, When I double-click the Xoptfoil executable to run it, a window 
    pops up but then closes right away.  What should I do?
 
    It probably means that there is an error in your input file, or maybe one of 
@@ -35,8 +41,9 @@ answers are below that.
    command prompt, which will prevent the window from closing, so you'll be able
    to see the what the error was.  You can find instructions for how to run it 
    from the command prompt in the user guide (see Section 2: Running Xoptfoil).
+   This is the recommended way to run it.
 
-2) What's the difference between min-drag, min-sink, and max-lift?
+3) What's the difference between min-drag, min-sink, and max-lift?
 
    Min-drag minimizes Cd at a given operating point.  Max-lift maximizes Cl.
    Min-sink maximizes Cl^1.5/Cd.  However, note that max-lift and min-sink are
@@ -46,3 +53,173 @@ answers are below that.
    attack, most of the time min-drag is the best choice.  One exception is
    described in question 13: "How do I optimize for high lift?" and there are
    probably others as well.
+
+4) My output airfoils look wavy or bumpy.  What can I do?
+
+   There is a constraint that can be used to limit the number of curvature
+   reversals on the top and bottom surfaces.  The relevant settings are
+   check_curvature, max_curv_reverse_top, max_curv_reverse_bot, and 
+   curv_threshold.  You can find out more information about these in the user
+   guide.  Curvature checks are disabled by default because they limit the
+   design space, but sometimes they are necessary.  It's also possible to get
+   small bumps if you use Hicks-Henne shape functions and you made 
+   min_bump_width too small.
+
+5) What if my seed airfoil doesn't pass all the constraints?
+
+   It is best to have a seed airfoil that passes all the constraints.  In fact,
+   it's best to start with a seed airfoil that is already well-suited for the
+   operating points you are targeting.  However, you can still run an
+   optimization even if the seed airfoil doesn't pass all the constraints, and
+   in most cases it will still produce a good airfoil.  Be aware that the lift-
+   drag polar may not be improved over the seed airfoil's, because you are
+   imposing constraints on the optimization that the seed airfoil did not need
+   to meet.  The optimization progress that is printed out to the screen may
+   still indicate that the performance is improved by a large amount, however.  
+   This is because large penalties are added to the objective function any time 
+   a design violates a constraint, including the seed airfoil.
+
+6) What are all the different output files for?
+
+   All the different files are described in the user guide (see section 2:
+   Output files).  One of them gives the optimized airfoil coordinates, one 
+   gives a summary of the performance, and the rest are either for restarting
+   or for plotting the optimization progress.
+
+7) Can I stop an optimization that's taking a long time and restart it later?
+
+   You can stop Xoptfoil ungracefully by closing the window or (in Linux)
+   pressing CTRL+C in the terminal.  After that, you can restart it by setting
+   restart = .true. in the input file. Make sure that restart_write_freq is not
+   too large, or the restart files may not have been written yet (or they may
+   have been written a long time ago).
+
+8) How do I plot the results?
+
+   You can use the included design_visualizer.py script.  You need to have 
+   Python installed to use it.  See Section 7: Using the design visualizer for
+   more information about how to use it.  Of course, you can also use the data
+   from the output files in whatever alternative plotting program you prefer.
+
+9) How do shape functions work?
+
+   You can think of shape functions as bumps that get added to the surface of
+   the seed airfoil in different locations.  By placing these bumps with 
+   particular sizes and shapes and in particular locations on the seed airfoil,
+   a new airfoil is generated.  Xoptfoil varies the strengths of these bumps 
+   (and, for Hicks-Henne shape functions, the widths and locations as well) to
+   create new airfoils that optimize performance at the operating points you
+   select.
+
+10) What's the difference between Hicks-Henne and NACA shape functions?
+ 
+    The main difference is that NACA shape functions are fixed in width and
+    position once the number of shape functions is set.  Hicks-Henne, on the
+    other hand, can move around and become wider or narrower.  Both can be
+    made larger or smaller by changing the strength of the shape function.
+    Because Hicks-Henne shape functions have more degrees of freedom, fewer of
+    them are required to achieve the same or greater level of control in shaping
+    new airfoils.  Typically, using 4 Hicks-Henne functions on both the top and 
+    bottom surfaces works well, which results in the same number of degrees of
+    freedom as (or "design variables") as 12 NACA functions.  Hicks-Henne is
+    recommended because it tends to work better for the same number of design
+    variables.
+
+11) How does flap optimization work?
+
+    If you want to optimize flaps, you must set use_flap = .true. in the
+    operating_conditions namelist.  You then select a single x- and y-location
+    for the flap, and at each operating point say whether you want the flap
+    angle to be specified or optimized.  (Note that, even if you are optimizing
+    the flap angle for a particular operating point, the value set in the
+    flap_degrees variable is still used for the seed airfoil design.)  The sign
+    convention is positive down, negative up.  Optimized flap angles are subject
+    to the min_flap_degrees and max_flap_degrees constraints.  Each flap angle
+    is associated to an individual operating point, whereas the shape of a given
+    airfoil design applies to all operating points.
+
+    To apply a flap deflection, the Xfoil subroutine FLAP is called.  This
+    subroutine determines where the break on the upper and lower surfaces occurs
+    based on the flap angle and the flap hinge location, rotates the portions of
+    the airfoil aft of the break, and then "patches" the breaks in a smooth way.
+
+12) What if I just want to find out the optimal flap settings for an existing
+    airfoil, without modifying its shape?
+
+    You can do this by setting both nfunctions_top and nfunctions_bot equal to
+    0, setting use_flap = .true., and setting flap_selection = 'optimize' for at
+    least one of the operating points.  Then, the optimized flap setting(s) will
+    be the only design variable(s), and the optimized airfoil will look the same
+    as the seed airfoil.
+
+13) What's the difference between particle swarm and genetic algorithm?
+
+    In some ways they are similar, but they are also very different.  Both use a
+    population of designs that are initially generated randomly.  These designs
+    then interact with each other to form better designs.  In particle swarm
+    optimization, each "particle" has a velocity, an inertial parameter, and
+    is attracted towards both the best design it has found and the best design
+    that the entire swarm has found to different degrees.  Eventually, all of
+    the particles in the population will converge on a single design.
+
+    In the genetic algorithm, a number of designs are selected at each iteration
+    to reproduce.  These are typically chosen in a way such that better designs
+    have a better probability of reproducing.  These "parent" designs are paired
+    off, and traits from both are combined to produce "offspring."  If the
+    offspring perform better than some of the existing members of the
+    population, those poorly-performing designs will be discarded.  This process
+    also tends to converge on a single design, given enough iterations.
+
+    As for which is better, there is no clear answer.  In testing, particle
+    swarm optimization with the "exhuastive" profile finds the best solutions,
+    on average.  The genetic algorithm sometimes performs as well or better, but
+    in testing it has resulted in slightly poorer-performing optimized airfoils
+    on average.  Both these options are much better (again, on average), than
+    particle swarm with the "quick" convergence profile, but the latter still
+    gives good results and converges in many fewer iterations.
+
+14) How do I optimize for high lift?
+
+    Optimizing for high lift is a tough problem, but it can be done.  The reason
+    that it is difficult is that it explores the limits of the airfoil's
+    functional range; the lift peak occurs just before stall.  Since Xoptfoil
+    penalizes operating points that don't converge, and stalled flows usually
+    don't converge in Xfoil, it is hard for it to explore this boundary.
+    Another practical difficulty is that in trying to maximize Clmax, the
+    designer doesn't know beforehand either the alpha or Cl where this occurs.
+
+    This background aside, it is still possible to maximize for high lift with
+    Xoptfoil.  The following method is thanks to weps on RCGroups:
+
+    -- Determine the angle of attack where Clmax occurs for the seed airfoil
+       using Xfoil (or one of the tools that packages Xfoil, including the
+       xfoil_only program that comes with Xoptfoil).
+    -- Set an operating point at the angle of attack determined in the previous
+       step (be sure to set op_mode = 'spec-al' at this point). Use the max-lift
+       optimization type for this operating point.
+    -- Be careful with pitching moment constraints for the point where you are
+       trying to maximize lift.  For example, if moment_constraint_type is
+       'use_seed', you will constrain the pitching moment to be no more negative
+       than the seed airfoil's at this point, which could limit the ability to
+       really maximize lift, and it could also result in funny shapes, e.g.
+       reflex being added to satisfy the pitching moment constraint.
+
+15) What if most of the initial designs can't be initialized in the feasible
+    space?
+ 
+    This is usually due to having constraints that are too limiting.  If you are
+    running into this problem, first try relaxing the geometric constraints such
+    as the thickness and curvature constraints.  It can also be caused by
+    setting unrealistic operating points; i.e., specifying a lift coefficient
+    that is impossibly high.
+
+16) Why do some outputs show so many digits after the decimal point?
+
+    Modern computers do all calculations to a high precision.  This prevents
+    round-off errors from piling up when many calculations are strung together.
+    Xoptfoil reports some outputs to a large number of decimal places, but this
+    doesn't mean that all of them are actually statistically significant in real
+    life given uncertainties in the physics modeling and variations that will
+    invariably be introduced when building.  Xoptfoil simply reports the results
+    of the numerical calculations; it is the user's job to understand the
+    uncertainty involved in the entire process.
