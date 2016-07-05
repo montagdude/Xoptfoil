@@ -21,10 +21,11 @@ answers are below that.
 12) What if I just want to find out the optimal flap settings for an existing
     airfoil, without modifying its shape?
 13) What's the difference between particle swarm and genetic algorithm?
-14) How do I optimize for high lift?
-15) What if most of the initial designs can't be initialized in the feasible
+14) What's the difference between global and local optimization?
+15) How do I optimize for high lift?
+16) What if most of the initial designs can't be initialized in the feasible
     space?
-16) Why do some outputs show so many digits after the decimal point?
+17) Why do some outputs show so many digits after the decimal point?
 
 ================================================================================
 
@@ -178,7 +179,34 @@ answers are below that.
     particle swarm with the "quick" convergence profile, but the latter still
     gives good results and converges in many fewer iterations.
 
-14) How do I optimize for high lift?
+14) What's the difference between global and local optimization?
+
+    Traditional optimization methods use the local gradient of the objective 
+    function to determine the direction to search.  Essentially, this means that
+    they look around the current design and determine which small changes will
+    improve the performance.  This approach has serious limitations for design
+    spaces with many local minima (locations in the design space that may not be
+    the global minimum, but nevertheless making any small changes to the design
+    will hurt the performance).  Airfoil optimization is like that.  Therefore,
+    instead of using a gradient-based local search method, global search methods
+    such as particle swarm optimization and genetic algorithms are utilized
+    instead.  These methods are able to ignore local minima by exchanging
+    information amongst many candidate designs scattered all over the design
+    space.
+    
+    Because airfoil optimization problems have many local minima, the global 
+    search methods are recommended.  Xoptfoil does have a local search method as
+    well, which sometimes can hone in on the minimum, once it's in the right
+    vicinity, more efficiently than the global search methods.  The local search
+    method implemented in Xoptfoil is the Nelder-Mead simplex algorithm, which
+    is not actually gradient-based but still is a local search method.  It is
+    not recommended to only use the local search when optimizing an airfoil
+    design (therefore, use search_type = 'global_and_local' or 'global', but not
+    'local').  If you do use only the local search, it is likely that the final
+    airfoil created by the optimizer will not be much different (or much better
+    than) the seed airfoil.
+    
+15) How do I optimize for high lift?
 
     Optimizing for high lift is a tough problem, but it can be done.  The reason
     that it is difficult is that it explores the limits of the airfoil's
@@ -204,7 +232,7 @@ answers are below that.
        really maximize lift, and it could also result in funny shapes, e.g.
        reflex being added to satisfy the pitching moment constraint.
 
-15) What if most of the initial designs can't be initialized in the feasible
+16) What if most of the initial designs can't be initialized in the feasible
     space?
  
     This is usually due to having constraints that are too limiting.  If you are
@@ -213,7 +241,7 @@ answers are below that.
     setting unrealistic operating points; i.e., specifying a lift coefficient
     that is impossibly high.
 
-16) Why do some outputs show so many digits after the decimal point?
+17) Why do some outputs show so many digits after the decimal point?
 
     Modern computers do all calculations to a high precision.  This prevents
     round-off errors from piling up when many calculations are strung together.
