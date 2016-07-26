@@ -862,62 +862,6 @@ end subroutine read_inputs
 
 !=============================================================================80
 !
-! User selects airfoil to analyze for xfoil_only
-!
-!=============================================================================80
-subroutine choose_airfoil(seed_airfoil, airfoil_file, naca_digits)
-
-  character(80), intent(inout) :: seed_airfoil, airfoil_file
-  character(4), intent(inout) :: naca_digits
-
-  character(1) :: choice
-  logical :: valid_choice
-
-! Get airfoil choice
-
-  valid_choice = .false.
-  do while (.not. valid_choice)
-    write(*,*)
-    write(*,*) "Which airfoil do you want to analyze? (select an option):"
-    write(*,*) "1) Use seed airfoil from input file"
-    write(*,*) "2) Load an airfoil from a file"
-    write(*,*) "3) Generate a NACA 4-digit airfoil"
-    write(*,*)
-    write(*,'(A)',advance="no") " Selection: "
-    read(*,*) choice
-  
-    if (choice == "1") then
-      valid_choice = .true.
-    else if (choice == "2") then
-      seed_airfoil = "from_file"
-      valid_choice = .true.
-    else if (choice == "3") then
-      seed_airfoil = "four_digit"
-      valid_choice = .true.
-    else
-      write(*,*) "Please enter 1, 2, or 3 at the prompt."
-      valid_choice = .false.
-    end if
-  end do
-
-! For from_file or four_digit, get further input
-
-  if (choice /= "1") then
-    if (trim(seed_airfoil) == "from_file") then
-      write(*,*)
-      write(*,'(A)',advance="no") " Enter airfoil file name: "
-      read(*,*) airfoil_file
-    else if (trim(seed_airfoil) == "four_digit") then
-      write(*,*)
-      write(*,'(A)',advance="no") " Enter NACA 4-digit code: "
-      read(*,*) naca_digits
-    end if
-  end if
-
-end subroutine choose_airfoil
-
-!=============================================================================80
-!
 ! Prints error and stops or warns for bad namelist read
 !
 !=============================================================================80
