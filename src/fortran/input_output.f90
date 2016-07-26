@@ -40,6 +40,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   use simplex_search,     only : ds_options_type
   use airfoil_operations, only : my_stop
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
+  use naca,               only : naca_options_type
  
   character(*), intent(in) :: input_file
   character(80), intent(out) :: search_type, global_search, local_search,      &

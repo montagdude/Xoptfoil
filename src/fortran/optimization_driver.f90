@@ -393,7 +393,6 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
                                  create_airfoil
   use airfoil_evaluation, only : xfoil_geom_options, xfoil_options
   use xfoil_driver,       only : run_xfoil
-  use xfoil_inc,          only : ALFA, DTOR
 
   double precision, dimension(:), intent(in) :: optdesign
   character(*), intent(in) :: shapetype
