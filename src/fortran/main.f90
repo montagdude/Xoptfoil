@@ -21,12 +21,14 @@ program main
 
   use vardef
   use input_output,        only : read_inputs, read_clo
+  use naca,                only : naca_options_type
   use particle_swarm,      only : pso_options_type
   use genetic_algorithm,   only : ga_options_type
   use simplex_search,      only : ds_options_type
   use airfoil_operations,  only : get_seed_airfoil, get_split_points,          &
-                                  split_airfoil, deallocate_airfoil
-  use memory_util,         only : allocate_airfoil_data, deallocate_airfoil_data
+                                  split_airfoil
+  use memory_util,         only : deallocate_airfoil, allocate_airfoil_data,   &
+                                  deallocate_airfoil_data
   use input_sanity,        only : check_seed
   use optimization_driver, only : matchfoils_preprocessing, optimize,          &
                                   write_final_design
@@ -36,8 +38,8 @@ program main
   type(airfoil_type) :: buffer_foil
   character(80) :: search_type, global_search, local_search, seed_airfoil,     &
                    airfoil_file, matchfoil_file
-  character(4) :: naca_digits
   character(80) :: input_file
+  type(naca_options_type) :: naca_options
   type(pso_options_type) :: pso_options
   type(ga_options_type) :: ga_options
   type(ds_options_type) :: ds_options
@@ -61,13 +63,13 @@ program main
 ! Read inputs from namelist file
 
   call read_inputs(input_file, search_type, global_search, local_search,       &
-                   seed_airfoil, airfoil_file, naca_digits, nparams_top,       &
-                   nparams_bot, restart, restart_write_freq, constrained_dvs,  &
+                   seed_airfoil, airfoil_file, nparams_top, nparams_bot,       &
+                   restart, restart_write_freq, constrained_dvs, naca_options, &
                    pso_options, ga_options, ds_options, matchfoil_file)
 
 ! Load seed airfoil into memory, including transformations and smoothing
 
-  call get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, buffer_foil,  &
+  call get_seed_airfoil(seed_airfoil, airfoil_file, naca_options, buffer_foil, &
                         xoffset, zoffset, foilscale)
 
 ! Split up seed airfoil into upper and lower surfaces

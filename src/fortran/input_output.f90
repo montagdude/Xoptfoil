@@ -29,10 +29,10 @@ module input_output
 !
 !=============================================================================80
 subroutine read_inputs(input_file, search_type, global_search, local_search,   &
-                       seed_airfoil, airfoil_file, naca_digits, nfunctions_top,&
+                       seed_airfoil, airfoil_file, nfunctions_top,             &
                        nfunctions_bot, restart, restart_write_freq,            &
-                       constrained_dvs, pso_options, ga_options, ds_options,   &
-                       matchfoil_file)
+                       constrained_dvs, naca_options, pso_options, ga_options, &
+                       ds_options, matchfoil_file)
 
   use vardef
   use particle_swarm,     only : pso_options_type
@@ -45,18 +45,19 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   character(*), intent(in) :: input_file
   character(80), intent(out) :: search_type, global_search, local_search,      &
                                 seed_airfoil, airfoil_file, matchfoil_file
-  character(4), intent(out) :: naca_digits
   integer, intent(out) :: nfunctions_top, nfunctions_bot
   integer, dimension(:), allocatable, intent(inout) :: constrained_dvs
+  type(naca_options_type), intent(out) :: naca_options
   type(pso_options_type), intent(out) :: pso_options
   type(ga_options_type), intent(out) :: ga_options
   type(ds_options_type), intent(out) :: ds_options
 
   logical :: viscous_mode, silent_mode, fix_unconverged, feasible_init,        &
-             reinitialize, restart, write_designs
+             reinitialize, restart, write_designs, reflexed
   integer :: restart_write_freq, pso_pop, pso_maxit, simplex_maxit, bl_maxit,  &
              npan, feasible_init_attempts
   integer :: ga_pop, ga_maxit
+  double precision :: maxt, xmaxt, maxc, xmaxc, design_cl, a, leidx
   double precision :: pso_tol, simplex_tol, ncrit, xtript, xtripb, vaccel
   double precision :: cvpar, cterat, ctrrat, xsref1, xsref2, xpref1, xpref2
   double precision :: feasible_limit
@@ -67,13 +68,14 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   integer :: nbot_actual, nmoment_constraint
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
+  character(3) :: family
   character(10) :: pso_convergence_profile, parents_selection_method
   character :: choice
 
   namelist /optimization_options/ search_type, global_search, local_search,    &
-            seed_airfoil, airfoil_file, naca_digits, shape_functions,          &
-            nfunctions_top, nfunctions_bot, initial_perturb, min_bump_width,   &
-            restart, restart_write_freq, write_designs
+            seed_airfoil, airfoil_file, shape_functions, nfunctions_top,       &
+            nfunctions_bot, initial_perturb, min_bump_width, restart,          &
+            restart_write_freq, write_designs
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
             use_flap, x_flap, y_flap, flap_selection, flap_degrees, weighting, &
             optimization_type 
@@ -82,6 +84,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                          max_curv_reverse_top, max_curv_reverse_bot,           &
                          curv_threshold, symmetrical, min_flap_degrees,        &
                          max_flap_degrees, min_camber, max_camber
+  namelist /naca_airfoil/ family, maxt, xmaxt, maxc, xmaxc, design_cl, a,      &
+                          leidx, reflexed
   namelist /initialization/ feasible_init, feasible_limit,                     &
                             feasible_init_attempts
   namelist /particle_swarm_options/ pso_pop, pso_tol, pso_maxit,               &
@@ -114,8 +118,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   search_type = 'global_and_local'
   global_search = 'particle_swarm'
   local_search = 'simplex'
-  seed_airfoil = 'four_digit'
-  naca_digits = '0012'
+  seed_airfoil = 'naca'
   shape_functions = 'hicks-henne'
   min_bump_width = 0.1d0
   nfunctions_top = 4
@@ -208,6 +211,37 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     
     if (nmoment_constraint > 0) choice = ask_moment_constraints()
     if (choice == 'y') moment_constraint_type(:) = 'none'
+  end if
+
+! Set defaults for naca airfoil options
+ 
+  family = '4'
+  maxt = 0.1d0
+  xmaxt = 0.3d0
+  maxc = 0.d0
+  xmaxc = 0.3d0
+  design_cl = 0.3d0
+  a = 1.d0
+  leidx = 6.d0
+  reflexed = .false.
+
+! Read naca airfoil options and put them into derived type
+
+  if ( (seed_airfoil == 'naca') .or. (seed_airfoil == 'NACA') .or.             &
+       (seed_airfoil == 'Naca') ) then
+    rewind(iunit)
+    read(iunit, iostat=iostat1, nml=naca_airfoil)
+    call namelist_check('naca_airfoil', iostat1, 'warn')
+
+    naca_options%family = family
+    naca_options%maxt = maxt
+    naca_options%xmaxt = xmaxt
+    naca_options%maxc = maxc
+    naca_options%xmaxc = xmaxc
+    naca_options%design_cl = design_cl
+    naca_options%a = a
+    naca_options%leidx = leidx
+    naca_options%reflexed = reflexed
   end if
 
 ! Set default initialization options
@@ -463,7 +497,6 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " local_search = '"//trim(local_search)//"'"
   write(*,*) " seed_airfoil = '"//trim(seed_airfoil)//"'"
   write(*,*) " airfoil_file = '"//trim(airfoil_file)//"'"
-  write(*,*) " naca_digits = '"//trim(naca_digits)//"'"
   write(*,*) " shape_functions = '"//trim(shape_functions)//"'"
   write(*,*) " min_bump_width = ", min_bump_width
   write(*,*) " nfunctions_top = ", nfunctions_top
@@ -523,6 +556,21 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " max_flap_degrees = ", max_flap_degrees
   write(*,*) " min_camber = ", min_camber
   write(*,*) " max_camber = ", max_camber
+  write(*,'(A)') " /"
+  write(*,*)
+
+! NACA namelist
+
+  write(*,'(A)') " &naca"
+  write(*,*) " family = "//trim(adjustl(family))
+  write(*,*) " maxt = ", maxt
+  write(*,*) " xmaxt = ", xmaxt
+  write(*,*) " maxc = ", maxc
+  write(*,*) " xmaxc = ", xmaxc
+  write(*,*) " design_cl = ", design_cl
+  write(*,*) " a = ", a
+  write(*,*) " leidx = ", leidx
+  write(*,*) " reflexed = ", reflexed
   write(*,'(A)') " /"
   write(*,*)
 
@@ -704,6 +752,23 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     call my_stop("max_flap_degrees must be < 90.")
   if (min_camber >= max_camber)                                                &
     call my_stop("min_camber must be < max_camber.")
+
+! Naca airfoil options
+
+  select case (adjustl(family))
+    case ('4', '4M', '5', '63', '64', '65', '66', '67', '63A', '64A', '65A')
+      continue
+    case default
+      call my_stop("Unrecognized NACA airfoil family.")
+  end select
+  if (maxt <= 0.d0) call my_stop("maxt must be > 0.")
+  if ( (xmaxt < 0.d0) .or. (xmaxt > 1.d0) )                                    &
+    call my_stop("xmaxt must be >= 0 and <= 1.")
+  if ( (xmaxc < 0.d0) .or. (xmaxc > 1.d0) )                                    &
+    call my_stop("xmaxc must be >= 0 and <= 1.")
+  if ( (a < 0.d0) .or. (a > 1.d0) )                                            &
+    call my_stop("a must be >= 0 and <= 1.")
+  if (leidx <= 0.d0) call my_stop("leidx must be > 0.")
 
 ! Initialization options
     

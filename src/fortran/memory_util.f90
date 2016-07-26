@@ -25,6 +25,41 @@ module memory_util
 
 !=============================================================================80
 !
+! Allocates memory for buffer airfoil
+!
+!=============================================================================80
+subroutine allocate_airfoil(foil)
+
+  use vardef, only : airfoil_type
+
+  type(airfoil_type), intent(inout) :: foil
+
+  integer :: npoint
+ 
+  npoint = foil%npoint
+  allocate(foil%x(npoint))
+  allocate(foil%z(npoint))
+
+end subroutine allocate_airfoil
+
+!=============================================================================80
+!
+! Deallocates memory for buffer airfoil
+!
+!=============================================================================80
+subroutine deallocate_airfoil(foil)
+
+  use vardef, only : airfoil_type
+
+  type(airfoil_type), intent(inout) :: foil
+
+  deallocate(foil%x)
+  deallocate(foil%z)
+
+end subroutine deallocate_airfoil
+
+!=============================================================================80
+!
 ! Allocates memory for airfoil optimization
 !
 !=============================================================================80
@@ -34,7 +69,6 @@ subroutine allocate_airfoil_data()
   use vardef,             only : nparams_top, nparams_bot, shape_functions,    &
                                  xseedt, xseedb, curr_foil
   use parametrization,    only : create_shape_functions
-  use airfoil_operations, only : allocate_airfoil
 
   double precision, dimension(:), allocatable :: modest, modesb
 
@@ -87,7 +121,6 @@ subroutine deallocate_airfoil_data()
 
   use parametrization,    only : deallocate_shape_functions
   use vardef,             only : curr_foil
-  use airfoil_operations, only : deallocate_airfoil
   use xfoil_driver,       only : xfoil_cleanup
 
 !$omp parallel default(shared)

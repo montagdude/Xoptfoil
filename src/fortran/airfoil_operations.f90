@@ -32,14 +32,15 @@ module airfoil_operations
 ! Driver subroutine to read or create a seed airfoil
 !
 !=============================================================================80
-subroutine get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, foil,     &
+subroutine get_seed_airfoil(seed_airfoil, airfoil_file, naca_options, foil,    &
                             xoffset, zoffset, foilscale)
 
   use vardef,       only : airfoil_type
   use xfoil_driver, only : smooth_paneling
+  use naca,         only : naca_options_type, naca_456
 
   character(*), intent(in) :: seed_airfoil, airfoil_file
-  character(4), intent(in) :: naca_digits
+  type(naca_options_type), intent(in) :: naca_options
   type(airfoil_type), intent(out) :: foil
   double precision, intent(out) :: xoffset, zoffset, foilscale
 
@@ -52,16 +53,16 @@ subroutine get_seed_airfoil(seed_airfoil, airfoil_file, naca_digits, foil,     &
 
     call load_airfoil(airfoil_file, tempfoil)
 
-  elseif (trim(seed_airfoil) == 'four_digit') then
+  elseif (trim(seed_airfoil) == 'naca') then
 
-!   Create seed airfoil from NACA 4-digit series
+!   Create NACA 4, 4M, 5, 6, or 6A series airfoil
 
     pointsmcl = 200
-    call naca_four_digit(naca_digits, pointsmcl, tempfoil)
+    call naca_456(naca_options, pointsmcl, tempfoil)
 
   else
 
-    write(*,*) "Error: seed_airfoil should be 'from_file' or 'four_digit'."
+    write(*,*) "Error: seed_airfoil should be 'from_file' or 'naca'."
     write(*,*)
     stop
 
@@ -90,7 +91,8 @@ end subroutine get_seed_airfoil
 !=============================================================================80
 subroutine load_airfoil(filename, foil)
 
-  use vardef, only : airfoil_type
+  use vardef,      only : airfoil_type
+  use memory_util, only : allocate_airfoil
 
   character(*), intent(in) :: filename
   type(airfoil_type), intent(out) :: foil
@@ -124,6 +126,7 @@ subroutine naca_four_digit(naca_digits, pointsmcl, foil)
 
   use parametrization,  only : normal_spacing
   use vardef,           only : airfoil_type
+  use memory_util,      only : allocate_airfoil
 
   character(4), intent(in) :: naca_digits
   integer, intent(in) :: pointsmcl
@@ -744,41 +747,6 @@ subroutine airfoil_write(filename, title, foil)
   close(iunit)
 
 end subroutine airfoil_write
-
-!=============================================================================80
-!
-! Allocates memory for buffer airfoil
-!
-!=============================================================================80
-subroutine allocate_airfoil(foil)
-
-  use vardef, only : airfoil_type
-
-  type(airfoil_type), intent(inout) :: foil
-
-  integer :: npoint
- 
-  npoint = foil%npoint
-  allocate(foil%x(npoint))
-  allocate(foil%z(npoint))
-
-end subroutine allocate_airfoil
-
-!=============================================================================80
-!
-! Deallocates memory for buffer airfoil
-!
-!=============================================================================80
-subroutine deallocate_airfoil(foil)
-
-  use vardef, only : airfoil_type
-
-  type(airfoil_type), intent(inout) :: foil
-
-  deallocate(foil%x)
-  deallocate(foil%z)
-
-end subroutine deallocate_airfoil
 
 !=============================================================================80
 !

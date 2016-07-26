@@ -33,13 +33,16 @@ subroutine matchfoils_preprocessing(matchfoil_file)
 
   use vardef,             only : airfoil_type, xmatcht, xmatchb, zmatcht,      &
                                  zmatchb, xseedt, xseedb, symmetrical
+  use memory_util,        only : deallocate_airfoil
   use airfoil_operations, only : get_seed_airfoil, get_split_points,           &
-                                 split_airfoil, deallocate_airfoil, my_stop
+                                 split_airfoil, my_stop
   use math_deps,          only : interp_vector
+  use naca,               only : naca_options_type
 
   character(*), intent(in) :: matchfoil_file
 
   type(airfoil_type) :: match_foil
+  type(naca_options_type) :: dummy_naca_options
   integer :: pointst, pointsb
   double precision, dimension(:), allocatable :: zttmp, zbtmp
   double precision :: xoffmatch, zoffmatch, scale_match
@@ -56,8 +59,8 @@ subroutine matchfoils_preprocessing(matchfoil_file)
 
 ! Load airfoil to match
 
-  call get_seed_airfoil('from_file', matchfoil_file, '0000', match_foil,       &
-                        xoffmatch, zoffmatch, scale_match)
+  call get_seed_airfoil('from_file', matchfoil_file, dummy_naca_options,       &
+                        match_foil, xoffmatch, zoffmatch, scale_match)
 
 ! Split match_foil into upper and lower halves
 
@@ -387,8 +390,8 @@ end subroutine optimize
 subroutine write_final_design(optdesign, f0, fmin, shapetype)
 
   use vardef
-  use airfoil_operations, only : allocate_airfoil, deallocate_airfoil,         &
-                                 airfoil_write
+  use memory_util,        only : allocate_airfoil, deallocate_airfoil
+  use airfoil_operations, only : airfoil_write
   use parametrization,    only : top_shape_function, bot_shape_function,       &
                                  create_airfoil
   use airfoil_evaluation, only : xfoil_geom_options, xfoil_options

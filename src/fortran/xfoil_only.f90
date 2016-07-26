@@ -26,8 +26,8 @@ program xfoil_only
   use genetic_algorithm,  only : ga_options_type
   use simplex_search,     only : ds_options_type
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
-  use airfoil_operations, only : load_airfoil, naca_four_digit,                &
-                                 deallocate_airfoil
+  use memory_util,        only : deallocate_airfoil
+  use airfoil_operations, only : load_airfoil, naca_four_digit
   use xfoil_driver,       only : run_xfoil, xfoil_init, xfoil_cleanup
 
   implicit none

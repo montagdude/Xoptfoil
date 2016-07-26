@@ -35,7 +35,7 @@ endif
 
 ####### Definitions, rules, targets #################################
 
-OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o epspsi.o splprocs.o nacax.o naca.o airfoil_evaluation.o optimization_util.o particle_swarm.o genetic_algorithm.o simplex_search.o input_output.o input_sanity.o memory_util.o optimization_driver.o main.o
+OBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o memory_util.o epspsi.o splprocs.o nacax.o naca.o airfoil_operations.o airfoil_evaluation.o optimization_util.o particle_swarm.o genetic_algorithm.o simplex_search.o input_output.o input_sanity.o optimization_driver.o main.o
 EXE=xoptfoil
 XOBJ=math_deps.o vardef.o xfoil_inc.o xfoil_math.o my_equivalence.o xfoil_geom.o blpar_inc.o xbl_inc.o xfoil_bl.o xfoil_aero.o xfoil_driver.o parametrization.o airfoil_operations.o airfoil_evaluation.o optimization_util.o particle_swarm.o genetic_algorithm.o simplex_search.o input_output.o xfoil_only.o 
 XEXE=xfoil_only
@@ -90,8 +90,8 @@ xfoil_driver.o: $(DIR)/fortran/xfoil_driver.f90
 parametrization.o: $(DIR)/fortran/parametrization.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/parametrization.f90
 
-airfoil_operations.o: $(DIR)/fortran/airfoil_operations.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/airfoil_operations.f90
+memory_util.o: $(DIR)/fortran/memory_util.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/memory_util.f90
 
 epspsi.o: $(DIR)/fortran/naca456_deps/epspsi.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(XFOIL_REAL8_FLAG) $(DIR)/fortran/naca456_deps/epspsi.f90
@@ -104,6 +104,9 @@ nacax.o: $(DIR)/fortran/naca456_deps/nacax.f90
 
 naca.o: $(DIR)/fortran/naca.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/naca.f90
+
+airfoil_operations.o: $(DIR)/fortran/airfoil_operations.f90
+	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/airfoil_operations.f90
 
 airfoil_evaluation.o: $(DIR)/fortran/airfoil_evaluation.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/airfoil_evaluation.f90
@@ -125,9 +128,6 @@ input_output.o: $(DIR)/fortran/input_output.f90
 
 input_sanity.o: $(DIR)/fortran/input_sanity.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/input_sanity.f90
-
-memory_util.o: $(DIR)/fortran/memory_util.f90
-	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/memory_util.f90
 
 optimization_driver.o: $(DIR)/fortran/optimization_driver.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/optimization_driver.f90
