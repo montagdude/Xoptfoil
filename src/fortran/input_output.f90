@@ -685,8 +685,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Optimization settings
 
   if (trim(seed_airfoil) /= 'from_file' .and.                                  &
-      trim(seed_airfoil) /= 'four_digit')                                      &
-    call my_stop("seed_airfoil must be 'from_file' or 'four_digit'.")
+      trim(seed_airfoil) /= 'naca')                                            &
+    call my_stop("seed_airfoil must be 'from_file' or 'naca'.")
   if (trim(shape_functions) /= 'hicks-henne' .and.                             &
       trim(shape_functions) /= 'naca')                                         &
     call my_stop("shape_functions must be 'hicks-henne' or 'naca'.")

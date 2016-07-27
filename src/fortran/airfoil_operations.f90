@@ -290,24 +290,26 @@ subroutine le_find(x, z, le, xle, zle, addpoint_loc)
   double precision, intent(out) :: xle, zle
 
   integer i, j, zeroval
-  logical switch
+  logical switch, switch_override
   double precision, dimension(6) :: xp, zp
   double precision, dimension(6,6) :: A
   double precision, dimension(6) :: C
   double precision, dimension(2) :: bounds
 
   switch = .false.
+  switch_override = .false.
 
 ! Find point where x-location of airfoil point starts increasing
 
   i = 1
   do while (.not. switch)
-     if (x(i+1) >= x(i)) then
+     if ( (x(i+1) >= x(i)) .or. switch_override ) then
 
         le = i
         switch = .true.
+        switch_override = .false.
 
-!       Fit 5th-order polynomial to leading edge
+!       Fit 5th-order polynomial to find leading edge
 
         xp(1) = x(le+3)
         zp(1) = z(le+3)
@@ -359,13 +361,25 @@ subroutine le_find(x, z, le, xle, zle, addpoint_loc)
         call golden_search(quintic, bounds, zle, xle)
 
 !       Determine whether a new point needs to be added for the leading edge
+!       If the LE point is not adjacent to the expected point, move to the
+!       next closest point and recalculate.
 
         if (zle > z(le)) then
           addpoint_loc = -1
+          if (zle > z(le-1)) then
+            switch = .false.
+            switch_override = .true.
+            i = i - 1
+          end if
         elseif (zle == z(le)) then
           addpoint_loc = 0
         else
           addpoint_loc = 1
+          if (zle < z(le+1)) then
+            switch = .false.
+            switch_override = .true.
+            i = i + 1
+          end if
         end if
 
      else

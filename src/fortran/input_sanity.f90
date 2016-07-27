@@ -94,7 +94,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
     curr_foil%x(i+nptt) = xseedb(i+1)
     curr_foil%z(i+nptt) = zseedb(i+1)
   end do
-
+  
 ! Too blunt or sharp leading edge
 
   panang1 = atan((zseedt(2)-zseedt(1))/(xseedt(2)-xseedt(1))) *                &
@@ -216,10 +216,10 @@ subroutine check_seed(xoffset, zoffset, foilscale)
       if (abs(curvt(i)) >= curv_threshold) then
         curv2 = curvt(i)
         if (curv2*curv1 < 0.d0) then
-          xtrans = curr_foil%x(i)/foilscale - xoffset
+          xtrans = xseedt(i)/foilscale - xoffset
           write(text,'(F8.4)') xtrans
           text = adjustl(text)
-          ztrans = curr_foil%z(i)/foilscale - zoffset
+          ztrans = zseedt(i)/foilscale - zoffset
           write(text2,'(F8.4)') ztrans
           text2 = adjustl(text2)
           write(*,*) "Curvature reversal on top surface near (x, z) = ("//&
@@ -244,10 +244,10 @@ subroutine check_seed(xoffset, zoffset, foilscale)
       if (abs(curvb(i)) >= curv_threshold) then
         curv2 = curvb(i)
         if (curv2*curv1 < 0.d0) then
-          xtrans = curr_foil%x(i)/foilscale - xoffset
+          xtrans = xseedb(i)/foilscale - xoffset
           write(text,'(F8.4)') xtrans
           text = adjustl(text)
-          ztrans = curr_foil%z(i)/foilscale - zoffset
+          ztrans = zseedb(i)/foilscale - zoffset
           write(text2,'(F8.4)') ztrans
           text2 = adjustl(text2)
           write(*,*) "Curvature reversal on bot surface near (x, z) = ("//&
