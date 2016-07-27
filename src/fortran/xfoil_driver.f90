@@ -170,8 +170,8 @@ end subroutine xfoil_apply_flap_deflection
 !=============================================================================80
 subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
                      reynolds_numbers, mach_numbers, use_flap, x_flap, y_flap, &
-                     flap_degrees, xfoil_options, alpha, lift, drag, moment,   &
-                     viscrms)
+                     flap_degrees, xfoil_options, lift, drag, moment, viscrms, &
+                     alpha, xtrt, xtrb)
 
   use xfoil_inc
   use vardef,    only : airfoil_type
@@ -185,8 +185,10 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
   logical, intent(in) :: use_flap
   character(7), dimension(:), intent(in) :: op_modes
   type(xfoil_options_type), intent(in) :: xfoil_options
-  double precision, dimension(size(operating_points,1)), intent(out) :: alpha, &
-                                                     lift, drag, moment, viscrms
+  double precision, dimension(size(operating_points,1)), intent(out) :: lift,  &
+                                                           drag, moment, viscrms
+  double precision, dimension(size(operating_points,1)), intent(out),          &
+                                                   optional :: alpha, xtrt, xtrb
 
   integer :: i, noppoint
   logical, dimension(size(operating_points,1)) :: point_converged, point_fixed 
@@ -276,7 +278,11 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
     end if
 
-    alpha(i) = ALFA/DTOR
+!   Get optional outputs
+
+    if (present(alpha)) alpha(i) = ALFA/DTOR
+    if (present(xtrt)) xtrt(i) = XOCTR(1)
+    if (present(xtrb)) xtrb(i) = XOCTR(2)
 
 !   Handling of unconverged points
 
@@ -313,7 +319,9 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
       if (LVCONV) point_fixed(i) = .true.
 
-      alpha(i) = ALFA/DTOR
+      if (present(alpha)) alpha(i) = ALFA/DTOR
+      if (present(xtrt)) xtrt(i) = XOCTR(1)
+      if (present(xtrb)) xtrb(i) = XOCTR(2)
 
     end if
 
@@ -385,10 +393,13 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 
       write(*,*)
       write(*,*) trim(message)
-      write(*,*) 'alpha: ', alpha(i)
-      write(*,*) 'Cl: ', lift(i)
-      write(*,*) 'Cd: ', drag(i)
-      write(*,*) 'Cm: ', moment(i)
+      if (present(alpha)) write(*,'(A7,F8.4)') 'alpha: ', alpha(i)
+      write(*,'(A4,F8.4)') 'Cl: ', lift(i)
+      write(*,'(A4,F8.4)') 'Cd: ', drag(i)
+      write(*,'(A4,F8.4)') 'Cm: ', moment(i)
+      if (present(xtrt)) write(*,'(A20,F8.4)') 'Top transition x/c: ', xtrt(i)
+      if (present(xtrb))                                                       &
+                        write(*,'(A23,F8.4)') 'Bottom transition x/c: ', xtrb(i)
 
     end do
 

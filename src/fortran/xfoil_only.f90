@@ -45,7 +45,7 @@ program xfoil_only
   integer :: restart_write_freq
   logical :: restart
   double precision, dimension(:), allocatable :: alpha, lift, drag, moment,    &
-                                                 viscrms
+                                                 viscrms, xtrt, xtrb
 
 ! Set default names and read command line arguments
 
@@ -68,12 +68,14 @@ program xfoil_only
   allocate(drag(noppoint))
   allocate(moment(noppoint))
   allocate(viscrms(noppoint))
+  allocate(xtrt(noppoint))
+  allocate(xtrb(noppoint))
 
 ! Get airfoil to analyze, but don't do any transformations
 
   if (trim(seed_airfoil) == "from_file") then
     call load_airfoil(airfoil_file, foil)
-  else if (trim(seed_airfoil) == "four_digit") then
+  else if (trim(seed_airfoil) == "naca") then
     call naca_456(naca_options, 200, foil)
   end if
 
@@ -86,7 +88,7 @@ program xfoil_only
   call run_xfoil(foil, xfoil_geom_options, op_point(1:noppoint),               &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
-                 xfoil_options, alpha, lift, drag, moment, viscrms)
+                 xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb)
 
 ! Deallocate xfoil variables
 
@@ -100,5 +102,7 @@ program xfoil_only
   deallocate(drag)
   deallocate(moment)
   deallocate(viscrms)
+  deallocate(xtrt)
+  deallocate(xtrb)
 
 end program xfoil_only
