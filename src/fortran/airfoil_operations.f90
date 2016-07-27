@@ -291,6 +291,7 @@ subroutine le_find(x, z, le, xle, zle, addpoint_loc)
 
   integer i, j, zeroval
   logical switch, switch_override
+  character(4) searchdir
   double precision, dimension(6) :: xp, zp
   double precision, dimension(6,6) :: A
   double precision, dimension(6) :: C
@@ -298,6 +299,7 @@ subroutine le_find(x, z, le, xle, zle, addpoint_loc)
 
   switch = .false.
   switch_override = .false.
+  searchdir = 'none'
 
 ! Find point where x-location of airfoil point starts increasing
 
@@ -366,19 +368,25 @@ subroutine le_find(x, z, le, xle, zle, addpoint_loc)
 
         if (zle > z(le)) then
           addpoint_loc = -1
-          if (zle > z(le-1)) then
-            switch = .false.
-            switch_override = .true.
-            i = i - 1
+          if (zle > z(le-1)) then         ! Check if we need to recalculate
+            if (searchdir /= 'fwrd') then ! Stop search if bouncing back & forth
+              searchdir = 'back'
+              switch = .false.
+              switch_override = .true.
+              i = i - 1
+            end if
           end if
         elseif (zle == z(le)) then
           addpoint_loc = 0
         else
           addpoint_loc = 1
-          if (zle < z(le+1)) then
-            switch = .false.
-            switch_override = .true.
-            i = i + 1
+          if (zle < z(le+1)) then         ! Check if we need to recalculate
+            if (searchdir /= 'back') then ! Stop search if bouncing back & forth
+              searchdir = 'fwrd'
+              switch = .false.
+              switch_override = .true.
+              i = i + 1                  
+            end if
           end if
         end if
 
