@@ -52,7 +52,7 @@ $(XEXE): $(XOBJ)
 	$(FC) $(FCFLAGS) $(OMP_FLAG) -o $(XEXE) $(XOBJ)
 
 clean: 
-	rm -f *.mod *.o
+	rm *.mod *.o
 
 math_deps.o: $(DIR)/fortran/math_deps.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/math_deps.f90
