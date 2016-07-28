@@ -65,7 +65,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                       tournament_fraction, crossover_range_factor,             &
                       mutant_probability, chromosome_mutation_rate,            &
                       mutation_range_factor
-  integer :: nbot_actual, nmoment_constraint
+  integer :: nbot_actual, nmoment_constraint, nxtr_opt
   integer :: i, iunit, ioerr, iostat1, counter, idx
   character(30) :: text
   character(3) :: family
@@ -164,7 +164,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   max_thickness = 1000.d0
   min_camber = -0.1d0
   max_camber = 0.1d0
-  moment_constraint_type(:) = 'use_seed'
+  moment_constraint_type(:) = 'none'
   min_moment(:) = -1.d0
   min_te_angle = 5.d0
   check_curvature = .false.
@@ -444,7 +444,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   xpref1 = 1.d0
   xpref2 = 1.d0
 
-! Read xfoil options and put them into derived types
+! Read xfoil options
 
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=xfoil_run_options)
@@ -452,6 +452,23 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   rewind(iunit)
   read(iunit, iostat=iostat1, nml=xfoil_paneling_options)
   call namelist_check('xfoil_paneling_options', iostat1, 'warn')
+
+! Ask about removing turbulent trips for max-xtr optimization
+
+  nxtr_opt = 0
+  if ( (xtript < 1.d0) .or. (xtripb < 1.d0) ) then
+    do i = 1, noppoint
+      if (trim(optimization_type(i)) == "max-xtr") nxtr_opt = nxtr_opt + 1
+    end do
+ 
+    if (nxtr_opt > 0) choice = ask_forced_transition()
+    if (choice == 'y') then
+      xtript = 1.d0
+      xtripb = 1.d0
+    end if
+  end if
+
+! Put xfoil options into derived types
 
   xfoil_options%ncrit = ncrit
   xfoil_options%xtript = xtript
@@ -719,9 +736,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     if (trim(optimization_type(i)) /= 'min-drag' .and.                         &
       trim(optimization_type(i)) /= 'max-glide' .and.                          &
       trim(optimization_type(i)) /= 'min-sink' .and.                           &
-      trim(optimization_type(i)) /= 'max-lift')                                &
+      trim(optimization_type(i)) /= 'max-lift' .and.                           &
+      trim(optimization_type(i)) /= 'max-xtr')                                 &
       call my_stop("optimization_type must be 'min-drag', 'max-glide', "//     &
-                   "min-sink', or 'max-lift'.")
+                   "min-sink', 'max-lift', or 'max-xtr'.")
   end do
 
 ! Constraints
@@ -956,5 +974,44 @@ function ask_moment_constraints()
   end do
 
 end function ask_moment_constraints
+
+!=============================================================================80
+!
+! Asks user to turn off forced transition
+!
+!=============================================================================80
+function ask_forced_transition()
+
+  character :: ask_forced_transition
+  logical :: valid_choice
+
+! Get user input
+
+  valid_choice = .false.
+  do while (.not. valid_choice)
+  
+    write(*,*)
+    write(*,'(A)') 'Warning: using max-xtr optimization but xtript or xtripb'
+    write(*,'(A)', advance='no') 'is less than 1. Set them to 1 now? (y/n): '
+    read(*,'(A)') ask_forced_transition
+
+    if ( (ask_forced_transition == 'y') .or.                                  &
+         (ask_forced_transition == 'Y') ) then
+      valid_choice = .true.
+      ask_forced_transition = 'y'
+      write(*,*)
+      write(*,*) "Setting xtript and xtripb to 1."
+    else if ( (ask_forced_transition == 'n') .or.                             &
+         (ask_forced_transition == 'N') ) then
+      valid_choice = .true.
+      ask_forced_transition = 'n'
+    else
+      write(*,'(A)') 'Please enter y or n.'
+      valid_choice = .false.
+    end if
+
+  end do
+
+end function ask_forced_transition
 
 end module input_output

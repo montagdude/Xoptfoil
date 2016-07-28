@@ -114,8 +114,10 @@ function aero_objective_function(designvars, include_penalty)
   character(7), dimension(noppoint) :: opm_check
   double precision, dimension(noppoint) :: opp_check, re_check, ma_check 
   double precision, dimension(noppoint) :: fd_check
-  double precision, dimension(noppoint) :: lift, drag, moment, viscrms
-  double precision, dimension(noppoint) :: clcheck, cdcheck, cmcheck, rmscheck
+  double precision, dimension(noppoint) :: lift, drag, moment, viscrms, alpha, &
+                                           xtrt, xtrb
+  double precision, dimension(noppoint) :: clcheck, cdcheck, cmcheck, rmscheck,&
+                                           alcheck, xtrtcheck, xtrbcheck
   double precision, dimension(noppoint) :: actual_flap_degrees
   logical, dimension(noppoint) :: checkpt
   logical :: check
@@ -323,7 +325,7 @@ function aero_objective_function(designvars, include_penalty)
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
-                 xfoil_options, lift, drag, moment, viscrms)
+                 xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb)
 
 ! Add penalty for too large panel angles
 
@@ -388,7 +390,7 @@ function aero_objective_function(designvars, include_penalty)
                    opm_check(1:ncheckpt), re_check(1:ncheckpt),                &
                    ma_check(1:ncheckpt), use_flap, x_flap, y_flap,             &
                    fd_check(1:ncheckpt), xfoil_options, clcheck, cdcheck,      &
-                   cmcheck, rmscheck)
+                   cmcheck, rmscheck, alcheck, xtrtcheck, xtrbcheck)
 
 !   Keep the more conservative of the two runs
 
@@ -413,6 +415,14 @@ function aero_objective_function(designvars, include_penalty)
         checkrms: if (rmscheck(check_idx) > viscrms(i)) then
           viscrms(i) = rmscheck(check_idx)
         end if checkrms
+
+        checkxtrt: if (xtrtcheck(check_idx) < xtrt(i)) then
+          xtrt(i) = xtrtcheck(check_idx)
+        end if checkxtrt
+
+        checkxtrb: if (xtrbcheck(check_idx) < xtrb(i)) then
+          xtrb(i) = xtrbcheck(check_idx)
+        end if checkxtrb
 
       end if ischecked
 
@@ -472,6 +482,13 @@ function aero_objective_function(designvars, include_penalty)
       else
         increment = 1.D9   ! Big penalty for lift <= 0
       end if
+
+    elseif (trim(optimization_type(i)) == 'max-xtr') then
+
+!     Maximize laminar flow on top and bottom (0.1 factor to ensure no
+!     division by 0)
+
+      increment = scale_factor(i)/(0.5d0*(xtrt(i)+xtrb(i))+0.1d0)
 
     else
 

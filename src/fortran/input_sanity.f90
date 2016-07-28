@@ -45,7 +45,8 @@ subroutine check_seed(xoffset, zoffset, foilscale)
   double precision :: penaltyval, tegap, gapallow, maxthick, heightfactor
   double precision :: panang1, panang2, maxpanang, curv1, curv2
   double precision :: checkval, len1, len2, growth1, growth2, xtrans, ztrans
-  double precision, dimension(noppoint) :: lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: lift, drag, moment, viscrms, alpha, &
+                                           xtrt, xtrb
   integer :: i, nptt, nptb, nreversalst, nreversalsb, nptint 
   character(30) :: text, text2
 
@@ -293,7 +294,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
-                 xfoil_options, lift, drag, moment, viscrms)
+                 xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb)
 
 ! Penalty for too large panel angles
 
@@ -372,6 +373,8 @@ subroutine check_seed(xoffset, zoffset, foilscale)
       checkval = drag(i)
     elseif (trim(optimization_type(i)) == 'max-lift') then
       checkval = 1.d0/lift(i)
+    elseif (trim(optimization_type(i)) == 'max-xtr') then
+      checkval = 1.d0/(0.5d0*(xtrt(i)+xtrb(i))+0.1d0)  ! Ensure no division by 0
     else
       write(*,*)
       write(*,*) "Error: requested optimization_type for operating point "//   &

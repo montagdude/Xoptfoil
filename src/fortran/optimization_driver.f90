@@ -403,7 +403,8 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
 
   double precision, dimension(size(xseedt,1)) :: zt_new
   double precision, dimension(size(xseedb,1)) :: zb_new
-  double precision, dimension(noppoint) :: alpha, lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: alpha, lift, drag, moment, viscrms, &
+                                           xtrt, xtrb
   double precision, dimension(noppoint) :: actual_flap_degrees
   double precision :: ffact
   integer :: dvtbnd1, dvtbnd2, dvbbnd1, dvbbnd2, nmodest, nmodesb, nptt, nptb, i
@@ -476,7 +477,8 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
     call run_xfoil(final_airfoil, xfoil_geom_options, op_point(1:noppoint),    &
                    op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),&
                    use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),  &
-                   xfoil_options, lift, drag, moment, viscrms, alpha)
+                   xfoil_options, lift, drag, moment, viscrms, alpha, xtrt,    &
+                   xtrb)
 
 !   Write summary to screen and file
 
@@ -518,6 +520,10 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
       write(iunit,'(A19,F9.5)') " Drag coefficient: ", drag(i)
       write(*,'(A21,F9.5)') " Moment coefficient: ", moment(i)
       write(iunit,'(A21,F9.5)') " Moment coefficient: ", moment(i)
+      write(*,'(A21,F9.5)') " Top transition x/c: ", xtrt(i)
+      write(iunit,'(A21,F9.5)') " Top transition x/c: ", xtrt(i)
+      write(*,'(A24,F9.5)') " Bottom transition x/c: ", xtrb(i)
+      write(iunit,'(A24,F9.5)') " Bottom transition x/c: ", xtrb(i)
       if (i /= noppoint) then
         write(*,*)
         write(iunit,*)
