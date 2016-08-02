@@ -12,7 +12,7 @@ FCFLAGS=-g -O3
 ####### GNU Compiler Flags ##########################################
 
 FC=gfortran
-OMP_FLAG=-fopenmp
+#OMP_FLAG=-fopenmp
 XFOIL_REAL8_FLAG=-fdefault-real-8
 
 #####################################################################

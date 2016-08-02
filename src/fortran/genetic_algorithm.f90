@@ -301,14 +301,11 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 !   Display progress
 
     radius = design_radius(dv)
-    if (ga_options%relative_fmin_report) then
-      write(*,*) '  Iteration: ', step, '  % Improvement over seed: ',         &
-                 (f0 - fmin)/f0*100
-    else
-      write(*,*) '  Iteration: ', step, ' Minimum objective function value: ', &
-                 fmin
-    end if
-    write(*,*) '  Max radius of designs: ', radius
+    write(*,'(A12,I5)')   ' Iteration: ', step
+    write(*,'(A27,F9.6)') '   Objective function:    ', fmin
+    if (ga_options%relative_fmin_report) write(*,'(A27,F9.6,A1)')              &
+                        '   Improvement over seed: ', (f0 - fmin)/f0*100.d0, '%'
+    write(*,'(A27,ES10.3)') '   Design radius:         ', radius
 
 !   Write design to file if requested
 !   converterfunc is an optional function supplied to convert design variables
