@@ -541,8 +541,8 @@ def plotting_menu(seedfoil, designfoils):
   return plotting_complete
 
 ################################################################################
-# Monitors airfoil coordinates and polar files for updates during optimization
-def monitor_airfoil_data(seedfoil, designfoils, prefix):
+# Reads new airfoil coordinates and polar files for updates during optimization
+def read_new_airfoil_data(seedfoil, designfoils, prefix):
 
   # Temporary airfoil struct
 
@@ -553,51 +553,56 @@ def monitor_airfoil_data(seedfoil, designfoils, prefix):
   coordfilename = prefix + '_design_coordinates.dat'
   polarfilename = prefix + '_design_polars.dat'
 
-  # Determine which design to read for coordinate file
+  # Loop through files until we reach latest available design
 
-  if (seedfoil.npt == 0):
-    zonetitle = 'zone t="Seed airfoil"'
-    foilstr = 'seed'
-  else:
-    nextdesign = len(designfoils) + 1
-    zonetitle = 'zone t="Airfoil", SOLUTIONTIME=' + str(nextdesign)
-    foilstr = 'design number ' + str(nextdesign)
+  reading = True
+  while reading:
 
-  # Read data from coordinate file
-
-  x, y, ioerror = read_airfoil_data(coordfilename, zonetitle)
-  if (ioerror == 1):
-    print("Airfoil coordinates file " + coordfilename + " not available yet.")
-    return seedfoil, designfoils, ioerror
-  elif (ioerror == 2):
-    print("Waiting for next airfoil design.")
-    return seedfoil, designfoils, ioerror
-  else:
-    print("Read coordinates for " + foilstr + ".")
-    foil.setCoordinates(np.array(x), np.array(y))
-
-  # Set zone title for polars
-
-  if (foilstr == 'seed'):
-    zonetitle = 'zone t="Seed airfoil polar"'
-  else:
-    zonetitle = 'zone t="Polars", SOLUTIONTIME=' + str(nextdesign)
-
-  # Read data from polar file (not: negative error code means coordinates were
-  # read but not polars)
-
-  cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
-  if ( (ioerror == 1) or (ioerror == 2) ):
-    print("Warning: polars will not be available for this design.")
-    ioerror *= -1
-  else:
-    print("Read polars for " + foilstr + ".")
-    foil.setPolars(np.array(cl), np.array(cd))
-
-  # Copy data to output objects
-
-  if (foilstr == 'seed'): seedfoil = foil
-  else: designfoils.append(foil)
+    if (seedfoil.npt == 0):
+      zonetitle = 'zone t="Seed airfoil"'
+      foilstr = 'seed'
+    else:
+      nextdesign = len(designfoils) + 1
+      zonetitle = 'zone t="Airfoil", SOLUTIONTIME=' + str(nextdesign)
+      foilstr = 'design number ' + str(nextdesign)
+  
+    # Read data from coordinate file
+  
+    x, y, ioerror = read_airfoil_data(coordfilename, zonetitle)
+    if (ioerror == 1):
+      print("Airfoil coordinates file " + coordfilename + " not available yet.")
+      reading = False
+      break
+    elif (ioerror == 2):
+      reading = False
+      break
+    else:
+      print("Read coordinates for " + foilstr + ".")
+      foil.setCoordinates(np.array(x), np.array(y))
+  
+    # Set zone title for polars
+  
+    if (foilstr == 'seed'):
+      zonetitle = 'zone t="Seed airfoil polar"'
+    else:
+      zonetitle = 'zone t="Polars", SOLUTIONTIME=' + str(nextdesign)
+  
+    # Read data from polar file (not: negative error code means coordinates were
+    # read but not polars)
+  
+    cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
+    if ( (ioerror == 1) or (ioerror == 2) ):
+      print("Warning: polars will not be available for this design.")
+      ioerror = 3
+      reading = False
+    else:
+      print("Read polars for " + foilstr + ".")
+      foil.setPolars(np.array(cl), np.array(cd))
+  
+    # Copy data to output objects
+  
+    if (foilstr == 'seed'): seedfoil = foil
+    else: designfoils.append(foil)
 
   return seedfoil, designfoils, ioerror
 
@@ -855,7 +860,7 @@ def main_menu(seedfoil, designfoils, prefix):
 
         # Update plot
 
-        if (ioerror <= 0): 
+        if (ioerror != 1): 
           numfoils = len(designfoils)
           plot_airfoil(seedfoil, designfoils, numfoils, firsttime=init,
                        animation=True)
@@ -867,7 +872,7 @@ def main_menu(seedfoil, designfoils, prefix):
 
         # Update airfoil data
 
-        seedfoil, designfoils, ioerror = monitor_airfoil_data(seedfoil,
+        seedfoil, designfoils, ioerror = read_new_airfoil_data(seedfoil,
                                                             designfoils, prefix)
 
         
