@@ -55,8 +55,12 @@ class Airfoil:
   def __init__(self):
     self.x = np.zeros((0))
     self.y = np.zeros((0))
+    self.alpha = np.zeros((0))
     self.cl = np.zeros((0))
     self.cd = np.zeros((0))
+    self.cm = np.zeros((0))
+    self.xtrt = np.zeros((0))
+    self.xtrb = np.zeros((0))
     self.npt = 0
     self.noper = 0
     
@@ -65,14 +69,18 @@ class Airfoil:
     self.y = y
     self.npt = x.shape[0]
 
-  def setPolars(self, cl, cd):
+  def setPolars(self, alpha, cl, cd, cm, xtrt, xtrb):
+    self.alpha = alpha
     self.cl = cl
     self.cd = cd
-    self.noper = cl.shape[0]
+    self.cd = cm
+    self.xtrt = xtrt
+    self.xtrb = xtrb
+    self.noper = alpha.shape[0]
 
 ################################################################################
-# Reads airfoil data (either coordinates or polars) from file
-def read_airfoil_data(filename, zonetitle):
+# Reads airfoil coordinates from file
+def read_airfoil_coordinates(filename, zonetitle):
 
   ioerror = 0
   x = []
@@ -129,6 +137,72 @@ def read_airfoil_data(filename, zonetitle):
   return x, y, ioerror
 
 ################################################################################
+# Reads airfoil polars from file
+def read_airfoil_polars(filename, zonetitle):
+
+  ioerror = 0
+  alpha = []
+  cl = []
+  cd = []
+  cm = []
+  xtrt = []
+  xtrb = []
+
+  # Try to open the file
+
+  try:
+    f = open(filename) 
+  except IOError:
+    ioerror = 1
+    return x, y, ioerror
+
+  # Read lines until we get to the correct zone
+
+  zonefound = False
+  zonelen = len(zonetitle)
+
+  for textline in f:
+
+    if (not zonefound):
+
+      # Check for the zone we are looking for
+
+      if (textline[0:zonelen] == zonetitle):
+    
+        zonefound = True
+
+    else:
+
+      # Check to see if we've read all the polars
+
+      if (textline[0:4] == "zone"): break
+
+      # Otherwise read polars
+
+      else:
+
+        line = textline.split()
+        alpha.append(float(line[0]))
+        cl.append(float(line[1]))
+        cd.append(float(line[2]))
+        cm.append(float(line[3]))
+        xtrt.append(float(line[4]))
+        xtrb.append(float(line[5]))
+
+  # Error if zone has not been found after reading the file
+
+  if (not zonefound):
+    ioerror = 2
+
+  # Close the file
+
+  f.close()
+
+  # Return polar data
+
+  return alpha, cl, cd, cm, xtrt, xtrb, ioerror
+
+################################################################################
 # Loads airfoil coordinates and polars from files
 def load_airfoils_from_file(coordfilename, polarfilename):
 
@@ -143,7 +217,7 @@ def load_airfoils_from_file(coordfilename, polarfilename):
   print("Checking for airfoil coordinates file " + coordfilename + "...")
 
   zonetitle = 'zone t="Seed airfoil"'
-  x, y, ioerror = read_airfoil_data(coordfilename, zonetitle)
+  x, y, ioerror = read_airfoil_coordinates(coordfilename, zonetitle)
   if (ioerror == 1):
     print("Warning: file " + coordfilename + " not found.")
     return seedfoil, designfoils, ioerror
@@ -163,7 +237,7 @@ def load_airfoils_from_file(coordfilename, polarfilename):
   while (not read_finished):
 
     zonetitle = 'zone t="Airfoil", SOLUTIONTIME=' + str(counter)
-    x, y, ioerror = read_airfoil_data(coordfilename, zonetitle)
+    x, y, ioerror = read_airfoil_coordinates(coordfilename, zonetitle)
     if (ioerror == 2):
       read_finished = True
       numfoils = counter - 1
@@ -182,7 +256,8 @@ def load_airfoils_from_file(coordfilename, polarfilename):
   print("Checking for airfoil polars file " + coordfilename + "...")
 
   zonetitle = 'zone t="Seed airfoil polar"'
-  cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
+  alpha, cl, cd, cm, xtrt, xtrb, ioerror = read_airfoil_polars(polarfilename,
+                                                                      zonetitle)
   if (ioerror == 1):
     print("Warning: file " + polarfilename + " not found.")
     return seedfoil, designfoils, 0 - ioerror
@@ -191,7 +266,8 @@ def load_airfoils_from_file(coordfilename, polarfilename):
           + ".")
     return seedfoil, designfoils, 0 - ioerror
 
-  seedfoil.setPolars(np.array(cl), np.array(cd))
+  seedfoil.setPolars(np.array(alpha), np.array(cl), np.array(cd), np.array(cm),
+                     np.array(xtrt), np.array(xtrb))
 
   # Read polar data for designs produced by optimizer
 
@@ -202,12 +278,15 @@ def load_airfoils_from_file(coordfilename, polarfilename):
   while (not read_finished):
 
     zonetitle = 'zone t="Polars", SOLUTIONTIME=' + str(counter)
-    cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
+    alpha, cl, cd, cm, xtrt, xtrb, ioerror = read_airfoil_polars(polarfilename,
+                                                                      zonetitle)
     if (ioerror == 2):
       read_finished = True
       ioerror = 0
     else:
-      designfoils[counter-1].setPolars(np.array(cl), np.array(cd))
+      designfoils[counter-1].setPolars(np.array(alpha), np.array(cl), 
+                                       np.array(cd), np.array(cm), 
+                                       np.array(xtrt), np.array(xtrb))
       counter += 1
 
   print("Found " + str(counter-1) + " airfoil polars plus seed airfoil.")
@@ -568,7 +647,7 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
   
     # Read data from coordinate file
   
-    x, y, ioerror = read_airfoil_data(coordfilename, zonetitle)
+    x, y, ioerror = read_airfoil_coordinates(coordfilename, zonetitle)
     if (ioerror == 1):
       print("Airfoil coordinates file " + coordfilename + " not available yet.")
       reading = False
@@ -590,14 +669,16 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
     # Read data from polar file (not: negative error code means coordinates were
     # read but not polars)
   
-    cl, cd, ioerror = read_airfoil_data(polarfilename, zonetitle)
+    alpha, cl, cd, cm, xtrt, xtrb, ioerror = read_airfoil_polars(polarfilename,
+                                                                      zonetitle)
     if ( (ioerror == 1) or (ioerror == 2) ):
       print("Warning: polars will not be available for this design.")
       ioerror = 3
       reading = False
     else:
       print("Read polars for " + foilstr + ".")
-      foil.setPolars(np.array(cl), np.array(cd))
+      foil.setPolars(np.array(alpha), np.array(cl), np.array(cd), np.array(cm),
+                     np.array(xtrt), np.array(xtrb))
   
     # Copy data to output objects
   

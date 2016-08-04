@@ -304,7 +304,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
     wcurr = wcurr - convrate*(wcurr - wlow)
 
-!   Display progress
+!   Display progress 
 
     radius = design_radius(dv)
     write(*,'(A12,I5)')   ' Iteration: ', step

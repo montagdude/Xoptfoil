@@ -628,7 +628,8 @@ function write_airfoil_optimization_progress(designvars, designcounter)
   double precision, dimension(size(xseedb,1)) :: zb_new
   integer :: nmodest, nmodesb, nptt, nptb, i, dvtbnd1, dvtbnd2, dvbbnd1,       &
              dvbbnd2 
-  double precision, dimension(noppoint) :: alpha, lift, drag, moment, viscrms
+  double precision, dimension(noppoint) :: alpha, lift, drag, moment, viscrms, &
+                                           xtrt, xtrb
   double precision, dimension(noppoint) :: actual_flap_degrees
   double precision :: ffact
   integer :: ndvs, flap_idx, dvcounter
@@ -702,7 +703,7 @@ function write_airfoil_optimization_progress(designvars, designcounter)
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
-                 xfoil_options, lift, drag, moment, viscrms, alpha)
+                 xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb)
 
 ! Set output file names and identifiers
 
@@ -731,7 +732,7 @@ function write_airfoil_optimization_progress(designvars, designcounter)
                trim(polarfile)//" ..."
     open(unit=polarunit, file=polarfile, status='replace')
     write(polarunit,'(A)') 'title="Airfoil polars"'
-    write(polarunit,'(A)') 'variables="cl" "cd"'
+    write(polarunit,'(A)') 'variables="alpha" "cl" "cd" "cm" "xtrt" "xtrb"'
     write(polarunit,'(A)') 'zone t="Seed airfoil polar"'
 
   else
@@ -762,13 +763,14 @@ function write_airfoil_optimization_progress(designvars, designcounter)
 ! Write coordinates to file
 
   do i = 1, nptt + nptb - 1
-    write(foilunit,'(2es17.8)') curr_foil%x(i), curr_foil%z(i)
+    write(foilunit,'(2F9.7)') curr_foil%x(i), curr_foil%z(i)
   end do
 
 ! Write polars to file
 
   do i = 1, noppoint
-    write(polarunit,'(2es17.8)') lift(i), drag(i)
+    write(polarunit,'(6ES12.7)') alpha(i), lift(i), drag(i), moment(i),        &
+                                 xtrt(i), xtrb(i)
   end do
 
 ! Close output files
