@@ -763,13 +763,13 @@ function write_airfoil_optimization_progress(designvars, designcounter)
 ! Write coordinates to file
 
   do i = 1, nptt + nptb - 1
-    write(foilunit,'(2F9.7)') curr_foil%x(i), curr_foil%z(i)
+    write(foilunit,'(2F12.6)') curr_foil%x(i), curr_foil%z(i)
   end do
 
 ! Write polars to file
 
   do i = 1, noppoint
-    write(polarunit,'(6ES12.7)') alpha(i), lift(i), drag(i), moment(i),        &
+    write(polarunit,'(6ES14.6)') alpha(i), lift(i), drag(i), moment(i),        &
                                  xtrt(i), xtrb(i)
   end do
 
@@ -889,7 +889,7 @@ function write_matchfoil_optimization_progress(designvars, designcounter)
 ! Write coordinates to file
 
   do i = 1, nptt + nptb - 1
-    write(foilunit,'(2es17.8)') curr_foil%x(i), curr_foil%z(i)
+    write(foilunit,'(2F12.6)') curr_foil%x(i), curr_foil%z(i)
   end do
 
 ! Close output file
@@ -922,7 +922,8 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 
   integer :: restunit, ioerr, step, designcounter, foilunit, polarunit, ncoord
   integer :: i, j
-  double precision, dimension(:,:), allocatable :: x, z, lift, drag
+  double precision, dimension(:,:), allocatable :: x, z, alpha, lift, drag,    &
+                                                   moment, xtrt, xtrb
   character(100) :: restfile, foilfile, polarfile, text
 
 ! Print status
@@ -962,8 +963,12 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   ncoord = size(xseedt,1) + size(xseedb,1) - 1
   allocate(x(ncoord,designcounter+1))
   allocate(z(ncoord,designcounter+1))
+  allocate(alpha(noppoint,designcounter+1))
   allocate(lift(noppoint,designcounter+1))
   allocate(drag(noppoint,designcounter+1))
+  allocate(moment(noppoint,designcounter+1))
+  allocate(xtrt(noppoint,designcounter+1))
+  allocate(xtrb(noppoint,designcounter+1))
 
 ! Open coordinates file
 
@@ -990,7 +995,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 !   Read coordinates
 
     do j = 1, ncoord
-      read(foilunit,'(2es17.8)') x(j,i), z(j,i)
+      read(foilunit,'(2F14.6)') x(j,i), z(j,i)
     end do
 
   end do
@@ -1018,7 +1023,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 !   Write coordinates
 
     do j = 1, ncoord
-      write(foilunit,'(2es17.8)') x(j,i+1), z(j,i+1)
+      write(foilunit,'(2F12.6)') x(j,i+1), z(j,i+1)
     end do
   end do
 
@@ -1031,8 +1036,12 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   if (match_foils) then
     deallocate(x)
     deallocate(z)
+    deallocate(alpha)
     deallocate(lift)
     deallocate(drag)
+    deallocate(moment)
+    deallocate(xtrt)
+    deallocate(xtrb)
     write(*,*) 'Finished cleaning up unused designs.'
     write_function_restart_cleanup = 0
     return
@@ -1063,7 +1072,8 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 !   Read polars
 
     do j = 1, noppoint
-      read(polarunit,'(2es17.8)') lift(j,i), drag(j,i)
+      read(polarunit,'(6ES14.6)') alpha(j,i), lift(j,i), drag(j,i),            &
+                                  moment(j,i), xtrt(j,i), xtrb(j,i)
     end do
 
   end do
@@ -1091,7 +1101,8 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 !   Write polars
 
     do j = 1, noppoint
-      write(polarunit,'(2es17.8)') lift(j,i+1), drag(j,i+1)
+      write(polarunit,'(6ES14.6)') alpha(j,i+1), lift(j,i+1), drag(j,i+1),     &
+                                   moment(j,i+1), xtrt(j,i+1), xtrb(j,i+1)
     end do
   end do
 
