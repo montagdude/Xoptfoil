@@ -31,6 +31,7 @@ plotoptions = dict(show_seed_airfoil = True,
                    show_seed_polar_only = False,
                    plot_airfoils = True,
                    plot_polars = True,
+                   drag_plot_type = "vs. lift",
                    save_animation_frames = False,
                    color_for_seed = "blue",
                    color_for_new_designs = "red",
@@ -479,9 +480,13 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
   if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
     axarr[0,0].plot(seedfoil.alpha, seedfoil.cl, linestyle='-', color=sc,
                     marker='o')
-    axarr[0,1].plot(seedfoil.alpha, seedfoil.cd, linestyle='-', color=sc,
-                    marker='o')
-    axarr[1,0].plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, 
+    if plotoptions["drag_plot_type"] == "vs. lift":
+      axarr[0,1].plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, 
+                      marker='o')
+    else:
+      axarr[0,1].plot(seedfoil.alpha, seedfoil.cd, linestyle='-', color=sc,
+                      marker='o')
+    axarr[1,0].plot(seedfoil.alpha, seedfoil.cm, linestyle='-', color=sc,
                     marker='o')
     axarr[1,1].plot(seedfoil.xtrt, seedfoil.alpha, linestyle='-', color=sc, 
                     marker='o')
@@ -491,12 +496,17 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
     axarr[0,0].plot(seedfoil.alpha, seedfoil.cl, linestyle='-', color=sc, 
                     marker='o')
     axarr[0,0].plot(foil.alpha, foil.cl, linestyle='-', color=nc, marker='s')
-    axarr[0,1].plot(seedfoil.alpha, seedfoil.cd, linestyle='-', color=sc, 
+    if plotoptions["drag_plot_type"] == "vs. lift":
+      axarr[0,1].plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, 
+                      marker='o')
+      axarr[0,1].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s')
+    else:
+      axarr[0,1].plot(seedfoil.alpha, seedfoil.cd, linestyle='-', color=sc, 
+                      marker='o')
+      axarr[0,1].plot(foil.alpha, foil.cd, linestyle='-', color=nc, marker='s')
+    axarr[1,0].plot(seedfoil.alpha, seedfoil.cm, linestyle='-', color=sc, 
                     marker='o')
-    axarr[0,1].plot(foil.alpha, foil.cd, linestyle='-', color=nc, marker='s')
-    axarr[1,0].plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, 
-                    marker='o')
-    axarr[1,0].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s')
+    axarr[1,0].plot(foil.alpha, foil.cm, linestyle='-', color=nc, marker='s')
     axarr[1,1].plot(seedfoil.xtrt, seedfoil.alpha, linestyle='-', color=sc, 
                     marker='o')
     axarr[1,1].plot(foil.xtrt, foil.alpha, linestyle='-', color=nc, marker='s')
@@ -505,8 +515,11 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
     axarr[1,1].plot(foil.xtrb, foil.alpha, linestyle='--', color=nc, marker='s')
   else: 
     axarr[0,0].plot(foil.alpha, foil.cl, linestyle='-', color=nc, marker='s') 
-    axarr[0,1].plot(foil.alpha, foil.cd, linestyle='-', color=nc, marker='s') 
-    axarr[1,0].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
+    if plotoptions["drag_plot_type"] == "vs. lift":
+      axarr[1,0].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
+    else:
+      axarr[0,1].plot(foil.alpha, foil.cd, linestyle='-', color=nc, marker='s') 
+    axarr[1,0].plot(foil.alpha, foil.cm, linestyle='-', color=nc, marker='s') 
     axarr[1,1].plot(foil.xtrt, foil.alpha, linestyle='-', color=nc, marker='s')
     axarr[1,1].plot(foil.xtrb, foil.alpha, linestyle='--', color=nc, marker='s')
   axarr[0,0].set_xlabel('Angle of attack')
@@ -514,15 +527,21 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
   axarr[0,0].set_xlim([almin,almax])
   axarr[0,0].set_ylim([clmin,clmax])
   axarr[0,0].grid()
-  axarr[0,1].set_xlabel('Angle of attack')
-  axarr[0,1].set_ylabel('Drag coefficient')
-  axarr[0,1].set_xlim([almin,almax])
-  axarr[0,1].set_ylim([cdmin,cdmax])
+  if plotoptions["drag_plot_type"] == "vs. lift":
+    axarr[0,1].set_xlabel('Drag coefficient')
+    axarr[0,1].set_ylabel('Lift coefficient')
+    axarr[0,1].set_xlim([cdmin,cdmax])
+    axarr[0,1].set_ylim([clmin,clmax])
+  else:
+    axarr[0,1].set_xlabel('Angle of attack')
+    axarr[0,1].set_ylabel('Drag coefficient')
+    axarr[0,1].set_xlim([almin,almax])
+    axarr[0,1].set_ylim([cdmin,cdmax])
   axarr[0,1].grid()
-  axarr[1,0].set_xlabel('Drag coefficient')
-  axarr[1,0].set_ylabel('Lift coefficient')
-  axarr[1,0].set_xlim([cdmin,cdmax])
-  axarr[1,0].set_ylim([clmin,clmax])
+  axarr[1,0].set_xlabel('Angle of attack')
+  axarr[1,0].set_ylabel('Pitching moment coefficient')
+  axarr[1,0].set_xlim([almin,almax])
+  axarr[1,0].set_ylim([cmmin,cmmax])
   axarr[1,0].grid()
   axarr[1,1].set_xlabel('Transition x/c\n(top: solid, bottom: dashed)')
   axarr[1,1].set_ylabel('Angle of attack')
@@ -563,7 +582,7 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
       if (prefix == None):
         print("Error: no file prefix specified - cannot save animation frames.")
       else:
-        imagefname = prefix + '.png'
+        imagefname = prefix + '_polars.png'
         print("Saving image frame to file " + imagefname + ' ...')
         plt.savefig(imagefname)
 
@@ -776,6 +795,27 @@ def get_float_input(key, keyval, minallow=None, maxallow=None):
   return retval
 
 ################################################################################
+# Gets drag plot type from user input
+def get_drag_plot_type(key, keyval):
+
+  validchoice = False
+  while (not validchoice):
+    print("Current value for " + key + ": " + str(keyval))
+    print("Available choices: vs. lift, vs. alpha\n")
+    sel = my_input("Enter new value: ")
+    if ( (sel == "vs. lift") or (sel == "vs lift") ):
+      retval = "vs. lift"
+      validchoice = True
+    elif ( (sel == "vs. alpha") or (sel == "vs alpha") ):
+      retval = "vs. alpha"
+      validchoice = True
+    else:
+      print("Please enter vs. lift or vs. alpha.")
+      validchoice = False
+
+  return retval
+
+################################################################################
 # Options menu: allows user to change plot options
 def options_menu():
   global plotoptions
@@ -812,16 +852,11 @@ def options_menu():
     options_complete = False
     plotoptions[key] = get_color_input(key, plotoptions[key])
 
-  # Change plot bounds
+  # Change drag plot type
 
-  elif ( (key == "axis_xmax") or (key == "axis_xmin") or
-         (key == "axis_ymax") or (key == "axis_ymin") or
-         (key == "axis_cdmax") or (key == "axis_cdmin") or
-         (key == "axis_clmax") or (key == "axis_clmin") ):
+  elif key == "drag_plot_type":
     options_complete = False
-    print("Current value for " + key + ": " + str(plotoptions[key]) + '\n')
-    sel = my_input("Enter new value for " + key + " or enter 'auto': ")
-    plotoptions[key] = sel 
+    plotoptions[key] = get_drag_plot_type(key, plotoptions[key])
 
   # Change monitor update interval
 
