@@ -17,7 +17,6 @@
 
 import argparse
 from matplotlib import pyplot as plt
-from matplotlib import gridspec
 from matplotlib import rcParams
 import numpy as np
 from math import log10, floor
@@ -65,7 +64,7 @@ class Airfoil:
     self.alpha = alpha
     self.cl = cl
     self.cd = cd
-    self.cd = cm
+    self.cm = cm
     self.xtrt = xtrt
     self.xtrb = xtrb
     self.noper = alpha.shape[0]
@@ -306,179 +305,269 @@ def plot_airfoil_coordinates(seedfoil, designfoils, plotnum, firsttime=True,
 
   # Set up coordinates plot
 
-  if plotoptions["plot_airfoils"]:
-    plt.cla()
-    plt.clf()
-    if (firsttime): plt.close()
-    cfig = plt.figure(1)
-    ax = plt.subplot(111)
+  if (firsttime): plt.close(1)
+  cfig = plt.figure(1)
+  ax = plt.subplot(111)
+  plt.cla()
 
-    # Auto plotting bounds
+  # Auto plotting bounds
 
-    if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
-      xmax = np.max(seedfoil.x)
-      xmin = np.min(seedfoil.x)
-    elif (plotoptions["show_seed_airfoil"]):
-      xmax = max([np.max(seedfoil.x), np.max(foil.x)])
-      xmin = min([np.min(seedfoil.x), np.min(foil.x)])
-    else:
-      xmax = np.max(foil.x)
-      xmin = np.min(foil.x)
-    xrng = xmax - xmin
-    xmax= xmax + 0.1*xrng
-    xmin= xmin - 0.1*xrng
-  
-    if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
-      ymax = np.max(seedfoil.y)
-      ymin = np.min(seedfoil.y)
-    elif (plotoptions["show_seed_airfoil"]):
-      ymax = max([np.max(seedfoil.y), np.max(foil.y)])
-      ymin = min([np.min(seedfoil.y), np.min(foil.y)])
-    else:
-      ymax = np.max(foil.y)
-      ymin = np.min(foil.y)
-    yrng = ymax - ymin
-    ymax= ymax + 0.1*yrng
-    ymin= ymin - 0.1*yrng
-
-    # Plot airfoil coordinates
-
-    if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
-      ax.plot(seedfoil.x, seedfoil.y, color=sc)
-    elif (plotoptions["show_seed_airfoil"]):
-      ax.plot(seedfoil.x, seedfoil.y, color=sc)
-      ax.plot(foil.x, foil.y, color=nc)
-    else:
-      ax.plot(foil.x, foil.y, color=nc)
-    ax.set_aspect('equal', 'datalim')
-    ax.set_xlabel('x')
-    ax.set_ylabel('z')
-    ax.set_xlim([xmin,xmax])
-    ax.set_ylim([ymin,ymax])
-
-    # Legend for coordinates plot
-  
-    bbox_loc = (0.5, 1.1)
-  
-#    if (numplots == 2):
-#      bbox_loc = (0.5, 1.4)
-#    else:
-  
-    # Fake lines for legend
-  
-    lines = []
-    if ( (plotoptions["show_seed_airfoil"]) or 
-         (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
-      fakeline = plt.Line2D((0,1),(0,0), color=sc, label="Seed airfoil")
-      lines.append(fakeline)
-    if ( (not plotoptions["show_seed_airfoil_only"]) and (plotnum != 0) ):
-      fakeline = plt.Line2D((0,1),(0,0), color=nc, 
-                            label="Design number " + str(plotnum))
-      lines.append(fakeline)
-
-    # Create legend
-  
-    labels = [l.get_label() for l in lines]
-    ax.legend(lines, labels, loc="upper right", numpoints=1)
-    
-#    legendax.legend(lines, labels, loc="upper center", bbox_to_anchor=bbox_loc, 
-#                    numpoints=1)
-
-#    else:
-#  
-#      # Only plotting polars
-#  
-#      if ( (plotoptions["show_seed_polar"]) or 
-#           (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
-#        fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=sc, marker='o',
-#                              label="Seed airfoil")
-#        lines.append(fakeline)
-#      if ( (not plotoptions["show_seed_polar_only"]) and (plotnum != 0) ):
-#        fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=nc, marker='s', 
-#                              label="Design number " + str(plotnum))
-#        lines.append(fakeline)
-  
-
-  # Plot for the first time, or redraw
-
-  if (not animation): plt.show()
+  if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
+    xmax = np.max(seedfoil.x)
+    xmin = np.min(seedfoil.x)
+    ymax = np.max(seedfoil.y)
+    ymin = np.min(seedfoil.y)
+  elif (plotoptions["show_seed_airfoil"]):
+    xmax = max([np.max(seedfoil.x), np.max(foil.x)])
+    xmin = min([np.min(seedfoil.x), np.min(foil.x)])
+    ymax = max([np.max(seedfoil.y), np.max(foil.y)])
+    ymin = min([np.min(seedfoil.y), np.min(foil.y)])
   else:
+    xmax = np.max(foil.x)
+    xmin = np.min(foil.x)
+    ymax = np.max(foil.y)
+    ymin = np.min(foil.y)
+  xrng = xmax - xmin
+  xmax= xmax + 0.1*xrng
+  xmin= xmin - 0.1*xrng
+  yrng = ymax - ymin
+  ymax= ymax + 0.1*yrng
+  ymin= ymin - 0.1*yrng
+
+  # Plot airfoil coordinates
+
+  if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
+    ax.plot(seedfoil.x, seedfoil.y, color=sc)
+  elif (plotoptions["show_seed_airfoil"]):
+    ax.plot(seedfoil.x, seedfoil.y, color=sc)
+    ax.plot(foil.x, foil.y, color=nc)
+  else:
+    ax.plot(foil.x, foil.y, color=nc)
+  ax.set_aspect('equal', 'datalim')
+  ax.set_xlabel('x')
+  ax.set_ylabel('z')
+  ax.set_xlim([xmin,xmax])
+  ax.set_ylim([ymin,ymax])
+
+  # Legend for coordinates plot
+
+  bbox_loc = (0.5, 1.1)
+
+  # Fake lines for legend
+
+  lines = []
+  if ( (plotoptions["show_seed_airfoil"]) or 
+       (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
+    fakeline = plt.Line2D((0,1),(0,0), color=sc, label="Seed airfoil")
+    lines.append(fakeline)
+  if ( (not plotoptions["show_seed_airfoil_only"]) and (plotnum != 0) ):
+    fakeline = plt.Line2D((0,1),(0,0), color=nc, 
+                          label="Design number " + str(plotnum))
+    lines.append(fakeline)
+
+  # Create legend
+
+  labels = [l.get_label() for l in lines]
+  ax.legend(lines, labels, loc="upper right", numpoints=1)
+    
+  # Update plot for animation only (for others, plt.show() must be called
+  # separately)
+
+  if animation:
     if (firsttime): cfig.show()
     else: plt.pause(0.0001)
     cfig.canvas.draw()
 
-  # Save animation frames if requested
+    # Save animation frames if requested
 
-  if ( (animation) and (plotoptions["save_animation_frames"]) ):
-    if (prefix == None):
-      print("Error: no file prefix specified - cannot save animation frames.")
-    else:
-      imagefname = prefix + '.png'
-      print("Saving image frame to file " + imagefname + ' ...')
-      plt.savefig(imagefname)
+    if plotoptions["save_animation_frames"]:
+      if (prefix == None):
+        print("Error: no file prefix specified - cannot save animation frames.")
+      else:
+        imagefname = prefix + '_coordinates.png'
+        print("Saving image frame to file " + imagefname + ' ...')
+        plt.savefig(imagefname)
 
-#  if ( (plotoptions["plot_airfoils"]) and (plotoptions["plot_polars"]) ):
-#    gs = gridspec.GridSpec(2, 1, height_ratios=[1,2])
-#    ax0 = plt.subplot(gs[0])
-#    ax1 = plt.subplot(gs[1])
-#    numplots = 2
-#  elif ( (plotoptions["plot_airfoils"]) and 
-#         (not plotoptions["plot_polars"]) ):
-#    ax0 = plt.subplot(111)
-#    numplots = 1
-#  elif ( (not plotoptions["plot_airfoils"]) and 
-#         (plotoptions["plot_polars"]) ):
-#    ax1 = plt.subplot(111)
-#    numplots = 1
-#  else:
-#    print("Error: must enable at least one of airfoils plot or polars plot.")
-#    return
-#
-#  # Set auto plotting bounds
-#
-#  if (plotoptions["plot_polars"]):
-#    if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
-#      cdmax = np.max(seedfoil.cd)
-#      cdmin = np.min(seedfoil.cd)
-#    elif (plotoptions["show_seed_polar"]):
-#      cdmax = max([np.max(seedfoil.cd), np.max(foil.cd)])
-#      cdmin = min([np.min(seedfoil.cd), np.min(foil.cd)])
-#    else:
-#      cdmax = np.max(foil.cd)
-#      cdmin = np.min(foil.cd)
-#    cdrng = cdmax - cdmin
-#    cdmaxauto = cdmax + 0.1*cdrng
-#    cdminauto = cdmin - 0.1*cdrng
-#  
-#    if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
-#      clmax = np.max(seedfoil.cl)
-#      clmin = np.min(seedfoil.cl)
-#    elif (plotoptions["show_seed_polar"]):
-#      clmax = max([np.max(seedfoil.cl), np.max(foil.cl)])
-#      clmin = min([np.min(seedfoil.cl), np.min(foil.cl)])
-#    else:
-#      clmax = np.max(foil.cl)
-#      clmin = np.min(foil.cl)
-#    clrng = clmax - clmin
-#    clmaxauto = clmax + 0.1*clrng
-#    clminauto = clmin - 0.1*clrng
-#
-#  # Plot polars
-#
-#  if (plotoptions["plot_polars"]):
-#    if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
-#      ax1.plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, marker='o')
-#    elif (plotoptions["show_seed_polar"]):
-#      ax1.plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, marker='o')
-#      ax1.plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
-#    else: 
-#      ax1.plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
-#    ax1.set_xlabel('Drag coefficient')
-#    ax1.set_ylabel('Lift coefficient')
-#    ax1.set_xlim([cdmin,cdmax])
-#    ax1.set_ylim([clmin,clmax])
-#    ax1.grid()
-#
+################################################################################
+# Plots polars
+def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
+                prefix=None, pfig=None, axarr=None, legend=None):
+  global plotoptions
+
+  # Select requested airfoil
+
+  if (plotnum > 0): foil = designfoils[plotnum-1]
+
+  # Aliases for colors
+
+  sc = plotoptions["color_for_seed"]
+  nc = plotoptions["color_for_new_designs"]
+
+  # Set up polars plot. Note: for monitoring, must pass pfig, axarr, and legend
+  # after the initial plotting, because currently plt.subplots always creates a
+  # new figure and the only other options would be to save these as global
+  # variables or to destroy and recreate the figure each time. (Or: make the
+  # polar plot its own class?)
+
+  if firsttime: 
+    plt.close(2)
+    pfig, axarr = plt.subplots(2, 2)
+    pfig.set_size_inches(11, 8, forward=True)
+  else:
+    plt.figure(2)
+    axarr[0,0].clear()
+    axarr[0,1].clear()
+    axarr[1,0].clear()
+    axarr[1,1].clear()
+  plt.cla()
+
+  # Auto plotting bounds
+
+  if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
+    almax = np.max(seedfoil.alpha)
+    almin = np.min(seedfoil.alpha)
+    clmax = np.max(seedfoil.cl)
+    clmin = np.min(seedfoil.cl)
+    cdmax = np.max(seedfoil.cd)
+    cdmin = np.min(seedfoil.cd)
+    cmmax = np.max(seedfoil.cm)
+    cmmin = np.min(seedfoil.cm)
+    xtrmax = max([np.max(seedfoil.xtrt), np.max(seedfoil.xtrb)])
+    xtrmin = min([np.min(seedfoil.xtrt), np.min(seedfoil.xtrb)])
+  elif (plotoptions["show_seed_polar"]):
+    almax = max([np.max(seedfoil.alpha), np.max(foil.alpha)])
+    almin = min([np.min(seedfoil.alpha), np.min(foil.alpha)])
+    clmax = max([np.max(seedfoil.cl), np.max(foil.cl)])
+    clmin = min([np.min(seedfoil.cl), np.min(foil.cl)])
+    cdmax = max([np.max(seedfoil.cd), np.max(foil.cd)])
+    cdmin = min([np.min(seedfoil.cd), np.min(foil.cd)])
+    cmmax = max([np.max(seedfoil.cm), np.max(foil.cm)])
+    cmmin = min([np.min(seedfoil.cm), np.min(foil.cm)])
+    xtrmax = max([np.max(seedfoil.xtrt), np.max(seedfoil.xtrb),
+                  np.max(foil.xtrt), np.max(foil.xtrb)])
+    xtrmin = min([np.min(seedfoil.xtrt), np.min(seedfoil.xtrb),
+                  np.min(foil.xtrt), np.min(foil.xtrb)])
+  else:
+    almax = np.max(foil.alpha)
+    almin = np.min(foil.alpha)
+    clmax = np.max(foil.cl)
+    clmin = np.min(foil.cl)
+    cdmax = np.max(foil.cd)
+    cdmin = np.min(foil.cd)
+    cmmax = np.max(foil.cm)
+    cmmin = np.min(foil.cm)
+    xtrmax = max([np.max(foil.xtrt), np.max(foil.xtrb)])
+    xtrmin = min([np.min(foil.xtrt), np.min(foil.xtrb)])
+  alrng = almax - almin
+  almax = almax + 0.1*alrng
+  almin = almin - 0.1*alrng
+  cdrng = cdmax - cdmin
+  cdmax = cdmax + 0.1*cdrng
+  cdmin = cdmin - 0.1*cdrng
+  clrng = clmax - clmin
+  clmax = clmax + 0.1*clrng
+  clmin = clmin - 0.1*clrng
+  cmrng = cmmax - cmmin
+  cmmax = cmmax + 0.1*cmrng
+  cmmin = cmmin - 0.1*cmrng
+  xtrrng = xtrmax - xtrmin
+  xtrmax = xtrmax + 0.1*xtrrng
+  xtrmin = xtrmin - 0.1*xtrrng
+
+  # Plot polars
+
+  if ( (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
+    axarr[0,0].plot(seedfoil.alpha, seedfoil.cl, linestyle='-', color=sc,
+                    marker='o')
+    axarr[0,1].plot(seedfoil.alpha, seedfoil.cd, linestyle='-', color=sc,
+                    marker='o')
+    axarr[1,0].plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, 
+                    marker='o')
+    axarr[1,1].plot(seedfoil.xtrt, seedfoil.alpha, linestyle='-', color=sc, 
+                    marker='o')
+    axarr[1,1].plot(seedfoil.xtrb, seedfoil.alpha, linestyle='--', color=sc, 
+                    marker='o')
+  elif (plotoptions["show_seed_polar"]):
+    axarr[0,0].plot(seedfoil.alpha, seedfoil.cl, linestyle='-', color=sc, 
+                    marker='o')
+    axarr[0,0].plot(foil.alpha, foil.cl, linestyle='-', color=nc, marker='s')
+    axarr[0,1].plot(seedfoil.alpha, seedfoil.cd, linestyle='-', color=sc, 
+                    marker='o')
+    axarr[0,1].plot(foil.alpha, foil.cd, linestyle='-', color=nc, marker='s')
+    axarr[1,0].plot(seedfoil.cd, seedfoil.cl, linestyle='-', color=sc, 
+                    marker='o')
+    axarr[1,0].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s')
+    axarr[1,1].plot(seedfoil.xtrt, seedfoil.alpha, linestyle='-', color=sc, 
+                    marker='o')
+    axarr[1,1].plot(foil.xtrt, foil.alpha, linestyle='-', color=nc, marker='s')
+    axarr[1,1].plot(seedfoil.xtrb, seedfoil.alpha, linestyle='--', color=sc, 
+                    marker='o')
+    axarr[1,1].plot(foil.xtrb, foil.alpha, linestyle='--', color=nc, marker='s')
+  else: 
+    axarr[0,0].plot(foil.alpha, foil.cl, linestyle='-', color=nc, marker='s') 
+    axarr[0,1].plot(foil.alpha, foil.cd, linestyle='-', color=nc, marker='s') 
+    axarr[1,0].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
+    axarr[1,1].plot(foil.xtrt, foil.alpha, linestyle='-', color=nc, marker='s')
+    axarr[1,1].plot(foil.xtrb, foil.alpha, linestyle='--', color=nc, marker='s')
+  axarr[0,0].set_xlabel('Angle of attack')
+  axarr[0,0].set_ylabel('Lift coefficient')
+  axarr[0,0].set_xlim([almin,almax])
+  axarr[0,0].set_ylim([clmin,clmax])
+  axarr[0,0].grid()
+  axarr[0,1].set_xlabel('Angle of attack')
+  axarr[0,1].set_ylabel('Drag coefficient')
+  axarr[0,1].set_xlim([almin,almax])
+  axarr[0,1].set_ylim([cdmin,cdmax])
+  axarr[0,1].grid()
+  axarr[1,0].set_xlabel('Drag coefficient')
+  axarr[1,0].set_ylabel('Lift coefficient')
+  axarr[1,0].set_xlim([cdmin,cdmax])
+  axarr[1,0].set_ylim([clmin,clmax])
+  axarr[1,0].grid()
+  axarr[1,1].set_xlabel('Transition x/c\n(top: solid, bottom: dashed)')
+  axarr[1,1].set_ylabel('Angle of attack')
+  axarr[1,1].set_xlim([xtrmin,xtrmax])
+  axarr[1,1].set_ylim([almin,almax])
+  axarr[1,1].grid()
+
+  # Draw legend
+
+  lines = []
+  if ( (plotoptions["show_seed_polar"]) or 
+       (plotoptions["show_seed_polar_only"]) or (plotnum == 0) ):
+    fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=sc, marker='o',
+                          label="Seed airfoil")
+    lines.append(fakeline)
+  if ( (not plotoptions["show_seed_polar_only"]) and (plotnum != 0) ):
+    fakeline = plt.Line2D((0,1),(0,0), linestyle='-', color=nc, marker='s', 
+                          label="Design number " + str(plotnum))
+    lines.append(fakeline)
+  
+  bbox_loc = (0.5, 1.00)
+  labels = [l.get_label() for l in lines]
+  if legend: legend.remove()
+  legend = pfig.legend(lines, labels, loc="upper center", 
+                       bbox_to_anchor=bbox_loc, numpoints=1)
+
+  # Update plot for animation only (for others, plt.show() must be called
+  # separately)
+
+  if animation:
+    if (firsttime): pfig.show()
+    else: plt.pause(0.0001)
+    pfig.canvas.draw()
+
+    # Save animation frames if requested
+  
+    if plotoptions["save_animation_frames"]:
+      if (prefix == None):
+        print("Error: no file prefix specified - cannot save animation frames.")
+      else:
+        imagefname = prefix + '.png'
+        print("Saving image frame to file " + imagefname + ' ...')
+        plt.savefig(imagefname)
+
+  return pfig, axarr, legend
 
 ################################################################################
 # Input function that checks python version
@@ -498,6 +587,7 @@ def my_input(message):
 ################################################################################
 # Plotting menu
 def plotting_menu(seedfoil, designfoils):
+  global plotoptions
 
   numfoils = len(designfoils)
 
@@ -524,7 +614,11 @@ def plotting_menu(seedfoil, designfoils):
 
     else:
       validchoice = True
-      plot_airfoil_coordinates(seedfoil, designfoils, plotnum, firsttime=True)
+      if plotoptions["plot_airfoils"]:
+        plot_airfoil_coordinates(seedfoil, designfoils, plotnum, firsttime=True)
+      if plotoptions["plot_polars"]:
+        plot_polars(seedfoil, designfoils, plotnum, firsttime=True)
+      plt.show()
       plotting_complete = False
 
   return plotting_complete
@@ -806,6 +900,9 @@ def main_menu(seedfoil, designfoils, prefix):
 
       # Loop through designs, updating plot
 
+      pfig = None
+      axarr = None
+      leg = None
       for i in range(0, numfoils):
         if (i == 0): init = True
         else: init = False
@@ -820,10 +917,16 @@ def main_menu(seedfoil, designfoils, prefix):
 
         else: imagepref = None
 
-        # Update plot
+        # Update plots
 
-        plot_airfoil_coordinates(seedfoil, designfoils, i+1, firsttime=init,
-                                 animation=True, prefix=imagepref)
+        if plotoptions["plot_airfoils"]:
+          plot_airfoil_coordinates(seedfoil, designfoils, i+1, firsttime=init,
+                                   animation=True, prefix=imagepref)
+        if plotoptions["plot_polars"]:
+          pfig, axarr, leg = plot_polars(seedfoil, designfoils, i+1, 
+                                         firsttime=init, animation=True, 
+                                         prefix=imagepref, pfig=pfig, 
+                                         axarr=axarr, legend=leg)
 
     # Monitor optimization progress
 
@@ -847,14 +950,22 @@ def main_menu(seedfoil, designfoils, prefix):
 
       init = True
       monitoring = True
+      pfig = None
+      axarr = None
+      leg = None
       while (monitoring):
 
         # Update plot
 
         if (ioerror != 1): 
           numfoils = len(designfoils)
-          plot_airfoil_coordinates(seedfoil, designfoils, numfoils, 
-                       firsttime=init, animation=True)
+          if plotoptions["plot_airfoils"]:
+            plot_airfoil_coordinates(seedfoil, designfoils, numfoils, 
+                                     firsttime=init, animation=True)
+          if plotoptions["plot_polars"]:
+            pfig, axarr, leg = plot_polars(seedfoil, designfoils, numfoils,
+                                           firsttime=init, animation=True, 
+                                           pfig=pfig, axarr=axarr, legend=leg)
           init = False
 
         # Pause for requested update interval
