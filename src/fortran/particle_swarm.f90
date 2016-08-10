@@ -91,14 +91,15 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     end function
   end interface
 
-  integer :: nconstrained, i, j, fminloc, var, stat, restartcounter
+  integer :: nconstrained, i, j, fminloc, var, stat, restartcounter, iunit,    &
+             ioerr
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
                       f0, radius
   double precision, dimension(pso_options%pop) :: objval, minvals, speed
   double precision, dimension(size(xmin,1)) :: randvec1, randvec2
   double precision, dimension(size(xmin,1),pso_options%pop) :: dv, vel,        &
                                                                bestdesigns
-  logical :: use_x0, converged, signal_progress
+  logical :: use_x0, converged, signal_progress, new_history_file
 
   nconstrained = size(constrained_dvs,1)
 
@@ -205,6 +206,33 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
     xopt = bestdesigns(:,fminloc)
     mincurr = minval(objval,1)
 
+  end if
+
+! Open file for writing iteration history
+
+  iunit = 27
+  new_history_file = .false.
+  if (step == 0) then
+    new_history_file = .true.
+  else
+    open(unit=iunit, file='optimization_history.dat', status='old',            &
+         position='append', iostat=ioerr)
+    if (ioerr /= 0) then
+      write(*,*) 
+      write(*,*) "Warning: did not find existing optimization_history.dat file."
+      write(*,*) "A new one will be written, but old data will be lost."
+      write(*,*)
+      new_history_file = .true.
+    end if
+  end if
+  if (new_history_file) then
+    open(unit=iunit, file='optimization_history.dat', status='replace')
+    if (pso_options%relative_fmin_report) then
+      write(iunit,'(A)') "Iteration   Objective function   "//&
+                         "% Improvement over seed"
+    else
+      write(iunit,'(A)') "Iteration   Objective function"
+    end if
   end if
 
 ! Begin optimization
@@ -327,6 +355,14 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
                           designcounter)
       end if
     end if
+
+!   Write iteration history
+
+    if (pso_options%relative_fmin_report) then
+      write(iunit,'(I8,2ES14.6)') step, fmin, (f0 - fmin)/f0*100.d0
+    else
+      write(iunit,'(I8,ES14.6)') step, fmin
+    end if
     
 !   Evaluate convergence
 
@@ -360,6 +396,10 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 ! Calculate number of function evaluations
       
   fevals = fevals + step*pso_options%pop
+
+! Close iteration history file
+
+  close(iunit)
 
 end subroutine particleswarm
 

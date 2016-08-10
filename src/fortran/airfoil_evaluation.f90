@@ -926,6 +926,8 @@ function write_function_restart_cleanup(restart_status, global_search,         &
                                                    moment, xtrt, xtrb
   character(100) :: restfile, foilfile, polarfile, text
 
+!FIXME: Also do this for optimization_history.dat
+
 ! Print status
 
   write(*,*) 'Cleaning up unused designs written after restart save ...'
