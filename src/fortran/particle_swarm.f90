@@ -363,10 +363,10 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 !   Write iteration history
 
     write(stepchar,'(I11)') step
-    write(fminchar,'(ES14.6)') fmin
+    write(fminchar,'(F14.10)') fmin
     write(radchar,'(ES14.6)') radius
     if (pso_options%relative_fmin_report) then
-      write(relfminchar,'(ES14.6)') (f0 - fmin)/f0*100.d0
+      write(relfminchar,'(F14.10)') (f0 - fmin)/f0*100.d0
       write(iunit,'(A11,A20,A25,A20)') adjustl(stepchar), adjustl(fminchar),   &
                                        adjustl(relfminchar), adjustl(radchar)
     else
