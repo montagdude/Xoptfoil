@@ -163,7 +163,7 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
 
   iunit = 17
   new_history_file = .false.
-  if (prevsteps == 0) then
+  if ( (prevsteps == 0) .and. (step == 0) ) then
     new_history_file = .true.
   else
     open(unit=iunit, file='optimization_history.dat', status='old',            &
