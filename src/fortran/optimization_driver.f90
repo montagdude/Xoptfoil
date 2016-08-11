@@ -369,7 +369,8 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
 
       call simplexsearch(optdesign, fmin, stepsl, fevalsl, objective_function, &
                          x0, .true., f0_ref, ds_options, restart_temp,         &
-                         restart_write_freq, designcounter, write_function)
+                         restart_write_freq, designcounter, stepsg,            &
+                         write_function)
 
     end if
 

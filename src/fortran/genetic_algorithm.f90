@@ -115,6 +115,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   integer, dimension(:), allocatable :: idxparents
   integer :: nconstrained, i, j, fminloc, var, stat, restartcounter, nparents
   integer :: idxparent1, idxparent2, idxstack1, idxstack2
+  integer :: iunit, ioerr
   double precision :: mincurr, f0, radius, mutate1, mutate2, objchild1,        &
                       objchild2
   double precision, dimension(ga_options%pop) :: objval
@@ -122,7 +123,10 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   double precision, dimension(size(xmin,1),ga_options%pop) :: dv
   double precision, dimension(:,:), allocatable :: stackdv
   double precision, dimension(:), allocatable :: stackobjval
-  logical :: use_x0, converged, signal_progress
+  logical :: use_x0, converged, signal_progress, new_history_file
+  character(11) :: stepchar
+  character(20) :: fminchar, radchar
+  character(25) :: relfminchar
 
   nconstrained = size(constrained_dvs,1)
 
@@ -187,6 +191,34 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
     call ga_read_restart(step, designcounter, dv, objval, fmin, xopt)
     mincurr = minval(objval,1)
 
+  end if
+
+! Open file for writing iteration history
+
+  iunit = 17
+  new_history_file = .false.
+  if (step == 0) then
+    new_history_file = .true.
+  else
+    open(unit=iunit, file='optimization_history.dat', status='old',            &
+         position='append', iostat=ioerr)
+    if (ioerr /= 0) then
+      write(*,*) 
+      write(*,*) "Warning: did not find existing optimization_history.dat file."
+      write(*,*) "A new one will be written, but old data will be lost."
+      write(*,*)
+      new_history_file = .true.
+    end if
+  end if
+  if (new_history_file) then
+    open(unit=iunit, file='optimization_history.dat', status='replace')
+    if (ga_options%relative_fmin_report) then
+      write(iunit,'(A)') "Iteration  Objective function  "//&
+                         "% Improvement over seed  Design radius"
+    else
+      write(iunit,'(A)') "Iteration  Objective function  Design radius"
+    end if
+    flush(iunit)
   end if
 
 ! Begin optimization
@@ -321,6 +353,21 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
                           designcounter)
       end if
     end if
+
+!   Write iteration history
+
+    write(stepchar,'(I11)') step
+    write(fminchar,'(ES14.6)') fmin
+    write(radchar,'(ES14.6)') radius
+    if (ga_options%relative_fmin_report) then
+      write(relfminchar,'(ES14.6)') (f0 - fmin)/f0*100.d0
+      write(iunit,'(A11,A20,A25,A20)') adjustl(stepchar), adjustl(fminchar),   &
+                                       adjustl(relfminchar), adjustl(radchar)
+    else
+      write(iunit,'(A11,2A20)') adjustl(stepchar), adjustl(fminchar),          &
+                                adjustl(radchar)
+    end if
+    flush(iunit)
     
 !   Evaluate convergence
 
@@ -359,6 +406,10 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 ! Calculate number of function evaluations
 
   fevals = fevals + step*nparents
+
+! Close iteration history file
+
+  close(iunit)
 
 end subroutine geneticalgorithm
 

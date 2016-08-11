@@ -100,6 +100,9 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   double precision, dimension(size(xmin,1),pso_options%pop) :: dv, vel,        &
                                                                bestdesigns
   logical :: use_x0, converged, signal_progress, new_history_file
+  character(11) :: stepchar
+  character(20) :: fminchar, radchar
+  character(25) :: relfminchar
 
   nconstrained = size(constrained_dvs,1)
 
@@ -210,7 +213,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 ! Open file for writing iteration history
 
-  iunit = 27
+  iunit = 17
   new_history_file = .false.
   if (step == 0) then
     new_history_file = .true.
@@ -228,11 +231,12 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   if (new_history_file) then
     open(unit=iunit, file='optimization_history.dat', status='replace')
     if (pso_options%relative_fmin_report) then
-      write(iunit,'(A)') "Iteration   Objective function   "//&
-                         "% Improvement over seed"
+      write(iunit,'(A)') "Iteration  Objective function  "//&
+                         "% Improvement over seed  Design radius"
     else
-      write(iunit,'(A)') "Iteration   Objective function"
+      write(iunit,'(A)') "Iteration  Objective function  Design radius"
     end if
+    flush(iunit)
   end if
 
 ! Begin optimization
@@ -358,11 +362,18 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 
 !   Write iteration history
 
+    write(stepchar,'(I11)') step
+    write(fminchar,'(ES14.6)') fmin
+    write(radchar,'(ES14.6)') radius
     if (pso_options%relative_fmin_report) then
-      write(iunit,'(I8,2ES14.6)') step, fmin, (f0 - fmin)/f0*100.d0
+      write(relfminchar,'(ES14.6)') (f0 - fmin)/f0*100.d0
+      write(iunit,'(A11,A20,A25,A20)') adjustl(stepchar), adjustl(fminchar),   &
+                                       adjustl(relfminchar), adjustl(radchar)
     else
-      write(iunit,'(I8,ES14.6)') step, fmin
+      write(iunit,'(A11,2A20)') adjustl(stepchar), adjustl(fminchar),          &
+                                adjustl(radchar)
     end if
+    flush(iunit)
     
 !   Evaluate convergence
 

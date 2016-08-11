@@ -44,7 +44,7 @@ module simplex_search
 !=============================================================================80
 subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
                          f0_ref, ds_options, restart, restart_write_freq,      &
-                         indesigncounter, converterfunc)
+                         indesigncounter, instep, converterfunc)
 
   use optimization_util, only : bubble_sort, design_radius, write_design
 
@@ -63,7 +63,7 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
   logical, intent(in) :: given_f0_ref, restart
   type (ds_options_type), intent(in) :: ds_options
   integer, intent(in) :: restart_write_freq
-  integer, intent(in), optional :: indesigncounter
+  integer, intent(in), optional :: indesigncounter, instep
 
   optional :: converterfunc
   interface
@@ -78,9 +78,13 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
   double precision, dimension(size(x0,1)) :: xcen, xr, xe, xc
 
   double precision :: rho, xi, gam, sigma, fr, fe, fc, f0, mincurr, radius
-  integer :: i, j, nvars, stat, designcounter, restartcounter
-  logical :: converged, needshrink, signal_progress
+  integer :: i, j, nvars, stat, designcounter, restartcounter, iunit, ioerr,   &
+             prevsteps
+  logical :: converged, needshrink, signal_progress, new_history_file
   character(3) :: filestat
+  character(11) :: stepchar
+  character(20) :: fminchar, radchar
+  character(25) :: relfminchar
 
 ! Standard Nelder-Mead constants
 
@@ -135,12 +139,18 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
     else
       designcounter = indesigncounter
     end if
+    if (.not. present(instep)) then
+      prevsteps = 0
+    else
+      prevsteps = instep
+    end if
 
   else
 
 !   Get initial simplex and counters from restart file
 
-    call simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
+    call simplex_read_restart(step, prevsteps, designcounter, dv, objvals, f0, &
+                              fevals)
 
   end if
 
@@ -148,6 +158,34 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
 
   fmin = minval(objvals)
   mincurr = fmin
+
+! Open file for writing iteration history
+
+  iunit = 17
+  new_history_file = .false.
+  if (prevsteps == 0) then
+    new_history_file = .true.
+  else
+    open(unit=iunit, file='optimization_history.dat', status='old',            &
+         position='append', iostat=ioerr)
+    if (ioerr /= 0) then
+      write(*,*) 
+      write(*,*) "Warning: did not find existing optimization_history.dat file."
+      write(*,*) "A new one will be written, but old data will be lost."
+      write(*,*)
+      new_history_file = .true.
+    end if
+  end if
+  if (new_history_file) then
+    open(unit=iunit, file='optimization_history.dat', status='replace')
+    if (ds_options%relative_fmin_report) then
+      write(iunit,'(A)') "Iteration  Objective function  "//&
+                         "% Improvement over seed  Design radius"
+    else
+      write(iunit,'(A)') "Iteration  Objective function  Design radius"
+    end if
+    flush(iunit)
+  end if
 
 ! Iterative procedure for optimization
  
@@ -209,10 +247,26 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
       end if
     end if
 
+!   Write iteration history
+
+    write(stepchar,'(I11)') step + prevsteps
+    write(fminchar,'(ES14.6)') fmin
+    write(radchar,'(ES14.6)') radius
+    if (ds_options%relative_fmin_report) then
+      write(relfminchar,'(ES14.6)') (f0 - fmin)/f0*100.d0
+      write(iunit,'(A11,A20,A25,A20)') adjustl(stepchar), adjustl(fminchar),   &
+                                       adjustl(relfminchar), adjustl(radchar)
+    else
+      write(iunit,'(A11,2A20)') adjustl(stepchar), adjustl(fminchar),          &
+                                adjustl(radchar)
+    end if
+    flush(iunit)
+
 !   Write restart file if appropriate and update restart counter
 
     if (restartcounter == restart_write_freq) then
-      call simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
+      call simplex_write_restart(step, prevsteps, designcounter, dv, objvals,  &
+                                 f0, fevals)
       restartcounter = 1
     else
       restartcounter = restartcounter + 1
@@ -330,6 +384,10 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
     write(*,*) '         of iterations being reached.'
   end if
 
+! Close iteration history file
+
+  close(iunit)
+
 end subroutine simplexsearch
 
 !=============================================================================80
@@ -337,11 +395,12 @@ end subroutine simplexsearch
 ! Simplex restart write routine
 !
 !=============================================================================80
-subroutine simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
+subroutine simplex_write_restart(step, prevsteps, designcounter, dv, objvals,  &
+                                 f0, fevals)
 
   use vardef, only : output_prefix
 
-  integer, intent(in) :: step, designcounter, fevals
+  integer, intent(in) :: step, prevsteps, designcounter, fevals
   double precision, dimension(:,:), intent(in) :: dv
   double precision, dimension(:), intent(in) :: objvals
   double precision, intent(in) :: f0
@@ -362,6 +421,7 @@ subroutine simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
 ! Write restart data
 
   write(iunit) step
+  write(iunit) prevsteps
   write(iunit) designcounter
   write(iunit) dv
   write(iunit) objvals
@@ -383,11 +443,12 @@ end subroutine simplex_write_restart
 ! Particle swarm restart read routine
 !
 !=============================================================================80
-subroutine simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
+subroutine simplex_read_restart(step, prevsteps, designcounter, dv, objvals,   &
+                                f0, fevals)
 
   use vardef, only : output_prefix
 
-  integer, intent(out) :: step, designcounter, fevals
+  integer, intent(out) :: step, prevsteps, designcounter, fevals
   double precision, dimension(:,:), intent(inout) :: dv
   double precision, dimension(:), intent(inout) :: objvals
   double precision, intent(out) :: f0
@@ -414,6 +475,7 @@ subroutine simplex_read_restart(step, designcounter, dv, objvals, f0, fevals)
 ! Read restart data
 
   read(iunit) step
+  read(iunit) prevsteps
   read(iunit) designcounter
   read(iunit) dv
   read(iunit) objvals
