@@ -516,7 +516,7 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
   else: 
     axarr[0,0].plot(foil.alpha, foil.cl, linestyle='-', color=nc, marker='s') 
     if plotoptions["drag_plot_type"] == "vs. lift":
-      axarr[1,0].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
+      axarr[0,1].plot(foil.cd, foil.cl, linestyle='-', color=nc, marker='s') 
     else:
       axarr[0,1].plot(foil.alpha, foil.cd, linestyle='-', color=nc, marker='s') 
     axarr[1,0].plot(foil.alpha, foil.cm, linestyle='-', color=nc, marker='s') 

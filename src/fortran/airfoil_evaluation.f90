@@ -920,13 +920,16 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   character(*), intent(in) :: restart_status, global_search, local_search
   integer :: write_function_restart_cleanup
 
-  integer :: restunit, ioerr, step, designcounter, foilunit, polarunit, ncoord
+  integer :: restunit, ioerr, step, designcounter, foilunit, polarunit,        &
+             histunit, ncoord
   integer :: i, j
   double precision, dimension(:,:), allocatable :: x, z, alpha, lift, drag,    &
                                                    moment, xtrt, xtrb
+  double precision, dimension(:), allocatable :: fmin, relfmin, rad
   character(100) :: restfile, foilfile, polarfile, text
-
-!FIXME: Also do this for optimization_history.dat
+  character(11) :: stepchar
+  character(20) :: fminchar, radchar
+  character(25) :: relfminchar
 
 ! Print status
 
@@ -935,6 +938,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   restunit = 12
   foilunit = 13
   polarunit = 14
+  histunit = 15
 
 ! Read last written design from restart file
 
@@ -971,6 +975,9 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   allocate(moment(noppoint,designcounter+1))
   allocate(xtrt(noppoint,designcounter+1))
   allocate(xtrb(noppoint,designcounter+1))
+  allocate(fmin(step))
+  allocate(relfmin(step))
+  allocate(rad(step))
 
 ! Open coordinates file
 
@@ -1033,6 +1040,47 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 
   close(foilunit)
 
+! Open history file
+
+  open(unit=histunit, file='optimization_history.dat', status='old',           &
+       iostat=ioerr)
+  if (ioerr /= 0) then
+    write_function_restart_cleanup = 3
+    return
+  end if
+
+! Skip file header
+
+  read(histunit,*)
+
+! Read optimizer data at each iteration
+
+  do i = 1, step
+    read(histunit,*) j, fmin(i), relfmin(i), rad(i)
+  end do
+
+! Close history file
+
+  close(histunit)
+
+! Re-write history file without the unused iterations
+
+  open(unit=histunit, file='optimization_history.dat', status='replace')
+  write(histunit,'(A)') "Iteration  Objective function  "//&
+                        "% Improvement over seed  Design radius"
+  do i = 1, step
+    write(stepchar,'(I11)') i
+    write(fminchar,'(F14.10)') fmin(i)
+    write(relfminchar,'(F14.10)') relfmin(i)
+    write(radchar,'(ES14.6)') rad(i)
+    write(histunit,'(A11,A20,A25,A20)') adjustl(stepchar), adjustl(fminchar),  &
+                                        adjustl(relfminchar), adjustl(radchar)
+  end do
+
+! Close history file
+
+  close(histunit)
+
 ! Return now if we're matching airfoils (no aero data)
 
   if (match_foils) then
@@ -1044,6 +1092,9 @@ function write_function_restart_cleanup(restart_status, global_search,         &
     deallocate(moment)
     deallocate(xtrt)
     deallocate(xtrb)
+    deallocate(fmin)
+    deallocate(relfmin)
+    deallocate(rad)
     write(*,*) 'Finished cleaning up unused designs.'
     write_function_restart_cleanup = 0
     return
@@ -1054,7 +1105,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   polarfile = trim(output_prefix)//'_design_polars.dat'
   open(unit=polarunit, file=polarfile, status='old', iostat=ioerr)
   if (ioerr /= 0) then
-    write_function_restart_cleanup = 3
+    write_function_restart_cleanup = 4
     return
   end if
 
@@ -1118,6 +1169,12 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   deallocate(z)
   deallocate(lift)
   deallocate(drag)
+  deallocate(moment)
+  deallocate(xtrt)
+  deallocate(xtrb)
+  deallocate(fmin)
+  deallocate(relfmin)
+  deallocate(rad)
 
 ! Print status
 
