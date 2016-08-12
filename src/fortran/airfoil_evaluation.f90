@@ -618,7 +618,7 @@ function write_airfoil_optimization_progress(designvars, designcounter)
   use math_deps,       only : interp_vector 
   use parametrization, only : top_shape_function, bot_shape_function,          &
                               create_airfoil
-  use xfoil_driver,    only : run_xfoil
+  use xfoil_driver,    only : run_xfoil, xfoil_geometry_info
 
   double precision, dimension(:), intent(in) :: designvars
   integer, intent(in) :: designcounter
@@ -631,10 +631,11 @@ function write_airfoil_optimization_progress(designvars, designcounter)
   double precision, dimension(noppoint) :: alpha, lift, drag, moment, viscrms, &
                                            xtrt, xtrb
   double precision, dimension(noppoint) :: actual_flap_degrees
-  double precision :: ffact
+  double precision :: ffact, maxt, xmaxt, maxc, xmaxc
   integer :: ndvs, flap_idx, dvcounter
  
   character(100) :: foilfile, polarfile, text
+  character(8) :: maxtchar, xmaxtchar, maxcchar, xmaxcchar
   integer :: foilunit, polarunit
 
   nmodest = size(top_shape_function,1)
@@ -705,6 +706,18 @@ function write_airfoil_optimization_progress(designvars, designcounter)
                  use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
                  xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb)
 
+! Get geometry info
+
+  call xfoil_geometry_info(maxt, xmaxt, maxc, xmaxc)
+  write(maxtchar,'(F8.5)') maxt
+  maxtchar = adjustl(maxtchar)
+  write(xmaxtchar,'(F8.5)') xmaxt
+  xmaxtchar = adjustl(xmaxtchar)
+  write(maxcchar,'(F8.5)') maxc
+  maxcchar = adjustl(maxcchar)
+  write(xmaxcchar,'(F8.5)') xmaxc
+  xmaxcchar = adjustl(xmaxcchar)
+
 ! Set output file names and identifiers
 
   foilfile = trim(output_prefix)//'_design_coordinates.dat'
@@ -724,7 +737,9 @@ function write_airfoil_optimization_progress(designvars, designcounter)
     open(unit=foilunit, file=foilfile, status='replace')
     write(foilunit,'(A)') 'title="Airfoil coordinates"'
     write(foilunit,'(A)') 'variables="x" "z"'
-    write(foilunit,'(A)') 'zone t="Seed airfoil"'
+    write(foilunit,'(A)') 'zone t="Seed airfoil, maxt='//trim(maxtchar)//&
+                          ', xmaxt='//trim(xmaxtchar)//', maxc='//&
+                          trim(maxcchar)//', xmaxc='//trim(xmaxcchar)//'"'
 
 !   Header for polar file
 
@@ -748,7 +763,10 @@ function write_airfoil_optimization_progress(designvars, designcounter)
                " to file "//trim(foilfile)//" ..."
     open(unit=foilunit, file=foilfile, status='old', position='append',        &
          err=900)
-    write(foilunit,'(A)') 'zone t="Airfoil", SOLUTIONTIME='//trim(text)
+    write(foilunit,'(A)') 'zone t="Airfoil, maxt='//trim(maxtchar)//&
+                          ', xmaxt='//trim(xmaxtchar)//', maxc='//&
+                          trim(maxcchar)//', xmaxc='//trim(xmaxcchar)//'", '//&
+                          'SOLUTIONTIME='//trim(text)
 
     ! Open polar file and write zone header
     

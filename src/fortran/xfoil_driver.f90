@@ -680,4 +680,22 @@ subroutine xfoil_cleanup()
 
 end subroutine xfoil_cleanup
 
+!=============================================================================80
+!
+! Gets thickness and camber information for the current airfoil
+!
+!=============================================================================80
+subroutine xfoil_geometry_info(maxt, xmaxt, maxc, xmaxc)
+
+  use xfoil_inc, only : THICKB, XTHICKB, CAMBR, XCAMBR
+
+  double precision, intent(out) :: maxt, xmaxt, maxc, xmaxc
+
+  maxt = THICKB
+  xmaxt = XTHICKB
+  maxc = CAMBR
+  xmaxc = XCAMBR 
+
+end subroutine xfoil_geometry_info
+
 end module xfoil_driver
