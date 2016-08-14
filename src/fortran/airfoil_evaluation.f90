@@ -949,6 +949,8 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   character(20) :: fminchar, radchar
   character(25) :: relfminchar
 
+!FIXME: Write airfoil geometry stats (by saving zone header info)
+
 ! Print status
 
   write(*,*) 'Cleaning up unused designs written after restart save ...'

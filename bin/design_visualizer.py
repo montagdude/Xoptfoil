@@ -29,6 +29,7 @@ plotoptions = dict(show_seed_airfoil = True,
                    show_seed_polar = True,
                    show_seed_airfoil_only = False,
                    show_seed_polar_only = False,
+                   show_airfoil_info = True,
                    plot_airfoils = True,
                    plot_polars = True,
                    drag_plot_type = "vs. lift",
@@ -47,6 +48,10 @@ class Airfoil:
   def __init__(self):
     self.x = np.zeros((0))
     self.y = np.zeros((0))
+    self.maxt = 0.
+    self.xmaxt = 0.
+    self.maxc = 0.
+    self.xmaxc = 0.
     self.alpha = np.zeros((0))
     self.cl = np.zeros((0))
     self.cd = np.zeros((0))
@@ -61,6 +66,12 @@ class Airfoil:
     self.y = y
     self.npt = x.shape[0]
 
+  def setGeometryInfo(self, maxt, xmaxt, maxc, xmaxc):
+    self.maxt = maxt
+    self.xmaxt = xmaxt
+    self.maxc = maxc
+    self.xmaxc = xmaxc
+
   def setPolars(self, alpha, cl, cd, cm, xtrt, xtrb):
     self.alpha = alpha
     self.cl = cl
@@ -72,11 +83,15 @@ class Airfoil:
 
 ################################################################################
 # Reads airfoil coordinates from file
-def read_airfoil_coordinates(filename, zonetitle):
+def read_airfoil_coordinates(filename, zonetitle, designnum):
 
   ioerror = 0
   x = []
   y = []
+  maxt = 0.
+  xmaxt = 0.
+  maxc = 0.
+  xmaxc = 0.
 
   # Try to open the file
 
@@ -84,7 +99,7 @@ def read_airfoil_coordinates(filename, zonetitle):
     f = open(filename) 
   except IOError:
     ioerror = 1
-    return x, y, ioerror
+    return x, y, maxt, xmaxt, maxc, xmaxc, ioerror
 
   # Read lines until we get to the correct zone
 
@@ -95,11 +110,23 @@ def read_airfoil_coordinates(filename, zonetitle):
 
     if (not zonefound):
 
-      # Check for the zone we are looking for
+      # Check for the zone we are looking for, and read geometry info
 
       if (textline[0:zonelen] == zonetitle):
+        if (designnum != 0):
+          checkline = textline.split("SOLUTIONTIME=")
+          checkdesign = int(checkline[1])
+          if (checkdesign == designnum): zonefound = True
+        else: zonefound = True
     
-        zonefound = True
+      if zonefound:
+        splitline = textline.split(",")
+        if len(splitline) > 2:
+          maxt = float((splitline[1].split("="))[1])
+          xmaxt = float((splitline[2].split("="))[1])
+          maxc = float((splitline[3].split("="))[1])
+          xmaxcline = splitline[4].split('"')[0]
+          xmaxc = float((xmaxcline.split("="))[1])
 
     else:
 
@@ -126,7 +153,7 @@ def read_airfoil_coordinates(filename, zonetitle):
 
   # Return coordinate data
 
-  return x, y, ioerror
+  return x, y, maxt, xmaxt, maxc, xmaxc, ioerror
 
 ################################################################################
 # Reads airfoil polars from file
@@ -195,6 +222,57 @@ def read_airfoil_polars(filename, zonetitle):
   return alpha, cl, cd, cm, xtrt, xtrb, ioerror
 
 ################################################################################
+# Reads optimization history
+def read_optimization_history(step):
+
+  ioerror = 0
+  fmin = 0.
+  relfmin = 0.
+  rad = 0.
+
+  # Try to open the file
+
+  try:
+    f = open('optimization_history.dat') 
+  except IOError:
+    ioerror = 1
+    return fmin, relfmin, rad, ioerror
+
+  # Read lines until we get to the step
+
+  stepfound = False
+  for textline in f:
+
+    if (not stepfound):
+
+      # Check for the step we are looking for
+
+      splitline = textline.split()
+      try:
+        linestep = int(splitline[0])
+      except ValueError:
+        continue
+
+      if (linestep == step):
+        stepfound = True
+        fmin = float(splitline[1])
+        relfmin = float(splitline[2])
+        rad = float(splitline[3])
+    
+  # Error if step has not been found after reading the file
+
+  if (not stepfound):
+    ioerror = 2
+
+  # Close the file
+
+  f.close()
+
+  # Return optiimzation history data
+
+  return fmin, relfmin, rad, ioerror
+
+################################################################################
 # Loads airfoil coordinates and polars from files
 def load_airfoils_from_file(coordfilename, polarfilename):
 
@@ -208,8 +286,9 @@ def load_airfoils_from_file(coordfilename, polarfilename):
 
   print("Checking for airfoil coordinates file " + coordfilename + "...")
 
-  zonetitle = 'zone t="Seed airfoil"'
-  x, y, ioerror = read_airfoil_coordinates(coordfilename, zonetitle)
+  zonetitle = 'zone t="Seed airfoil'
+  x, y, maxt, xmaxt, maxc, xmaxc, ioerror = read_airfoil_coordinates(
+                                                    coordfilename, zonetitle, 0)
   if (ioerror == 1):
     print("Warning: file " + coordfilename + " not found.")
     return seedfoil, designfoils, ioerror
@@ -219,6 +298,7 @@ def load_airfoils_from_file(coordfilename, polarfilename):
     return seedfoil, designfoils, ioerror
 
   seedfoil.setCoordinates(np.array(x), np.array(y))
+  seedfoil.setGeometryInfo(maxt, xmaxt, maxc, xmaxc)
 
   # Read coordinate data for designs produced by optimizer
 
@@ -228,8 +308,9 @@ def load_airfoils_from_file(coordfilename, polarfilename):
   counter = 1
   while (not read_finished):
 
-    zonetitle = 'zone t="Airfoil", SOLUTIONTIME=' + str(counter)
-    x, y, ioerror = read_airfoil_coordinates(coordfilename, zonetitle)
+    zonetitle = 'zone t="Airfoil'
+    x, y, maxt, xmaxt, maxc, xmaxc, ioerror = read_airfoil_coordinates(
+                                              coordfilename, zonetitle, counter)
     if (ioerror == 2):
       read_finished = True
       numfoils = counter - 1
@@ -237,6 +318,7 @@ def load_airfoils_from_file(coordfilename, polarfilename):
     else:
       currfoil = Airfoil()
       currfoil.setCoordinates(np.array(x), np.array(y))
+      currfoil.setGeometryInfo(maxt, xmaxt, maxc, xmaxc)
       designfoils.append(currfoil)
       counter += 1
 
@@ -349,6 +431,33 @@ def plot_airfoil_coordinates(seedfoil, designfoils, plotnum, firsttime=True,
   ax.set_ylabel('z')
   ax.set_xlim([xmin,xmax])
   ax.set_ylim([ymin,ymax])
+
+  # Display geometry info
+
+  if plotoptions["show_airfoil_info"]:
+    if ( (plotoptions["show_seed_airfoil_only"]) or (plotnum == 0) ):
+      mytext = ("Thickness: " + str(seedfoil.maxt) + '\n' +
+                "   at x/c: " + str(seedfoil.xmaxt) + '\n' +
+                "Camber: " + str(seedfoil.maxc) + '\n' +
+                "   at x/c: " + str(seedfoil.xmaxc))
+      ax.text(-0.05, -0.2, mytext, color=sc, verticalalignment='top')
+    elif (plotoptions["show_seed_airfoil"]):
+      mytext = ("Thickness: " + str(seedfoil.maxt) + '\n' +
+                "   at x/c: " + str(seedfoil.xmaxt) + '\n' +
+                "Camber: " + str(seedfoil.maxc) + '\n' +
+                "   at x/c: " + str(seedfoil.xmaxc))
+      ax.text(-0.05, -0.2, mytext, color=sc, verticalalignment='top')
+      mytext = ("Thickness: " + str(foil.maxt) + '\n' +
+                "   at x/c: " + str(foil.xmaxt) + '\n' +
+                "Camber: " + str(foil.maxc) + '\n' +
+                "   at x/c: " + str(foil.xmaxc))
+      ax.text(0.70, -0.2, mytext, color=nc, verticalalignment='top')
+    else:
+      mytext = ("Thickness: " + str(foil.maxt) + '\n' +
+                "   at x/c: " + str(foil.xmaxt) + '\n' +
+                "Camber: " + str(foil.maxc) + '\n' +
+                "   at x/c: " + str(foil.xmaxc))
+      ax.text(0.70, -0.2, mytext, color=nc, verticalalignment='top')
 
   # Legend for coordinates plot
 
@@ -665,12 +774,13 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
       foilstr = 'seed'
     else:
       nextdesign = len(designfoils) + 1
-      zonetitle = 'zone t="Airfoil", SOLUTIONTIME=' + str(nextdesign)
+      zonetitle = 'zone t="Airfoil'
       foilstr = 'design number ' + str(nextdesign)
   
     # Read data from coordinate file
   
-    x, y, ioerror = read_airfoil_coordinates(coordfilename, zonetitle)
+    x, y, maxt, xmaxt, maxc, xmaxc, ioerror = read_airfoil_coordinates(
+                                           coordfilename, zonetitle, nextdesign)
     if (ioerror == 1):
       print("Airfoil coordinates file " + coordfilename + " not available yet.")
       reading = False
@@ -681,6 +791,7 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
     else:
       print("Read coordinates for " + foilstr + ".")
       foil.setCoordinates(np.array(x), np.array(y))
+      foil.setGeometryInfo(maxt, xmaxt, maxc, xmaxc)
   
     # Set zone title for polars
   
@@ -709,6 +820,48 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
     else: designfoils.append(foil)
 
   return seedfoil, designfoils, ioerror
+
+################################################################################
+# Reads new optimization history data for updates during optimization
+def read_new_optimization_history(steps=None, fmins=None, relfmins=None, 
+                                  rads=None):
+
+  if (not steps):
+    steps = np.zeros((0), dtype=int)
+    fmins = np.zeros((0))
+    relfmins = np.zeros((0))
+    rads = np.zeros((0))
+
+  # Loop through file until we reach latest available step
+
+  reading = True
+  while reading:
+
+    if (steps.shape[0] == 0): nextstep = 1
+    else:
+      numsteps = steps.shape[0]
+      nextstep = steps[numsteps-1] + 1
+  
+    # Read data from optimization history file
+  
+    fmin, relfmin, rad, ioerror = read_optimization_history(nextstep)
+    if (ioerror == 1):
+      print("optimization_history.dat not available yet.")
+      reading = False
+      break
+    elif (ioerror == 2):
+      reading = False
+      print("Read optimization data to step " + str(nextstep-1) + ".")
+      break
+  
+    # Copy data to output objects
+  
+    steps = np.append(steps, nextstep)
+    fmins = np.append(fmins, fmin)
+    relfmins = np.append(relfmins, relfmin)
+    rads = np.append(rads, rad)
+
+  return steps, fmins, relfmins, rads, ioerror
 
 ################################################################################
 # Gets boolean input from user
@@ -842,7 +995,7 @@ def options_menu():
   if ( (key == "show_seed_airfoil") or (key == "show_seed_airfoil_only") or
        (key == "show_seed_polar") or (key == "show_seed_polar_only") or
        (key == "save_animation_frames") or (key == "plot_airfoils") or 
-       (key == "plot_polars") ):
+       (key == "plot_polars") or (key == "show_airfoil_info") ):
     options_complete = False
     plotoptions[key] = get_boolean_input(key, plotoptions[key])
 
@@ -976,10 +1129,12 @@ def main_menu(seedfoil, designfoils, prefix):
       temp_save_frames = plotoptions["save_animation_frames"]
       plotoptions["save_animation_frames"] = False
 
-      # Read airfoil coordinates and polars (clears any data from previous run)
+      # Read airfoil coordinates, polars, and optimization history
+      # (clears any data from previous run)
 
       seedfoil, designfoils, ioerror = load_airfoils_from_file(
                                                    coordfilename, polarfilename)
+      steps, fmins, relfmins, rads, ioerror = read_new_optimization_history()
 
       # Periodically read data and update plot
 
@@ -1001,17 +1156,19 @@ def main_menu(seedfoil, designfoils, prefix):
             pfig, axarr, leg = plot_polars(seedfoil, designfoils, numfoils,
                                            firsttime=init, animation=True, 
                                            pfig=pfig, axarr=axarr, legend=leg)
+          #FIXME: plot optimization history
           init = False
 
         # Pause for requested update interval
 
         plt.pause(plotoptions["monitor_update_interval"])
 
-        # Update airfoil data
+        # Update airfoil and optimization data
 
         seedfoil, designfoils, ioerror = read_new_airfoil_data(seedfoil,
                                                             designfoils, prefix)
-
+        steps, fmins, relfmins, rads, ioerror = read_new_optimization_history(
+                                                   steps, fmins, relfmins, rads)
         
         # Check for stop_monitoring file
 
