@@ -198,7 +198,7 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
   main_loop: do while (.not. converged)
 
     step = step + 1
-    if (step == ds_options%maxit - prevsteps) converged = .true.
+    if (step == ds_options%maxit + prevsteps) converged = .true.
     
 !   Sort according to ascending objective function value
 
@@ -372,6 +372,11 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
   call bubble_sort(dv, objvals)
   xopt = dv(:,1)
   fmin = objvals(1)
+
+! Remove prevsteps from counter so we return just the number of steps for the
+! simplex search
+
+  step = step - prevsteps
 
 ! Check for convergence one more time
 

@@ -32,6 +32,7 @@ plotoptions = dict(show_seed_airfoil = True,
                    show_airfoil_info = True,
                    plot_airfoils = True,
                    plot_polars = True,
+                   plot_optimization_history = True,
                    drag_plot_type = "vs. lift",
                    save_animation_frames = False,
                    color_for_seed = "blue",
@@ -698,6 +699,53 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
   return pfig, axarr, legend
 
 ################################################################################
+# Plots optimization history
+def plot_optimization_history(steps, fmins, relfmins, rads, firsttime=True,
+                              ofig=None, axarr=None, mirrorax0=None):
+  global plotoptions
+
+  # Set up optimization history plot. Note: for monitoring, must pass ofig, 
+  # axarr, and mirrorax0 after the initial plotting, because currently
+  # plt.subplots always creates a new figure, and the only other option would be
+  # to save these as global variables or to destry and recreate the figure each
+  # time. (Or: make the optimization history plot its own class?)
+
+  if firsttime: 
+    plt.close(3)
+    ofig, axarr = plt.subplots(2, 1)
+  else:
+    plt.figure(3)
+    axarr[0].clear()
+    mirrorax0.clear()
+    axarr[1].clear()
+  plt.cla()
+
+  # Plot optimization history
+
+  axarr[0].plot(steps, fmins, color='blue')
+  for t1 in axarr[0].get_yticklabels(): t1.set_color('blue')
+  if (firsttime): mirrorax0 = axarr[0].twinx()
+  mirrorax0.plot(steps, relfmins, color='red')
+  for t2 in mirrorax0.get_yticklabels(): t2.set_color('red')
+  axarr[1].plot(steps, rads)
+
+  axarr[0].set_xlabel('Iteration')
+  axarr[0].set_ylabel('Objective function', color='blue')
+  mirrorax0.set_ylabel('% Improvement over seed', color='red')
+  axarr[1].set_xlabel('Iteration')
+  axarr[1].set_ylabel('Design radius')
+  axarr[1].set_yscale("log")
+  axarr[1].grid()
+
+  # Update plot (like animation setting in other plots)
+
+  if (firsttime): ofig.show()
+  else: plt.pause(0.0001)
+  ofig.canvas.draw()
+
+  return ofig, axarr, mirrorax0
+
+################################################################################
 # Input function that checks python version
 def my_input(message):
 
@@ -772,6 +820,7 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
     if (seedfoil.npt == 0):
       zonetitle = 'zone t="Seed airfoil"'
       foilstr = 'seed'
+      nextdesign = 0
     else:
       nextdesign = len(designfoils) + 1
       zonetitle = 'zone t="Airfoil'
@@ -826,11 +875,15 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
 def read_new_optimization_history(steps=None, fmins=None, relfmins=None, 
                                   rads=None):
 
-  if (not steps):
+  if ((steps is None) or steps.shape[0] == 0):
     steps = np.zeros((0), dtype=int)
     fmins = np.zeros((0))
     relfmins = np.zeros((0))
     rads = np.zeros((0))
+    currstep = 0
+  else: 
+    numsteps = steps.shape[0]
+    currstep = steps[numsteps-1]
 
   # Loop through file until we reach latest available step
 
@@ -848,18 +901,17 @@ def read_new_optimization_history(steps=None, fmins=None, relfmins=None,
     if (ioerror == 1):
       print("optimization_history.dat not available yet.")
       reading = False
-      break
     elif (ioerror == 2):
       reading = False
-      print("Read optimization data to step " + str(nextstep-1) + ".")
-      break
+      if (nextstep - 1 > currstep):
+        print("Read optimization data to step " + str(nextstep-1) + ".")
+    else: 
+      # Copy data to output objects
   
-    # Copy data to output objects
-  
-    steps = np.append(steps, nextstep)
-    fmins = np.append(fmins, fmin)
-    relfmins = np.append(relfmins, relfmin)
-    rads = np.append(rads, rad)
+      steps = np.append(steps, nextstep)
+      fmins = np.append(fmins, fmin)
+      relfmins = np.append(relfmins, relfmin)
+      rads = np.append(rads, rad)
 
   return steps, fmins, relfmins, rads, ioerror
 
@@ -995,7 +1047,8 @@ def options_menu():
   if ( (key == "show_seed_airfoil") or (key == "show_seed_airfoil_only") or
        (key == "show_seed_polar") or (key == "show_seed_polar_only") or
        (key == "save_animation_frames") or (key == "plot_airfoils") or 
-       (key == "plot_polars") or (key == "show_airfoil_info") ):
+       (key == "plot_polars") or (key == "show_airfoil_info") or
+       (key == "plot_optimization_history") ):
     options_complete = False
     plotoptions[key] = get_boolean_input(key, plotoptions[key])
 
@@ -1091,6 +1144,7 @@ def main_menu(seedfoil, designfoils, prefix):
       pfig = None
       axarr = None
       leg = None
+      plt.close()
       for i in range(0, numfoils):
         if (i == 0): init = True
         else: init = False
@@ -1143,6 +1197,10 @@ def main_menu(seedfoil, designfoils, prefix):
       pfig = None
       axarr = None
       leg = None
+      ofig = None
+      oaxarr = None
+      mirrorax0 = None
+      plt.close()
       while (monitoring):
 
         # Update plot
@@ -1156,7 +1214,10 @@ def main_menu(seedfoil, designfoils, prefix):
             pfig, axarr, leg = plot_polars(seedfoil, designfoils, numfoils,
                                            firsttime=init, animation=True, 
                                            pfig=pfig, axarr=axarr, legend=leg)
-          #FIXME: plot optimization history
+          if plotoptions["plot_optimization_history"]:
+            ofig, oaxarr, mirrorax0 = plot_optimization_history(steps, fmins, 
+                                      relfmins, rads, firsttime=init, ofig=ofig, 
+                                      axarr=oaxarr, mirrorax0=mirrorax0)
           init = False
 
         # Pause for requested update interval
