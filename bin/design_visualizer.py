@@ -701,7 +701,8 @@ def plot_polars(seedfoil, designfoils, plotnum, firsttime=True, animation=False,
 ################################################################################
 # Plots optimization history
 def plot_optimization_history(steps, fmins, relfmins, rads, firsttime=True,
-                              ofig=None, axarr=None, mirrorax0=None):
+                              animation=False, ofig=None, axarr=None, 
+                              mirrorax0=None):
   global plotoptions
 
   # Set up optimization history plot. Note: for monitoring, must pass ofig, 
@@ -737,11 +738,13 @@ def plot_optimization_history(steps, fmins, relfmins, rads, firsttime=True,
   axarr[1].set_yscale("log")
   axarr[1].grid()
 
-  # Update plot (like animation setting in other plots)
+  # Update plot for animation only (for others, plt.show() must be called
+  # separately)
 
-  if (firsttime): ofig.show()
-  else: plt.pause(0.0001)
-  ofig.canvas.draw()
+  if animation:
+    if (firsttime): ofig.show()
+    else: plt.pause(0.0001)
+    ofig.canvas.draw()
 
   return ofig, axarr, mirrorax0
 
@@ -765,8 +768,11 @@ def my_input(message):
 def plotting_menu(seedfoil, designfoils):
   global plotoptions
 
-  numfoils = len(designfoils)
+  # Load optimization history data if it's available
 
+  steps, fmins, relfmins, rads, ioerror = read_new_optimization_history()
+
+  numfoils = len(designfoils)
   plotting_complete = False
   validchoice = False
   while (not validchoice):
@@ -790,10 +796,13 @@ def plotting_menu(seedfoil, designfoils):
 
     else:
       validchoice = True
+      plt.close()
       if plotoptions["plot_airfoils"]:
         plot_airfoil_coordinates(seedfoil, designfoils, plotnum, firsttime=True)
       if plotoptions["plot_polars"]:
         plot_polars(seedfoil, designfoils, plotnum, firsttime=True)
+      if (plotoptions["plot_optimization_history"] and steps.shape[0] > 0):
+        plot_optimization_history(steps, fmins, relfmins, rads, firsttime=True)
       plt.show()
       plotting_complete = False
 
@@ -1216,8 +1225,9 @@ def main_menu(seedfoil, designfoils, prefix):
                                            pfig=pfig, axarr=axarr, legend=leg)
           if plotoptions["plot_optimization_history"]:
             ofig, oaxarr, mirrorax0 = plot_optimization_history(steps, fmins, 
-                                      relfmins, rads, firsttime=init, ofig=ofig, 
-                                      axarr=oaxarr, mirrorax0=mirrorax0)
+                                      relfmins, rads, firsttime=init, 
+                                      animation=True, ofig=ofig, axarr=oaxarr,
+                                      mirrorax0=mirrorax0)
           init = False
 
         # Pause for requested update interval
