@@ -1,0 +1,270 @@
+&optimization_options
+
+! High-level optimization options
+
+  search_type = 'global_and_local'
+                           !'global_and_local', 'global', or 'local'.
+  global_search = 'particle_swarm'    
+                           !'particle_swarm' or 'genetic_algorithm'
+  local_search = 'simplex' !'simplex' is currently the only option
+  seed_airfoil = 'naca'
+                           !Either 'from_file' or 'naca'
+  airfoil_file = '../sample_airfoils/clarky.dat'
+                           !File name for reading seed airfoil (only if 
+                           !  seed_airfoil = 'from_file').  Airfoils must be
+                           !  in xfoil format: closed loop starting and 
+                           !  ending at the trailing edge.
+  shape_functions = 'hicks-henne' 
+                           !Shape functions used to perturb the seed airfoil.
+                           !  May be 'naca' or 'hicks-henne'.
+  nfunctions_top = 4       !Number of shape functions to perturb the top surface
+  nfunctions_bot = 4       !Number of shape functions to perturb the bottom
+                           !  surface
+  initial_perturb = 0.025  !Magnitude of initial airfoil perturbation (also
+                           !  used as a speed limit on particles for particle
+                           !  swarm optimization)
+  min_bump_width = 0.1     !Minimum width of Hicks-Henne bump function
+  restart = .false.        !Whether to restart an old optimization
+  restart_write_freq = 20  !Frequency to write restart data
+  write_designs = .true.   !Whether to write airfoil coordinates and polars for
+                           !  each improved design for design_visualizer.py
+/  
+
+&operating_conditions
+
+! Specifies operating points at which to optimize.  This includes angle of
+! attack or Cl, Reynolds number, Mach number, and relative weighting of each
+! operating point for the objective function.
+
+  noppoint = 4             !Total number of operating points (max of 30 allowed)
+  use_flap = .false.       !Whether to apply flap deflections
+  x_flap = 0.75            !Flap hinge location in x (0 < x_flap < 1)
+  y_flap = 0.0             !Flap hinge location in y
+
+  op_mode(1) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  optimization_type(1) = 'min-drag'
+                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
+                           !  'max-xtr'
+  op_point(1) = -0.1       !Specified Cl or specified AoA for point 1
+  reynolds(1) = 0.9E+06    !Reynolds number for point 1
+  mach(1) = 0.20           !Mach number for point 1
+  flap_selection(1) = 'specify'
+                           !'specify' or 'optimize'; if the latter, the flap
+                           !  deflection will be selected by the optimizer
+  flap_degrees(1) = 0.0    !Flap deflection in degrees for point 1 (+ve down)
+  weighting(1) = 0.30      !Relative weight for operating point 1. Note: 
+                           !  the code automatically normalizes weights.
+
+  op_mode(2) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  optimization_type(2) = 'max-xtr'
+                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
+                           !  'max-xtr'
+  op_point(2) = 0.2        !Specified Cl or specified AoA for point 2
+  reynolds(2) = 1.5E+06    !Reynolds number for point 2
+  mach(2) = 0.30           !Mach number for point 2
+  flap_selection(2) = 'specify'
+                           !'specify' or 'optimize'; if the latter, the flap
+                           !  deflection will be selected by the optimizer
+  flap_degrees(2) = 0.0    !Flap deflection in degrees for point 2 (+ve down)
+  weighting(2) = 0.30      !Relative weight for operating point 2. Note:
+                           !  the code automatically normalizes weights.
+
+  op_mode(3) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  optimization_type(3) = 'min-drag'
+                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
+                           !  'max-xtr'
+  op_point(3) = 0.6        !Specified Cl or specified AoA for point 3
+  reynolds(3) = 0.9E+06    !Reynolds number for point 3
+  mach(3) = 0.20           !Mach number for point 3
+  flap_selection(3) = 'specify'
+                           !'specify' or 'optimize'; if the latter, the flap
+                           !  deflection will be selected by the optimizer
+  flap_degrees(3) = 0.0    !Flap deflection in degrees for point 3 (+ve down)
+  weighting(3) = 0.30      !Relative weight for operating point 3.  Note:
+                           !  the code automatically normalizes weights.
+
+  op_mode(4) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  optimization_type(4) = 'min-drag'
+                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
+                           !  'max-xtr'
+  op_point(4) = 0.9        !Specified Cl or specified AoA for point 4
+  reynolds(4) = 0.7E+06    !Reynolds number for point 4
+  mach(4) = 0.20           !Mach number for point 4
+  flap_selection(4) = 'specify'
+                           !'specify' or 'optimize'; if the latter, the flap
+                           !  deflection will be selected by the optimizer
+  flap_degrees(4) = 0.0    !Flap deflection in degrees for point 4 (+ve down)
+  weighting(4) = 0.10      !Relative weight for operating point 4.  Note:
+                           !  the code automatically normalizes weights.
+
+/
+
+&constraints
+
+! Specification of constraints on the optimization.  These are implemented by 
+! adding penalties to the objective function value when violated.
+
+
+  min_thickness = 0.06     !Lowest allowable value of airfoil max 
+                           !  thickness/chord (usually for structural concerns)
+  max_thickness = 1000.0   !Largest allowable value of airfoil max 
+                           !  thickness/chord
+  min_camber = -0.10       !Lowest allowable value of airfoil camber/chord
+  max_camber = 0.10        !Largest allowable value of airfoil camber/chord
+  min_te_angle = 4.0       !Minimum allowable trailing edge wedge angle
+
+  check_curvature = .true. 
+                           !Whether to check for curvature reversals
+  max_curv_reverse_top = 1 !Max number of allowed curv. reversals top surface
+  max_curv_reverse_bot = 1 !Max number of allowed curv. reversals bot surface
+  curv_threshold = 0.10    !Curvature threshhold for detecting reversals
+  symmetrical = .false.    !Whether to only generate symmetrical airfoils
+  max_flap_degrees = 15.0  !Maximum allowed flap angle for 'optimize' flap
+                           !  selection type (+ve down)
+  min_flap_degrees = -10.0 !Maximum allowed flap angle for 'optimize' flap
+                           !  selection type (+ve down)
+
+! Moment constraints are specified below for each operating point
+
+  moment_constraint_type(1) = 'none'
+                           !How to implement moment constraint for operating
+                           !  point 1. Either 'none', 'specify', or 'use_seed'.
+  moment_constraint_type(2) = 'none'
+  moment_constraint_type(3) = 'none'
+  min_moment(1) = -0.11    !Lowest allowable value of airfoil pitching moment;
+                           !  for point 1; only used if 
+                           !  moment_constraint_type(1) = 'specify'.
+  min_moment(2) = -0.11
+  min_moment(3) = -0.11
+/
+
+&naca_airfoil
+
+! Options for NACA seed airfoil generation.
+
+  family  = '4'     ! '4', '4M', '5', '63', '64', '65', '66', '67', '63A',
+                     !   '64A', or '65A'
+  maxt = 0.12        ! Max thickness/chord
+  xmaxt = 0.40       ! Location of maxt. Only for 4M.
+  maxc = 0.02        ! Max camber/chord. Only for 4 and 4M.
+  xmaxc = 0.30       ! Location of maxc. All except for 6 and 6A.
+  design_cl = 0.3    ! Design Cl. Only for 5, 6, and 6A.
+  a = 0.5            ! Extent of constant load in x/c. Only for 6.
+  leidx = 6.0        ! Leading edge index. Only for 4M.
+  reflexed = .false.  ! Whether mean line is reflexed. Only for 5.
+
+/
+
+&initialization
+
+! Initialization options. Applies only to global search.
+
+  feasible_init = .true.   !Force initial designs to be in feasible space
+  feasible_limit = 50000.0 !Max objective function value below which initial
+                           !  designs are considered feasible (assumes 
+                           !  infeasible designs are penalized by a large
+                           !  objective function value)
+  feasible_init_attempts = 1000
+                           !Number of attempts to try to get initially feasible
+                           !  designs
+/
+
+&particle_swarm_options
+
+! Options for particle swarm optimization; only used for global_search =
+! 'particle_swarm'.  PSO is used to get in the vicinity of the global optimum.
+
+  pso_pop = 40             !Particle swarm population size
+  pso_tol = 1.E-04         !Tolerance in max radius of particles before
+                           !  triggering a stop condition
+  pso_maxit =  700         !Max iterations before stopping
+  pso_convergence_profile = 'exhaustive'
+                           !'exhaustive' or 'quick'; 'exhaustive' finds 
+                           !  better designs, but requires more iterations
+/
+
+&genetic_algorithm_options
+
+! Options for genetic algorithm optimization; only used for global_search = 
+! 'genetic_algorithm'. GA is used to get in the vicinity of the global optimum.
+
+  ga_pop = 80              !Number of designs in the population
+  ga_tol = 1.E-04          !Tolerance in max radius of designs before
+                           !  triggering a stop condition
+  ga_maxit = 700           !Max iterations before stopping
+  parents_selection_method = 'tournament'
+                           !'roulette', 'tournament', or 'random'
+  parent_fraction = 0.5    !Fraction of total population selected as parents
+                           !  during each iteration
+  roulette_selection_pressure = 8.
+                           !Factor increasing the likelihood of the best designs
+                           !  being selected as parents during each iteration
+  tournament_fraction = 0.025
+                           !Fraction of total population that participates in
+                           !  the tournament each time a parent is selected
+  crossover_range_factor = 0.5
+                           !If 0, crossover will result in design variables that
+                           !  are linear interpolations between parents. A value
+                           !  > 0 allows extrapolation to also occur.
+  mutant_probability = 0.4 !Probability of mutation occuring in an offspring
+  chromosome_mutation_rate = 0.01
+                           !The probability of mutation occurring in any given
+                           !  design variable of a mutant design
+  mutation_range_factor = 0.2
+                           !Max magnitude of mutation, as a fraction of
+                           !  initial_perturb (for shape design variables) or 
+                           !  allowable flap range (for flap design variables)
+/
+
+&simplex_options
+
+! Options for simplex search optimization; only used for local_search =
+! 'simplex'. Simplex search is used to narrow down a local optimum point.  Use
+! after particle swarm or when you only want minor changes to the seed airfoil.  
+
+  simplex_tol = 1.0E-06    !Tolerance in max radius of designs before triggering
+                           !  a stop condition
+  simplex_maxit = 1000     !Max iterations before stopping
+/
+
+&xfoil_run_options
+  
+! Options for xfoil aerodynamic calculations.  The defaults will be used if
+! these are removed or left blank.
+
+  ncrit = 9.0              !Freestream turbulence parameter
+  xtript = 1.0             !Trip location: top
+  xtripb = 1.0             !Trip location: bottom
+  viscous_mode = .true.    !Whether to run xfoil viscous (BL) calculations
+  silent_mode = .true.     !Whether to suppress xfoil screen writes
+  bl_maxit = 100           !Number of iterations for viscous calculations
+  vaccel = 0.01            !Convergence acceleration parameter
+  fix_unconverged = .true. !Try to fix unconverged points by reinitialization
+  reinitialize = .true.    !Reinitialize BLs at each point (more robust --
+                           !  recommended for optimization)
+/
+
+&xfoil_paneling_options
+
+! Options for xfoil geometry smoothing routine.  The defaults will be used if
+! these are removed or left blank.
+
+  npan = 160               !Number of airfoil panels
+  cvpar = 1.0              !Panel bunching parameter
+  cterat = 0.15            !TE/LE panel density ratio
+  ctrrat = 0.2             !Refined-area panel density ratio
+  xsref1 = 1.0             !Left top side refinement limit
+  xsref2 = 1.0             !Right top side refinement limit
+  xpref1 = 1.0             !Left bottom side refinement limit
+  xpref2 = 1.0             !Right bottom side refinement limit
+/
+
+&matchfoil_options
+
+! Separate namelist to match the shape of one airfoil to another instead of
+! doing aerodynamic optimization.  Used for testing of optimization algorithms,
+! shape functions, etc.
+
+  match_foils = .false.
+  matchfoil_file = '../sample_airfoils/ag18.dat'
+/
