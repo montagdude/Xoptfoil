@@ -24,7 +24,7 @@
                            !  used as a speed limit on particles for particle
                            !  swarm optimization)
   min_bump_width = 0.1     !Minimum width of Hicks-Henne bump function
-  restart = .false.        !Whether to restart an old optimization
+  restart = .true.        !Whether to restart an old optimization
   restart_write_freq = 20  !Frequency to write restart data
   write_designs = .true.   !Whether to write airfoil coordinates and polars for
                            !  each improved design for design_visualizer.py
