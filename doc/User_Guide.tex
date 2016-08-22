@@ -12,7 +12,7 @@
 
 \begin{document}
 
-\title{Xoptfoil Version 1.9.5 User Guide}
+\title{Xoptfoil Version 1.10.0 User Guide}
 \author{Daniel Prosser}
 \date{\today}
 \maketitle
@@ -444,18 +444,34 @@ symmetrical version of the seed airfoil instead of the actual one).}
 \subsection{naca\_airfoil namelist}
 
 This namelist specifies options for generation of a NACA airfoil, which are used if 
-seed\_airfoil = `naca' in the optimization\_options namelist.
+seed\_airfoil = `naca' in the optimization\_options namelist. NACA airfoil generation is
+provided by the naca456 code from \url{http://www.pdas.com}, which has been adapted for
+Xoptfoil. Instead of specifying a 4-, 5-, or 6-digit code with limited precision, most
+inputs are supplied as real numbers, which allows greater precision (e.g., you can create
+a 4-digit airfoil with 2.5\% camber). However, be aware that some families are only
+intended to be used with specific ranges of these inputs, and setting a parameter too
+large or small may result in an unexpected shape. This mainly true of the 4M and 5
+families. Therefore, the user should do some research first to see what ranges are
+allowed.
 
 \begin{enumerate}
-\item{\textbf{family}}
-\item{\textbf{maxt}}
-\item{\textbf{xmaxt}}
-\item{\textbf{maxc}}
-\item{\textbf{xmaxc}}
-\item{\textbf{design\_cl}}
-\item{\textbf{a}}
-\item{\textbf{leidx}}
-\item{\textbf{reflexed}}
+\item{\textbf{family}: NACA airfoil family. Options are `4', `4M', `5', `63', `64', `65',
+`66', `67', `63A', `64A', or `65A'.}
+\item{\textbf{maxt}: Max thickness as a fraction of chord. For example, for a 10\%-thick
+airfoil, use maxt = 0.10.}
+\item{\textbf{xmaxt}: Location of maxt as a fraction of chord. This input is only used for
+the 4M family.}
+\item{\textbf{maxc}: Max camber as a fraction of chord. For example, for 2\% camber, use
+maxc = 0.02. This input is only used for the 4 and 4M families (others use design\_cl 
+instead to adjust the camber).} 
+\item{\textbf{xmaxc}: Location of maxc as a fraction of chord.}
+\item{\textbf{design\_cl}: Design lift coefficient. This input is only used for the 5, 6,
+and 6A families.}
+\item{\textbf{a}: Extent of constant load for the 6 family. It is specified as a fraction
+of chord.}
+\item{\textbf{leidx}: Leading edge index for the 4M family.}
+\item{\textbf{reflexed} (.true. or .false.): Whether the mean camber line is reflexed.
+This input is only used for the 5 family.}
 \end{enumerate}
 
 \subsection{initialization namelist}
