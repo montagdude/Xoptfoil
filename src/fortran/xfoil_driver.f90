@@ -351,58 +351,30 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
     end if
   end do
 
-! Display a summary of geometry results
+! Print warnings about unconverged points
 
   if (.not. xfoil_options%silent_mode) then
 
     write(*,*)
-    write(*,*) 'Airfoil geometry information from XFOIL: '
-    write(*,*)
-    write(*,*) 'Max thickness: ', THICKB
-    write(*,*) 'Location of max thickness: ', XTHICKB
-    write(*,*) 'Min thickness: ', THICKM
-    write(*,*) 'Location of min thickness: ', XTHICKM
-    write(*,*) 'Max camber: ', CAMBR
-    write(*,*) 'Location of max camber: ', XCAMBR
-
-! Display a summary of aero results
-
-    write(*,*) 
-    write(*,*) 'Aerodynamic information from XFOIL: '
 
     do i = 1, noppoint
-
+  
       write(text,*) i
       text = adjustl(text)
-
+  
       if (point_converged(i)) then
-
         message = 'Operating point '//trim(text)//' converged.'
-
       elseif (.not. point_converged(i) .and. point_fixed(i)) then
-
         message = 'Operating point '//trim(text)//' initially did not '//      &
                   'converge but was fixed.'
-
       elseif (.not. point_converged(i) .and. .not. point_fixed(i)) then
-
         message = 'Operating point '//trim(text)//' initially did not '//      &
                   'converge and was not fixed.'
-
       end if
-
-      write(*,*)
+  
       write(*,*) trim(message)
-      if (present(alpha)) write(*,'(A7,F8.4)') 'alpha: ', alpha(i)
-      write(*,'(A4,F8.4)') 'Cl: ', lift(i)
-      write(*,'(A4,F8.4)') 'Cd: ', drag(i)
-      write(*,'(A4,F8.4)') 'Cm: ', moment(i)
-      if (present(xtrt)) write(*,'(A20,F8.4)') 'Top transition x/c: ', xtrt(i)
-      if (present(xtrb))                                                       &
-                        write(*,'(A23,F8.4)') 'Bottom transition x/c: ', xtrb(i)
-
+  
     end do
-
   end if
 
 end subroutine run_xfoil

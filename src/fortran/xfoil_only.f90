@@ -29,7 +29,8 @@ program xfoil_only
   use memory_util,        only : deallocate_airfoil
   use airfoil_operations, only : load_airfoil
   use naca,               only : naca_options_type, naca_456
-  use xfoil_driver,       only : run_xfoil, xfoil_init, xfoil_cleanup
+  use xfoil_driver,       only : run_xfoil, xfoil_geometry_info, xfoil_init,   &
+                                 xfoil_cleanup
 
   implicit none
 
@@ -42,10 +43,12 @@ program xfoil_only
   type(ga_options_type) :: ga_options
   type(ds_options_type) :: ds_options
   integer, dimension(:), allocatable :: constrained_dvs
-  integer :: restart_write_freq
+  integer :: restart_write_freq, i
   logical :: restart
   double precision, dimension(:), allocatable :: alpha, lift, drag, moment,    &
                                                  viscrms, xtrt, xtrb
+  double precision :: maxt, xmaxt, maxc, xmaxc
+  character(30) :: text
 
 ! Set default names and read command line arguments
 
@@ -59,7 +62,6 @@ program xfoil_only
                    seed_airfoil, airfoil_file, nparams_top, nparams_bot,       &
                    restart, restart_write_freq, constrained_dvs, naca_options, &
                    pso_options, ga_options, ds_options, matchfoil_file)
-  xfoil_options%silent_mode = .false. 
 
 ! Allocate some things
 
@@ -89,6 +91,42 @@ program xfoil_only
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
                  use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
                  xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb)
+
+! Get geometry info from xfoil
+
+  call xfoil_geometry_info(maxt, xmaxt, maxc, xmaxc)
+
+! Display a summary of geometry results
+
+  write(*,*)
+  write(*,*) 'Airfoil geometry information from Xfoil: '
+  write(*,*)
+  write(*,*) 'Max thickness: ', maxt
+  write(*,*) 'Location of max thickness: ', xmaxt
+  write(*,*) 'Max camber: ', maxc
+  write(*,*) 'Location of max camber: ', xmaxc
+
+! Display a summary of aero results
+
+  write(*,*) 
+  write(*,*) 'Aerodynamic information from Xfoil: '
+
+  do i = 1, noppoint
+
+    write(text,*) i
+    text = adjustl(text)
+
+    write(*,*)
+    if (viscrms(i) > 1.D-04) write(*,'(A)')                                    &
+      ' Warning: operating point '//trim(text)//' did not converge.'
+    write(*,'(A8,F8.4)') ' alpha: ', alpha(i)
+    write(*,'(A5,F8.4)') ' Cl: ', lift(i)
+    write(*,'(A5,F8.4)') ' Cd: ', drag(i)
+    write(*,'(A5,F8.4)') ' Cm: ', moment(i)
+    write(*,'(A21,F8.4)') ' Top transition x/c: ', xtrt(i)
+    write(*,'(A24,F8.4)') ' Bottom transition x/c: ', xtrb(i)
+
+  end do
 
 ! Deallocate xfoil variables
 
