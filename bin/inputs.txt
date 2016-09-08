@@ -131,11 +131,13 @@
                            !  point 1. Either 'none', 'specify', or 'use_seed'.
   moment_constraint_type(2) = 'none'
   moment_constraint_type(3) = 'none'
+  moment_constraint_type(4) = 'none'
   min_moment(1) = -0.11    !Lowest allowable value of airfoil pitching moment;
                            !  for point 1; only used if 
                            !  moment_constraint_type(1) = 'specify'.
   min_moment(2) = -0.11
   min_moment(3) = -0.11
+  min_moment(4) = -0.11
 /
 
 &naca_airfoil

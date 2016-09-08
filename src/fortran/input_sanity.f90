@@ -356,17 +356,19 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 ! Evaluate objectives to establish scale factors for each point
 
   do i = 1, noppoint
+    if (lift(i) <= 0.d0 .and. (trim(optimization_type(i)) == 'min-sink' .or.   &
+        trim(optimization_type(i)) == 'max-glide') ) then
+      write(text,*) i
+      text = adjustl(text)
+      write(*,*) "Error: operating point "//trim(text)//" has Cl <= 0. "//     &
+                 "Cannot use "//trim(optimization_type(i))//" optimization "// &
+                 "in this case."
+      write(*,*)
+      stop
+    end if
+
     if (trim(optimization_type(i)) == 'min-sink') then
-      if (lift(i) > 0.d0) then
-        checkval = drag(i)/lift(i)**1.5d0
-      else
-        write(text,*) i
-        text = adjustl(text)
-        write(*,*) "Error: operating point "//trim(text)//" has Cl <= 0. "//   &
-                   "Cannot use min-sink optimization in this case."
-        write(*,*)
-        stop
-      end if
+      checkval = drag(i)/lift(i)**1.5d0
     elseif (trim(optimization_type(i)) == 'max-glide') then
       checkval = drag(i)/lift(i)
     elseif (trim(optimization_type(i)) == 'min-drag') then
