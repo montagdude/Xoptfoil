@@ -944,12 +944,11 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   double precision, dimension(:,:), allocatable :: x, z, alpha, lift, drag,    &
                                                    moment, xtrt, xtrb
   double precision, dimension(:), allocatable :: fmin, relfmin, rad
+  character(150), dimension(:), allocatable :: zoneinfo
   character(100) :: restfile, foilfile, polarfile, text
   character(11) :: stepchar
   character(20) :: fminchar, radchar
   character(25) :: relfminchar
-
-!FIXME: Write airfoil geometry stats (by saving zone header info)
 
 ! Print status
 
@@ -995,6 +994,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   allocate(moment(noppoint,designcounter+1))
   allocate(xtrt(noppoint,designcounter+1))
   allocate(xtrb(noppoint,designcounter+1))
+  allocate(zoneinfo(designcounter+1))
   allocate(fmin(step))
   allocate(relfmin(step))
   allocate(rad(step))
@@ -1017,9 +1017,9 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 
   do i = 1, designcounter + 1
   
-!   Skip zone header
+!   Read zone header
 
-    read(foilunit,*)
+    read(foilunit,'(A)') zoneinfo(i)
 
 !   Read coordinates
 
@@ -1041,13 +1041,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   do i = 0, designcounter
 !   Write zone header
 
-    if (i == 0) then
-      write(foilunit,'(A)') 'zone t="Seed airfoil"'
-    else
-      write(text,*) i
-      text = adjustl(text)
-      write(foilunit,'(A)') 'zone t="Airfoil", SOLUTIONTIME='//trim(text)
-    end if
+    write(foilunit,'(A)') trim(zoneinfo(i+1))
 
 !   Write coordinates
 
@@ -1190,6 +1184,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
   deallocate(lift)
   deallocate(drag)
   deallocate(moment)
+  deallocate(zoneinfo)
   deallocate(xtrt)
   deallocate(xtrb)
   deallocate(fmin)
