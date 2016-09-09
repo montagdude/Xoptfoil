@@ -24,7 +24,7 @@
                            !  used as a speed limit on particles for particle
                            !  swarm optimization)
   min_bump_width = 0.1     !Minimum width of Hicks-Henne bump function
-  restart = .true.        !Whether to restart an old optimization
+  restart = .false.        !Whether to restart an old optimization
   restart_write_freq = 20  !Frequency to write restart data
   write_designs = .true.   !Whether to write airfoil coordinates and polars for
                            !  each improved design for design_visualizer.py
@@ -36,8 +36,8 @@
 ! attack or Cl, Reynolds number, Mach number, and relative weighting of each
 ! operating point for the objective function.
 
-  noppoint = 4             !Total number of operating points (max of 30 allowed)
-  use_flap = .false.       !Whether to apply flap deflections
+  noppoint = 5             !Total number of operating points (max of 30 allowed)
+  use_flap = .true.        !Whether to apply flap deflections
   x_flap = 0.75            !Flap hinge location in x (0 < x_flap < 1)
   y_flap = 0.0             !Flap hinge location in y
 
@@ -46,13 +46,13 @@
                            !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
                            !  'max-xtr'
   op_point(1) = -0.1       !Specified Cl or specified AoA for point 1
-  reynolds(1) = 0.9E+06    !Reynolds number for point 1
+  reynolds(1) = 0.9E+05    !Reynolds number for point 1
   mach(1) = 0.20           !Mach number for point 1
   flap_selection(1) = 'specify'
                            !'specify' or 'optimize'; if the latter, the flap
                            !  deflection will be selected by the optimizer
   flap_degrees(1) = 0.0    !Flap deflection in degrees for point 1 (+ve down)
-  weighting(1) = 0.30      !Relative weight for operating point 1. Note: 
+  weighting(1) = 1.0       !Relative weight for operating point 1. Note: 
                            !  the code automatically normalizes weights.
 
   op_mode(2) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
@@ -60,13 +60,13 @@
                            !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
                            !  'max-xtr'
   op_point(2) = 0.2        !Specified Cl or specified AoA for point 2
-  reynolds(2) = 1.5E+06    !Reynolds number for point 2
+  reynolds(2) = 1.5E+05    !Reynolds number for point 2
   mach(2) = 0.30           !Mach number for point 2
   flap_selection(2) = 'specify'
                            !'specify' or 'optimize'; if the latter, the flap
                            !  deflection will be selected by the optimizer
   flap_degrees(2) = 0.0    !Flap deflection in degrees for point 2 (+ve down)
-  weighting(2) = 0.30      !Relative weight for operating point 2. Note:
+  weighting(2) = 1.0       !Relative weight for operating point 2. Note:
                            !  the code automatically normalizes weights.
 
   op_mode(3) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
@@ -74,13 +74,13 @@
                            !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
                            !  'max-xtr'
   op_point(3) = 0.6        !Specified Cl or specified AoA for point 3
-  reynolds(3) = 0.9E+06    !Reynolds number for point 3
+  reynolds(3) = 1.1E+05    !Reynolds number for point 3
   mach(3) = 0.20           !Mach number for point 3
-  flap_selection(3) = 'specify'
+  flap_selection(3) = 'optimize'
                            !'specify' or 'optimize'; if the latter, the flap
                            !  deflection will be selected by the optimizer
   flap_degrees(3) = 0.0    !Flap deflection in degrees for point 3 (+ve down)
-  weighting(3) = 0.30      !Relative weight for operating point 3.  Note:
+  weighting(3) = 1.0       !Relative weight for operating point 3.  Note:
                            !  the code automatically normalizes weights.
 
   op_mode(4) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
@@ -88,13 +88,27 @@
                            !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
                            !  'max-xtr'
   op_point(4) = 0.9        !Specified Cl or specified AoA for point 4
-  reynolds(4) = 0.7E+06    !Reynolds number for point 4
+  reynolds(4) = 0.9E+05    !Reynolds number for point 4
   mach(4) = 0.20           !Mach number for point 4
-  flap_selection(4) = 'specify'
+  flap_selection(4) = 'optimize'
                            !'specify' or 'optimize'; if the latter, the flap
                            !  deflection will be selected by the optimizer
   flap_degrees(4) = 0.0    !Flap deflection in degrees for point 4 (+ve down)
-  weighting(4) = 0.10      !Relative weight for operating point 4.  Note:
+  weighting(4) = 1.0       !Relative weight for operating point 4.  Note:
+                           !  the code automatically normalizes weights.
+
+  op_mode(5) = 'spec-al'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  optimization_type(5) = 'max-lift'
+                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
+                           !  'max-xtr'
+  op_point(5) = 15         !Specified Cl or specified AoA for point 5
+  reynolds(5) = 0.7E+05    !Reynolds number for point 5
+  mach(5) = 0.10           !Mach number for point 5
+  flap_selection(5) = 'optimize'
+                           !'specify' or 'optimize'; if the latter, the flap
+                           !  deflection will be selected by the optimizer
+  flap_degrees(5) = 0.0    !Flap deflection in degrees for point 5 (+ve down)
+  weighting(5) = 0.25      !Relative weight for operating point 5.  Note:
                            !  the code automatically normalizes weights.
 
 /
@@ -132,12 +146,14 @@
   moment_constraint_type(2) = 'none'
   moment_constraint_type(3) = 'none'
   moment_constraint_type(4) = 'none'
+  moment_constraint_type(5) = 'none'
   min_moment(1) = -0.11    !Lowest allowable value of airfoil pitching moment;
                            !  for point 1; only used if 
                            !  moment_constraint_type(1) = 'specify'.
   min_moment(2) = -0.11
   min_moment(3) = -0.11
   min_moment(4) = -0.11
+  min_moment(5) = -0.11
 /
 
 &naca_airfoil

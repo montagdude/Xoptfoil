@@ -1,0 +1,1 @@
+Detailed instructions for compiling on Linux, Windows, and Mac are provided in the user guide in the doc/ directory.  There is also a precompiled binary version for Windows on x86-64 architecture, but it is recommended to compile it yourself to take advantage of parallel processing.

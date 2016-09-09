@@ -138,4 +138,3 @@ dummy_main.o: $(DIR)/fortran/dummy_main.f90
 
 xfoil_only.o: $(DIR)/fortran/xfoil_only.f90
 	$(FC) -c $(FCFLAGS) $(OMP_FLAG) $(DIR)/fortran/xfoil_only.f90
-

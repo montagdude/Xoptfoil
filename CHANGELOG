@@ -1,5 +1,16 @@
 Version notes
 --------------------------------------------------------------------------------
+Version 1.10.0
+-- Support automatic generation of more NACA airfoil families: modified 4-digit, 5-digit, 6, and 6A series.
+-- Improvements to design_visualizer.py:
+-- ** Display thickness, camber, other stats on airfoil plot.
+-- ** Show plots for all aero quantities.
+-- ** Show plot of optimization progress (objective function value, improvement over seed).
+-- Optimization type to maximize (push aft) turbulent transition location.
+-- Have xfoil_only use the same input file as xoptfoil.
+-- In stdout, format optimization progress more nicely and show objective function value as well as improvement over seed.
+-- Include a FAQ file.
+-- Bug fixes.
 
 Version 1.9.4
 -- Show angle of attack in performance summary.

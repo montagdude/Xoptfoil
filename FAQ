@@ -25,7 +25,6 @@ answers are below that.
 15) How do I optimize for high lift?
 16) What if most of the initial designs can't be initialized in the feasible
     space?
-17) Why do some outputs show so many digits after the decimal point?
 
 ================================================================================
 
@@ -240,14 +239,3 @@ answers are below that.
     as the thickness and curvature constraints.  It can also be caused by
     setting unrealistic operating points; i.e., specifying a lift coefficient
     that is impossibly high.
-
-17) Why do some outputs show so many digits after the decimal point?
-
-    Modern computers do all calculations to a high precision.  This prevents
-    round-off errors from piling up when many calculations are strung together.
-    Xoptfoil reports some outputs to a large number of decimal places, but this
-    doesn't mean that all of them are actually statistically significant in real
-    life given uncertainties in the physics modeling and variations that will
-    invariably be introduced when building.  Xoptfoil simply reports the results
-    of the numerical calculations; it is the user's job to understand the
-    uncertainty involved in the entire process.
