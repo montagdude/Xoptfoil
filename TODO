@@ -1,5 +1,13 @@
--- Fix bug with min_te_angle = 0
--- Change y hinge location specification? (Fraction of lower->upper surface?)
--- Additional thickness constraints?
--- Package for Windows with needed MinGW libs
--- Update documentation with build / packaging changes
+For 1.11.0
+--------------------------------------------------------------------------------
+* Fix bug with min_te_angle = 0
+* Change y hinge location specification? (Fraction of lower->upper surface?)
+* Add proper --help and --version outputs to xoptfoil and xfoil_only
+* Test xoptfoil_visualizer with python2 and python3
+* Additional thickness constraints?
+* Package for Windows with needed MinGW libs
+* Update documentation with build / packaging changes
+
+Complete:
+* Switch to CMake-based build system
+* Make xoptfoil_visualizer overwrite progress text when monitoring

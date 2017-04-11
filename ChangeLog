@@ -1,5 +1,9 @@
 Version notes
 --------------------------------------------------------------------------------
+Version 1.11.0
+-- Allow min_te_angle to be 0
+-- Change to CMake-based build system
+
 Version 1.10.0
 -- Support automatic generation of more NACA airfoil families: modified 4-digit, 5-digit, 6, and 6A series.
 -- Improvements to design_visualizer.py:

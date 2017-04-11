@@ -22,7 +22,7 @@ from matplotlib import pyplot as plt
 from matplotlib import rcParams
 import numpy as np
 from math import log10, floor
-from sys import version_info
+from sys import version_info, stdout
 from os import remove
 
 # Default plottiong options
@@ -849,9 +849,10 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
       reading = False
       break
     else:
-      print("Read coordinates for " + foilstr + ".")
+      print("\rRead coordinates for " + foilstr + "."),
       foil.setCoordinates(np.array(x), np.array(y))
       foil.setGeometryInfo(maxt, xmaxt, maxc, xmaxc)
+    stdout.flush()
   
     # Set zone title for polars
   
@@ -870,9 +871,10 @@ def read_new_airfoil_data(seedfoil, designfoils, prefix):
       ioerror = 3
       reading = False
     else:
-      print("Read polars for " + foilstr + ".")
+      print("\rRead polars for " + foilstr + "."),
       foil.setPolars(np.array(alpha), np.array(cl), np.array(cd), np.array(cm),
                      np.array(xtrt), np.array(xtrb))
+    stdout.flush()
   
     # Copy data to output objects
   
@@ -915,7 +917,7 @@ def read_new_optimization_history(steps=None, fmins=None, relfmins=None,
     elif (ioerror == 2):
       reading = False
       if (nextstep - 1 > currstep):
-        print("Read optimization data to step " + str(nextstep-1) + ".")
+        print("\rRead optimization data to step " + str(nextstep-1) + "."),
     else: 
       # Copy data to output objects
   
@@ -923,6 +925,7 @@ def read_new_optimization_history(steps=None, fmins=None, relfmins=None,
       fmins = np.append(fmins, fmin)
       relfmins = np.append(relfmins, relfmin)
       rads = np.append(rads, rad)
+    stdout.flush()
 
   return steps, fmins, relfmins, rads, ioerror
 

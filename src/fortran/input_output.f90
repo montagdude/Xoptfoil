@@ -753,7 +753,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       call my_stop("moment_constraint_type must be 'use_seed', 'specify', "//  &
                  "or 'none'.")
   end do
-  if (min_te_angle <= 0.d0) call my_stop("min_te_angle must be > 0.")
+  if (min_te_angle < 0.d0) call my_stop("min_te_angle must be >= 0.")
   if (check_curvature .and. (curv_threshold <= 0.d0))                          &
     call my_stop("curv_threshold must be > 0.")
   if (check_curvature .and. (max_curv_reverse_top < 0))                        &
