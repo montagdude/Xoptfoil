@@ -1,0 +1,5 @@
+-- Fix bug with min_te_angle = 0
+-- Change y hinge location specification? (Fraction of lower->upper surface?)
+-- Additional thickness constraints?
+-- Package for Windows with needed MinGW libs
+-- Update documentation with build / packaging changes

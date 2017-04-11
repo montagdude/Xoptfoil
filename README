@@ -23,4 +23,4 @@ Options are stored in the fortran namelist file inputs.txt.  This file sets basi
 
 In addition to the optimization code, an tool to run Xfoil alone is include, as well as a python/matplotlib script to visualize optimization progress.
 
-For version notes, see CHANGELOG.
+For complete version notes, see ChangeLog.
