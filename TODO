@@ -10,4 +10,3 @@ For 1.11.0
 
 Complete:
 * Switch to CMake-based build system
-* Make xoptfoil_visualizer overwrite progress text when monitoring
