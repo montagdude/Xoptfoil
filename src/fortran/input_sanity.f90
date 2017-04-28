@@ -31,7 +31,7 @@ module input_sanity
 subroutine check_seed(xoffset, zoffset, foilscale)
 
   use vardef
-  use math_deps,          only : interp_vector, curvature
+  use math_deps,          only : interp_vector, curvature, derv1f1, derv1b1
   use xfoil_driver,       only : run_xfoil
   use xfoil_inc,          only : AMAX, CAMBR
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
@@ -47,10 +47,13 @@ subroutine check_seed(xoffset, zoffset, foilscale)
   double precision :: checkval, len1, len2, growth1, growth2, xtrans, ztrans
   double precision, dimension(noppoint) :: lift, drag, moment, viscrms, alpha, &
                                            xtrt, xtrb
-  integer :: i, nptt, nptb, nreversalst, nreversalsb, nptint 
+  double precision :: pi, alpham, alphap, liftm, liftp
+  integer :: i, nptt, nptb, nreversalst, nreversalsb, nptint
   character(30) :: text, text2
+  character(14) :: opt_type
 
   penaltyval = 0.d0
+  pi = acos(-1.d0)
   nptt = size(xseedt,1)
   nptb = size(xseedb,1)
 
@@ -273,12 +276,16 @@ subroutine check_seed(xoffset, zoffset, foilscale)
     write(text,*) i
     text = adjustl(text)
 
-    if ((op_point(i) == 0.d0) .and. (op_mode(i) == 'spec-cl') .and.            &
-        (trim(optimization_type(i)) /= 'min-drag')) then
-      write(*,*) "Error: operating points "//trim(text)//" is at Cl = 0. "//   &
-                 "Need to use 'min-drag' optimization type in this case."
-      write(*,*) 
-      stop
+    opt_type = optimization_type(i)
+    if ((op_point(i) <= 0.d0) .and. (op_mode(i) == 'spec-cl')) then
+      if ( (trim(opt_type) /= 'min-drag') .and.                                &
+           (trim(opt_type) /= 'max-xtr') .and.                                 &
+           (trim(opt_type) /= 'max-lift-slope') ) then
+        write(*,*) "Error: operating point "//trim(text)//" is at Cl = 0. "//  &
+                 "Cannot use '"//trim(opt_type)//"' optimization in this case."
+        write(*,*) 
+        stop
+      end if
     elseif ((op_mode(i) == 'spec-cl') .and.                                    &
             (trim(optimization_type(i)) == 'max-lift')) then
       write(*,*) "Error: Cl is specified for operating point "//trim(text)//   &
@@ -356,10 +363,11 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 ! Evaluate objectives to establish scale factors for each point
 
   do i = 1, noppoint
+    write(text,*) i
+    text = adjustl(text)
+
     if (lift(i) <= 0.d0 .and. (trim(optimization_type(i)) == 'min-sink' .or.   &
         trim(optimization_type(i)) == 'max-glide') ) then
-      write(text,*) i
-      text = adjustl(text)
       write(*,*) "Error: operating point "//trim(text)//" has Cl <= 0. "//     &
                  "Cannot use "//trim(optimization_type(i))//" optimization "// &
                  "in this case."
@@ -377,6 +385,48 @@ subroutine check_seed(xoffset, zoffset, foilscale)
       checkval = 1.d0/lift(i)
     elseif (trim(optimization_type(i)) == 'max-xtr') then
       checkval = 1.d0/(0.5d0*(xtrt(i)+xtrb(i))+0.1d0)  ! Ensure no division by 0
+    elseif (trim(optimization_type(i)) == 'max-lift-slope') then
+
+!     Maximize dCl/dalpha (0.1 factor to ensure no division by 0)
+
+      checkval = 0.d0
+      if (i < noppoint) then
+        if (alpha(i+1) > alpha(i)) then
+          alphap = alpha(i+1)
+          alpham = alpha(i)
+          liftp = lift(i+1)
+          liftm = lift(i)
+        else
+          alphap = alpha(i)
+          alpham = alpha(i+1)
+          liftp = lift(i)
+          liftm = lift(i+1)
+        end if
+        checkval = derv1f1(liftp, liftm, (alphap-alpham+0.1d0)*pi/180.d0)
+
+      else if (i > 1) then
+        if (alpha(i) > alpha(i-1)) then
+          alphap = alpha(i)
+          alpham = alpha(i-1)
+          liftp = lift(i)
+          liftm = lift(i-1)
+        else
+          alphap = alpha(i-1)
+          alpham = alpha(i)
+          liftp = lift(i-1)
+          liftm = lift(i)
+        end if
+        checkval = checkval +                                                  &
+                    derv1b1(liftm, liftp, (alphap-alpham+0.1d0)*pi/180.d0)
+      end if
+      if ( (i < noppoint) .and. (i > 1) ) checkval = checkval/2.d0 
+
+!     4*pi factor is to move singularity location. Without it, negative
+!     objective function occurs for Cl_a < 0. With this factor, it occurs for
+!     Cl_a < -4*pi (hopefully never encountered).
+
+      checkval = 1.d0/(checkval + 4.d0*pi)
+      
     else
       write(*,*)
       write(*,*) "Error: requested optimization_type for operating point "//   &

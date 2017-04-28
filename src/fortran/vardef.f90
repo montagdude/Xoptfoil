@@ -45,7 +45,7 @@ module vardef
                                            flap_degrees, weighting, scale_factor 
   double precision :: x_flap, y_flap
   logical :: use_flap
-  character(9), dimension(max_op_points) :: optimization_type
+  character(14), dimension(max_op_points) :: optimization_type
   integer :: nflap_optimize          ! Number of operating points where flap 
                                      !   setting will be optimized
   integer, dimension(max_op_points) :: flap_optimize_points

@@ -288,6 +288,20 @@ end function curvature
 
 !=============================================================================80
 !
+! Forward difference approximation for first derivative (1st  order)
+!
+!=============================================================================80
+function derv1f1(u_plus1, u, h)
+
+  double precision, intent(in) :: u_plus1, u, h
+  double precision :: derv1f1
+
+  derv1f1 = (u_plus1 - u)/h 
+
+end function derv1f1
+
+!=============================================================================80
+!
 ! Forward difference approximation for first derivative (2nd order)
 !
 !=============================================================================80
@@ -299,6 +313,20 @@ function derv1f(u_plus2, u_plus1, u, h)
   derv1f = (-3.d0*u + 4.d0*u_plus1 - u_plus2) / (2.d0*h)
 
 end function derv1f
+
+!=============================================================================80
+!
+! Backward difference approximation for first derivative (1st order)
+!
+!=============================================================================80
+function derv1b1(u_minus1, u, h)
+
+  double precision, intent(in) :: u_minus1, u, h
+  double precision :: derv1b1
+
+  derv1b1 = (u - u_minus1)/h
+
+end function derv1b1
 
 !=============================================================================80
 !

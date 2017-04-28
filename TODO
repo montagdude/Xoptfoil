@@ -1,12 +1,18 @@
-For 1.11.0
+For 2.0
 --------------------------------------------------------------------------------
-* Fix bug with min_te_angle = 0
+* curses input file editor
+
+For 1.11
+--------------------------------------------------------------------------------
 * Change y hinge location specification? (Fraction of lower->upper surface?)
+* Additional thickness constraints?
+* Allow specifying ncrit per operating point
 * Add proper --help and --version outputs to xoptfoil and xfoil_only
 * Test xoptfoil_visualizer with python2 and python3
-* Additional thickness constraints?
 * Package for Windows with needed MinGW libs
 * Update documentation with build / packaging changes
 
 Complete:
 * Switch to CMake-based build system
+* Fix bug with min_te_angle = 0
+* Optimization type to maximize lift curve slope

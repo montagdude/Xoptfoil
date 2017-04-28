@@ -737,9 +737,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       trim(optimization_type(i)) /= 'max-glide' .and.                          &
       trim(optimization_type(i)) /= 'min-sink' .and.                           &
       trim(optimization_type(i)) /= 'max-lift' .and.                           &
-      trim(optimization_type(i)) /= 'max-xtr')                                 &
+      trim(optimization_type(i)) /= 'max-xtr' .and.                            &
+      trim(optimization_type(i)) /= 'max-lift-slope')                          &
       call my_stop("optimization_type must be 'min-drag', 'max-glide', "//     &
-                   "min-sink', 'max-lift', or 'max-xtr'.")
+                   "min-sink', 'max-lift', 'max-xtr', or 'max-lift-slope'.")
   end do
 
 ! Constraints

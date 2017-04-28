@@ -89,7 +89,7 @@ end function objective_function_nopenalty
 !=============================================================================80
 function aero_objective_function(designvars, include_penalty)
 
-  use math_deps,       only : interp_vector, curvature
+  use math_deps,       only : interp_vector, curvature, derv1f1, derv1b1
   use parametrization, only : top_shape_function, bot_shape_function,          &
                               create_airfoil
   use xfoil_driver,    only : run_xfoil
@@ -127,8 +127,10 @@ function aero_objective_function(designvars, include_penalty)
   integer :: check_idx, flap_idx, dvcounter
   double precision, parameter :: epsexit = 1.0D-04
   double precision, parameter :: epsupdate = 1.0D-08
+  double precision :: alphap, alpham, liftp, liftm, pi
   logical :: penalize
 
+  pi = acos(-1.d0)
   nmodest = size(top_shape_function,1)
   nmodesb = size(bot_shape_function,1)
   nptt = size(xseedt,1)
@@ -436,7 +438,6 @@ function aero_objective_function(designvars, include_penalty)
   aero_objective_function = 0.d0
 
   do i = 1, noppoint
-
 !   Extra checks for really bad designs
 
     if (viscrms(i) >= 1.d0) then
@@ -489,6 +490,44 @@ function aero_objective_function(designvars, include_penalty)
 !     division by 0)
 
       increment = scale_factor(i)/(0.5d0*(xtrt(i)+xtrb(i))+0.1d0)
+
+    elseif (trim(optimization_type(i)) == 'max-lift-slope') then
+
+!     Maximize dCl/dalpha (0.1 factor to ensure no division by 0)
+
+      increment = 0.d0
+      if (i < noppoint) then
+        if (alpha(i+1) > alpha(i)) then
+          alphap = alpha(i+1)
+          alpham = alpha(i)
+          liftp = lift(i+1)
+          liftm = lift(i)
+        else
+          alphap = alpha(i)
+          alpham = alpha(i+1)
+          liftp = lift(i)
+          liftm = lift(i+1)
+        end if
+        increment = derv1f1(liftp, liftm, (alphap-alpham+0.1d0)*pi/180.d0)
+
+      else if (i > 1) then
+        if (alpha(i) > alpha(i-1)) then
+          alphap = alpha(i)
+          alpham = alpha(i-1)
+          liftp = lift(i)
+          liftm = lift(i-1)
+        else
+          alphap = alpha(i-1)
+          alpham = alpha(i)
+          liftp = lift(i-1)
+          liftm = lift(i)
+        end if
+        increment = increment +                                                &
+                    derv1b1(liftm, liftp, (alphap-alpham+0.1d0)*pi/180.d0)
+      end if
+      
+      if ( (i < noppoint) .and. (i > 1) ) increment = increment/2.d0 
+      increment = scale_factor(i) / (increment + 4.d0*pi)
 
     else
 
