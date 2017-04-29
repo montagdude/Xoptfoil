@@ -171,7 +171,7 @@ end subroutine xfoil_apply_flap_deflection
 subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
                      reynolds_numbers, mach_numbers, use_flap, x_flap, y_flap, &
                      flap_degrees, xfoil_options, lift, drag, moment, viscrms, &
-                     alpha, xtrt, xtrb)
+                     alpha, xtrt, xtrb, ncrit_per_point)
 
   use xfoil_inc
   use vardef,    only : airfoil_type
@@ -189,6 +189,7 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
                                                            drag, moment, viscrms
   double precision, dimension(size(operating_points,1)), intent(out),          &
                                                    optional :: alpha, xtrt, xtrb
+  double precision, dimension(:), intent(in), optional :: ncrit_per_point
 
   integer :: i, noppoint
   logical, dimension(size(operating_points,1)) :: point_converged, point_fixed 
@@ -258,6 +259,10 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
 !   Set compressibility parameters from MINF
 
     CALL COMSET
+
+!   Set ncrit per point
+
+    if (present(ncrit_per_point)) ACRIT = ncrit_per_point(i)
 
     if (op_modes(i) == 'spec-al') then
 

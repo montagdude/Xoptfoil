@@ -78,7 +78,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
             restart_write_freq, write_designs
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
             use_flap, x_flap, y_flap, flap_selection, flap_degrees, weighting, &
-            optimization_type 
+            optimization_type, ncrit_pt
   namelist /constraints/ min_thickness, max_thickness, moment_constraint_type, &
                          min_moment, min_te_angle, check_curvature,            &
                          max_curv_reverse_top, max_curv_reverse_bot,           &
@@ -159,6 +159,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   flap_selection(:) = 'specify'
   flap_degrees(:) = 0.d0
   weighting(:) = 1.d0
+  ncrit_pt(:) = -1.d0
 
   min_thickness = 0.06d0
   max_thickness = 1000.d0
@@ -489,6 +490,12 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   xfoil_geom_options%xpref1 = xpref1
   xfoil_geom_options%xpref2 = xpref2
 
+! Set per-point ncrit if not specified in namelist
+
+  do i = 1, noppoint
+    if (ncrit_pt(i) == -1.d0) ncrit_pt(i) = ncrit
+  end do
+
 ! Option to match seed airfoil to another instead of aerodynamic optimization
 
   match_foils = .false.
@@ -546,6 +553,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                trim(flap_selection(i))//"'"
     write(*,*) " flap_degrees("//trim(text)//") = ", flap_degrees(i)
     write(*,*) " weighting("//trim(text)//") = ", weighting(i)
+    if (ncrit_pt(i) /= -1.d0)                                                  &
+      write(*,*) " ncrit_pt("//trim(text)//") = ", ncrit_pt(i)
     if (i < noppoint) write(*,*)
   end do
   write(*,'(A)') " /"
@@ -741,6 +750,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       trim(optimization_type(i)) /= 'max-lift-slope')                          &
       call my_stop("optimization_type must be 'min-drag', 'max-glide', "//     &
                    "min-sink', 'max-lift', 'max-xtr', or 'max-lift-slope'.")
+    if (ncrit_pt(i) <= 0.d0) call my_stop("ncrit_pt must be > 0 or -1.")
   end do
 
 ! Constraints
