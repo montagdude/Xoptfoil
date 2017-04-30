@@ -47,7 +47,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
   double precision :: checkval, len1, len2, growth1, growth2, xtrans, ztrans
   double precision, dimension(noppoint) :: lift, drag, moment, viscrms, alpha, &
                                            xtrt, xtrb
-  double precision :: pi, alpham, alphap, liftm, liftp
+  double precision :: pi
   integer :: i, nptt, nptb, nreversalst, nreversalsb, nptint
   character(30) :: text, text2
   character(14) :: opt_type
@@ -393,33 +393,22 @@ subroutine check_seed(xoffset, zoffset, foilscale)
       checkval = 0.d0
       if (i < noppoint) then
         if (alpha(i+1) > alpha(i)) then
-          alphap = alpha(i+1)
-          alpham = alpha(i)
-          liftp = lift(i+1)
-          liftm = lift(i)
+          checkval = derv1f1(lift(i+1), lift(i),                               &
+                             (alpha(i+1)-alpha(i)+0.1d0)*pi/180.d0)
         else
-          alphap = alpha(i)
-          alpham = alpha(i+1)
-          liftp = lift(i)
-          liftm = lift(i+1)
+          checkval = derv1b1(lift(i+1), lift(i),                               &
+                             (alpha(i)-alpha(i+1)+0.1d0)*pi/180.d0)
         end if
-        checkval = derv1f1(liftp, liftm, (alphap-alpham+0.1d0)*pi/180.d0)
       end if
 
       if (i > 1) then
         if (alpha(i) > alpha(i-1)) then
-          alphap = alpha(i)
-          alpham = alpha(i-1)
-          liftp = lift(i)
-          liftm = lift(i-1)
+          checkval = checkval + derv1b1(lift(i-1), lift(i),                    &
+                                        (alpha(i)-alpha(i-1)+0.1d0)*pi/180.d0) 
         else
-          alphap = alpha(i-1)
-          alpham = alpha(i)
-          liftp = lift(i-1)
-          liftm = lift(i)
+          checkval = checkval + derv1f1(lift(i-1), lift(i),                    &
+                                        (alpha(i-1)-alpha(i)+0.1d0)*pi/180.d0) 
         end if
-        checkval = checkval +                                                  &
-                    derv1b1(liftm, liftp, (alphap-alpham+0.1d0)*pi/180.d0)
       end if
       if ( (i < noppoint) .and. (i > 1) ) checkval = checkval/2.d0 
 

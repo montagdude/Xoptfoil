@@ -127,7 +127,7 @@ function aero_objective_function(designvars, include_penalty)
   integer :: check_idx, flap_idx, dvcounter
   double precision, parameter :: epsexit = 1.0D-04
   double precision, parameter :: epsupdate = 1.0D-08
-  double precision :: alphap, alpham, liftp, liftm, pi
+  double precision :: pi
   logical :: penalize
 
   pi = acos(-1.d0)
@@ -501,33 +501,22 @@ function aero_objective_function(designvars, include_penalty)
       increment = 0.d0
       if (i < noppoint) then
         if (alpha(i+1) > alpha(i)) then
-          alphap = alpha(i+1)
-          alpham = alpha(i)
-          liftp = lift(i+1)
-          liftm = lift(i)
+          increment = derv1f1(lift(i+1), lift(i),                              &
+                              (alpha(i+1)-alpha(i)+0.1d0)*pi/180.d0)
         else
-          alphap = alpha(i)
-          alpham = alpha(i+1)
-          liftp = lift(i)
-          liftm = lift(i+1)
+          increment = derv1b1(lift(i+1), lift(i),                              &
+                              (alpha(i)-alpha(i+1)+0.1d0)*pi/180.d0)
         end if
-        increment = derv1f1(liftp, liftm, (alphap-alpham+0.1d0)*pi/180.d0)
       end if
 
       if (i > 1) then
         if (alpha(i) > alpha(i-1)) then
-          alphap = alpha(i)
-          alpham = alpha(i-1)
-          liftp = lift(i)
-          liftm = lift(i-1)
+          increment = increment + derv1b1(lift(i-1), lift(i),                  &
+                                          (alpha(i)-alpha(i-1)+0.1d0)*pi/180.d0) 
         else
-          alphap = alpha(i-1)
-          alpham = alpha(i)
-          liftp = lift(i-1)
-          liftm = lift(i)
+          increment = increment + derv1f1(lift(i-1), lift(i),                  &
+                                          (alpha(i-1)-alpha(i)+0.1d0)*pi/180.d0) 
         end if
-        increment = increment +                                                &
-                    derv1b1(liftm, liftp, (alphap-alpham+0.1d0)*pi/180.d0)
       end if
       
       if ( (i < noppoint) .and. (i > 1) ) increment = increment/2.d0 
