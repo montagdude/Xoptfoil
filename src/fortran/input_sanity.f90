@@ -404,8 +404,9 @@ subroutine check_seed(xoffset, zoffset, foilscale)
           liftm = lift(i+1)
         end if
         checkval = derv1f1(liftp, liftm, (alphap-alpham+0.1d0)*pi/180.d0)
+      end if
 
-      else if (i > 1) then
+      if (i > 1) then
         if (alpha(i) > alpha(i-1)) then
           alphap = alpha(i)
           alpham = alpha(i-1)

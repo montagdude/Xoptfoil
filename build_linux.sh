@@ -1,14 +1,14 @@
 #!/bin/bash
 
-INSTALLDIR=$(pwd)/install
+INSTALLDIR=$(pwd)/linux
 
 if [ -d build ]; then
   rm -rf build
 fi
 mkdir build
 
-if [ -d install ]; then
-  rm -rf install
+if [ -d linux ]; then
+  rm -rf linux
 fi
 
 cd build
