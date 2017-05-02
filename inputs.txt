@@ -39,7 +39,9 @@
   noppoint = 5             !Total number of operating points (max of 30 allowed)
   use_flap = .true.        !Whether to apply flap deflections
   x_flap = 0.75            !Flap hinge location in x (0 < x_flap < 1)
-  y_flap = 0.0             !Flap hinge location in y
+  y_flap_spec = 'y/c'      !How to specify flap location in y. Either 'y/c' or
+                           !  'y/t'.
+  y_flap = 0.0             !Flap hinge location in y/c or local y/t
 
   op_mode(1) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
   optimization_type(1) = 'min-drag'

@@ -77,8 +77,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
             nfunctions_bot, initial_perturb, min_bump_width, restart,          &
             restart_write_freq, write_designs
   namelist /operating_conditions/ noppoint, op_mode, op_point, reynolds, mach, &
-            use_flap, x_flap, y_flap, flap_selection, flap_degrees, weighting, &
-            optimization_type, ncrit_pt
+            use_flap, x_flap, y_flap, y_flap_spec, flap_selection,             &
+            flap_degrees, weighting, optimization_type, ncrit_pt
   namelist /constraints/ min_thickness, max_thickness, moment_constraint_type, &
                          min_moment, min_te_angle, check_curvature,            &
                          max_curv_reverse_top, max_curv_reverse_bot,           &
@@ -151,6 +151,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   use_flap = .false.
   x_flap = 0.75d0
   y_flap = 0.d0
+  y_flap_spec = 'y/c'
   op_mode(:) = 'spec-cl'
   op_point(:) = 0.d0
   optimization_type(:) = 'min-drag'
@@ -539,6 +540,7 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " use_flap = ", use_flap
   write(*,*) " x_flap = ", x_flap
   write(*,*) " y_flap = ", y_flap
+  write(*,*) " y_flap_spec = "//trim(y_flap_spec)
   write(*,*)
   do i = 1, noppoint
     write(text,*) i
@@ -730,6 +732,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   if (noppoint < 1) call my_stop("noppoint must be > 0.")
   if ((use_flap) .and. (x_flap <= 0.0)) call my_stop("x_flap must be > 0.")
   if ((use_flap) .and. (x_flap >= 1.0)) call my_stop("x_flap must be < 1.")
+  if ((use_flap) .and. (y_flap_spec /= 'y/c') .and. (y_flap_spec /= 'y/t'))    &
+    call my_stop("y_flap_spec must be 'y/c' or 'y/t'.")
 
   do i = 1, noppoint
     if (trim(op_mode(i)) /= 'spec-cl' .and. trim(op_mode(i)) /= 'spec-al')     &

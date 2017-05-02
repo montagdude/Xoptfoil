@@ -143,15 +143,24 @@ end subroutine smooth_paneling
 ! current airfoil.  For best results, this should be called after PANGEN.
 !
 !=============================================================================80
-subroutine xfoil_apply_flap_deflection(xflap, yflap, degrees)
+subroutine xfoil_apply_flap_deflection(xflap, yflap, y_flap_spec, degrees)
 
   use xfoil_inc
  
-  double precision xflap, yflap, degrees
+  double precision, intent(in) :: xflap, yflap, degrees
+  character(3), intent(in) :: y_flap_spec
+  
+  integer y_flap_spec_int
+
+  if (y_flap_spec == 'y/c') then
+    y_flap_spec_int = 0
+  else
+    y_flap_spec_int = 1
+  end if
 
 ! Apply flap deflection
 
-  call FLAP(xflap, yflap, degrees)
+  call FLAP(xflap, yflap, y_flap_spec_int, degrees)
 
 end subroutine xfoil_apply_flap_deflection
 
@@ -170,8 +179,8 @@ end subroutine xfoil_apply_flap_deflection
 !=============================================================================80
 subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
                      reynolds_numbers, mach_numbers, use_flap, x_flap, y_flap, &
-                     flap_degrees, xfoil_options, lift, drag, moment, viscrms, &
-                     alpha, xtrt, xtrb, ncrit_per_point)
+                     y_flap_spec, flap_degrees, xfoil_options, lift, drag,     &
+                     moment, viscrms, alpha, xtrt, xtrb, ncrit_per_point)
 
   use xfoil_inc
   use vardef,    only : airfoil_type
@@ -182,6 +191,7 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
                                                 reynolds_numbers, mach_numbers,&
                                                 flap_degrees
   double precision, intent(in) :: x_flap, y_flap
+  character(3), intent(in) :: y_flap_spec
   logical, intent(in) :: use_flap
   character(7), dimension(:), intent(in) :: op_modes
   type(xfoil_options_type), intent(in) :: xfoil_options
@@ -245,7 +255,8 @@ subroutine run_xfoil(foil, geom_options, operating_points, op_modes,           &
     if (use_flap) then
       call xfoil_set_airfoil(foil)
       call PANGEN(.not. SILENT_MODE)
-      call xfoil_apply_flap_deflection(x_flap, y_flap, flap_degrees(i))
+      call xfoil_apply_flap_deflection(x_flap, y_flap, y_flap_spec,            &
+                                       flap_degrees(i))
     end if
 
     REINF1 = reynolds_numbers(i)

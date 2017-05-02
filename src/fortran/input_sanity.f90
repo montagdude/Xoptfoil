@@ -300,9 +300,9 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
-                 use_flap, x_flap, y_flap, flap_degrees(1:noppoint),           &
-                 xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb,&
-                 ncrit_pt)
+                 use_flap, x_flap, y_flap, y_flap_spec,                        &
+                 flap_degrees(1:noppoint), xfoil_options, lift, drag, moment,  &
+                 viscrms, alpha, xtrt, xtrb, ncrit_pt)
 
 ! Penalty for too large panel angles
 

@@ -17,7 +17,7 @@ cd build
     -DCMAKE_INSTALL_PREFIX:PATH="$INSTALLDIR" \
     -DCMAKE_BUILD_TYPE:STRING="Release" \
     ..
-  make
-  make install
+  make VERBOSE=1 || exit 1
+  make install || exit 1
 
 cd ..

@@ -326,9 +326,9 @@ function aero_objective_function(designvars, include_penalty)
 
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
-                 use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
-                 xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb,&
-                 ncrit_pt)
+                 use_flap, x_flap, y_flap, y_flap_spec,                        &
+                 actual_flap_degrees(1:noppoint), xfoil_options, lift, drag,   &
+                 moment, viscrms, alpha, xtrt, xtrb, ncrit_pt)
 
 ! Add penalty for too large panel angles
 
@@ -392,7 +392,7 @@ function aero_objective_function(designvars, include_penalty)
 
     call run_xfoil(curr_foil, xfoil_geom_options, opp_check(1:ncheckpt),       &
                    opm_check(1:ncheckpt), re_check(1:ncheckpt),                &
-                   ma_check(1:ncheckpt), use_flap, x_flap, y_flap,             &
+                   ma_check(1:ncheckpt), use_flap, x_flap, y_flap, y_flap_spec,&
                    fd_check(1:ncheckpt), xfoil_options, clcheck, cdcheck,      &
                    cmcheck, rmscheck, alcheck, xtrtcheck, xtrbcheck,           &
                    ncrit_check(1:ncheckpt))
@@ -735,9 +735,9 @@ function write_airfoil_optimization_progress(designvars, designcounter)
 
   call run_xfoil(curr_foil, xfoil_geom_options, op_point(1:noppoint),          &
                  op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),  &
-                 use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),    &
-                 xfoil_options, lift, drag, moment, viscrms, alpha, xtrt, xtrb,&
-                 ncrit_pt)
+                 use_flap, x_flap, y_flap, y_flap_spec,                        &
+                 actual_flap_degrees(1:noppoint), xfoil_options, lift, drag,   &
+                 moment, viscrms, alpha, xtrt, xtrb, ncrit_pt)
 
 ! Get geometry info
 

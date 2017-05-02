@@ -477,9 +477,9 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
 
     call run_xfoil(final_airfoil, xfoil_geom_options, op_point(1:noppoint),    &
                    op_mode(1:noppoint), reynolds(1:noppoint), mach(1:noppoint),&
-                   use_flap, x_flap, y_flap, actual_flap_degrees(1:noppoint),  &
-                   xfoil_options, lift, drag, moment, viscrms, alpha, xtrt,    &
-                   xtrb, ncrit_pt)
+                   use_flap, x_flap, y_flap, y_flap_spec,                      &
+                   actual_flap_degrees(1:noppoint), xfoil_options, lift, drag, &
+                   moment, viscrms, alpha, xtrt, xtrb, ncrit_pt)
 
 !   Write summary to screen and file
 

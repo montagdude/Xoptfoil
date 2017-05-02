@@ -1728,10 +1728,12 @@ C
 C Computes top and bottom hinge locations for flap
 C
 C===================================================================70
-      SUBROUTINE GETXYF(X,XP,Y,YP,S,N, TOPS,BOTS,XF,YF,SILENT_MODE)
+      SUBROUTINE GETXYF(X,XP,Y,YP,S,N, TOPS,BOTS,XF,YF,SILENT_MODE,
+     &                  Y_FLAP_SPEC)
       DIMENSION X(N),XP(N),Y(N),YP(N),S(N)
       
       LOGICAL SILENT_MODE
+      INTEGER Y_FLAP_SPEC
 C
 C      DP mod: XF is specified
 C      IF(XF .EQ. -999.0)
@@ -1753,7 +1755,8 @@ C     DP mod: added SILENT_MODE option
  1000 FORMAT(/'  Top    surface:  y =', F8.4,'     y/t = 1.0'
      &       /'  Bottom surface:  y =', F8.4,'     y/t = 0.0')
 C
-C      DP mod: YF is specified
+C     DP mod: YF is specified; convert to y/t if requested
+      IF (Y_FLAP_SPEC .EQ. 1) YF = TOPY*YF + BOTY*(1.0-YF)
 C      IF(YF .EQ. -999.0)
 C     & CALL ASKR(
 C     &  'Enter flap hinge y location (or 999 to specify y/t)^',YF)
@@ -2148,12 +2151,13 @@ C     Points may be added/subtracted in the flap
 C     break vicinity to clean things up.
 C
 C===================================================================70
-      SUBROUTINE FLAP(XBF,YBF,DDEF)
+      SUBROUTINE FLAP(XBF,YBF,Y_FLAP_SPEC,DDEF)
 
       use xfoil_inc
 
       LOGICAL LCHANGE
       REAL*8 :: XBF, YBF, DDEF
+      INTEGER Y_FLAP_SPEC
 C
       LOGICAL INSID
       LOGICAL INSIDE
@@ -2177,7 +2181,8 @@ C     DP mod: set current airfoil to buffer airfoil if available
       ENDIF
  
 C     DP mod: added SILENT_MODE option
-      CALL GETXYF(XB,XBP,YB,YBP,SB,NB, TOPS,BOTS,XBF,YBF,SILENT_MODE)
+      CALL GETXYF(XB,XBP,YB,YBP,SB,NB, TOPS,BOTS,XBF,YBF,SILENT_MODE,
+     &            Y_FLAP_SPEC)
       INSID = INSIDE(XB,YB,NB,XBF,YBF)
 C
 C     DP mod: added SILENT_MODE option

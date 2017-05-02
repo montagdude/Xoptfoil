@@ -44,6 +44,7 @@ module vardef
   double precision, dimension(max_op_points) :: op_point, reynolds, mach,      &
                                  flap_degrees, weighting, scale_factor, ncrit_pt
   double precision :: x_flap, y_flap
+  character(3) :: y_flap_spec
   logical :: use_flap
   character(14), dimension(max_op_points) :: optimization_type
   integer :: nflap_optimize          ! Number of operating points where flap 
