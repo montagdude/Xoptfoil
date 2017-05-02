@@ -46,7 +46,7 @@ add_executable("xfoil_only" $<TARGET_OBJECTS:MYOBJLIB> "src/fortran/xfoil_only.f
 
 # Installation
 install(TARGETS xoptfoil xfoil_only DESTINATION bin)
-install(FILES xoptfoil_visualizer
+install(FILES src/python/xoptfoil_visualizer
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ             GROUP_EXECUTE
                     WORLD_READ             WORLD_EXECUTE
