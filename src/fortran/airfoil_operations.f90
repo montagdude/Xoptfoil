@@ -238,18 +238,35 @@ end subroutine airfoil_read
 !=============================================================================80
 subroutine cc_ordering(foil)
 
-  use vardef, only : airfoil_type
+  use vardef,    only : airfoil_type
+  use math_deps, only : norm_2
 
   type(airfoil_type), intent(inout) :: foil
 
   double precision, dimension(foil%npoint) :: xtemp, ztemp
+  double precision, dimension(2) :: tevec1, tevec2
+  double precision :: len1, len2
   integer :: i, npoints
 
   npoints = foil%npoint
 
 ! Check if ordering needs to be switched
 
-  if (foil%z(2) < foil%z(npoints-1)) then
+  tevec1(1) = foil%x(2) - foil%x(1)
+  tevec1(2) = foil%z(2) - foil%z(1)
+  len1 = norm_2(tevec1)
+
+  tevec2(1) = foil%x(npoints-1) - foil%x(npoints)
+  tevec2(2) = foil%z(npoints-1) - foil%z(npoints)
+  len2 = norm_2(tevec2)
+
+  if ( (len1 == 0.d0) .or. (len2 == 0.d0) )                                    &
+    call my_stop("Panel with 0 length detected near trailing edge.")
+
+  tevec1 = tevec1/len1
+  tevec2 = tevec2/len2
+
+  if (tevec1(2) < tevec2(2)) then
     
     write(*,*) 'Changing point ordering to counter-clockwise ...'
     
