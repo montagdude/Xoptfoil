@@ -277,230 +277,73 @@ end subroutine cc_ordering
 !            index before le, and 0 means no new point is needed (x(le), z(le) 
 !            is exactly at the leading edge).
 !
-! Note: addpoint_loc calculation assumes that airfoil points are ordered
-! counter-clockwise
-!
 !=============================================================================80
 subroutine le_find(x, z, le, xle, zle, addpoint_loc)
 
-  use math_deps,    only : lmult
+  use math_deps, only : norm_2
 
   double precision, dimension(:), intent(in) :: x, z
   integer, intent(out) :: le, addpoint_loc
   double precision, intent(out) :: xle, zle
 
-  integer i, j, zeroval
-  logical switch, switch_override
-  character(4) searchdir
-  double precision, dimension(6) :: xp, zp
-  double precision, dimension(6,6) :: A
-  double precision, dimension(6) :: C
-  double precision, dimension(2) :: bounds
+  integer :: i, npt
+  double precision, dimension(:), allocatable :: s, xp, zp
+  double precision, dimension(2) :: r1, r2
+  double precision :: sle, dist1, dist2, dot
 
-  switch = .false.
-  switch_override = .false.
-  searchdir = 'none'
+! Get leading edge location from Xfoil
 
-! Find point where x-location of airfoil point starts increasing
+  npt = size(x,1)
+  allocate(s(npt))
+  allocate(xp(npt))
+  allocate(zp(npt))
+  call SCALC(x, z, s, npt)
+  call SEGSPL(x, xp, s, npt)
+  call SEGSPL(z, zp, s, npt)
+  call LEFIND(sle, x, xp, z, zp, s, npt, .true.)
+  call SEVAL_INTERFACE(xle, sle, x, xp, s, npt)
+  call SEVAL_INTERFACE(zle, sle, z, zp, s, npt)
+  deallocate(s)
+  deallocate(xp)
+  deallocate(zp)
 
-  i = 1
-  do while (.not. switch)
-     if ( (x(i+1) >= x(i)) .or. switch_override ) then
+! Determine leading edge index and where to add a point
 
+  npt = size(x,1)
+  do i = 1, npt-1
+    r1(1) = xle - x(i)
+    r1(2) = zle - z(i)
+    dist1 = norm_2(r1)
+    if (dist1 /= 0.d0) r1 = r1/dist1
+
+    r2(1) = xle - x(i+1)
+    r2(2) = zle - z(i+1)
+    dist2 = norm_2(r2)
+    if (dist2 /= 0.d0) r2 = r2/dist2
+
+    dot = dot_product(r1, r2)
+
+    if (dist1 == 0.d0) then
+      le = i
+      addpoint_loc = 0
+      exit
+    else if (dist2 == 0.d0) then
+      le = i+1
+      addpoint_loc = 0
+      exit
+    else if (dot < 0.d0) then
+      if (dist1 < dist2) then
         le = i
-        switch = .true.
-        switch_override = .false.
-
-!       Fit 5th-order polynomial to find leading edge
-
-        xp(1) = x(le+3)
-        zp(1) = z(le+3)
-        xp(2) = x(le+2)
-        zp(2) = z(le+2)
-        xp(3) = x(le+1)
-        zp(3) = z(le+1)
-        xp(4) = x(le)
-        zp(4) = z(le)
-        xp(5) = x(le-1)
-        zp(5) = z(le-1)
-        xp(6) = x(le-2)
-        zp(6) = z(le-2)
-
-!       Check for zero values - this row will get moved to bottom
-
-        zeroval = 7
-        do j = 1, 6
-          if (zp(j) == 0.d0) then
-            zeroval = j
-            exit
-          end if
-        end do
-
-!       Set up the system of equations. If there is a row with z(j) = 0, it
-!       gets moved to the bottom.
-
-        do j = 1, 6
-          if (j - zeroval < 0) then
-            A(j,:) = (/ zp(j)**5.d0, zp(j)**4.d0, zp(j)**3.d0, zp(j)**2.d0,    &
-                        zp(j), 1.d0 /)
-            C(j) = xp(j)
-          elseif (j - zeroval > 0) then
-            A(j-1,:) = (/ zp(j)**5.d0, zp(j)**4.d0, zp(j)**3.d0, zp(j)**2.d0,  &
-                          zp(j), 1.d0 /)
-            C(j-1) = xp(j)
-          else
-            A(6,:) = (/ zp(j)**5.d0, zp(j)**4.d0, zp(j)**3.d0, zp(j)**2.d0,    &
-                        zp(j), 1.d0 /)
-            C(6) = xp(j)
-          end if
-        end do
-
-        polynomial_coefs = lmult(A,C)
-
-!       Find minimum of polynomial using golden search
-
-        bounds = (/ zp(1), zp(6) /)
-        call golden_search(quintic, bounds, zle, xle)
-
-!       Determine whether a new point needs to be added for the leading edge
-!       If the LE point is not adjacent to the expected point, move to the
-!       next closest point and recalculate.
-
-        if (zle > z(le)) then
-          addpoint_loc = -1
-          if (zle > z(le-1)) then         ! Check if we need to recalculate
-            if (searchdir /= 'fwrd') then ! Stop search if bouncing back & forth
-              searchdir = 'back'
-              switch = .false.
-              switch_override = .true.
-              i = i - 1
-            end if
-          end if
-        elseif (zle == z(le)) then
-          addpoint_loc = 0
-        else
-          addpoint_loc = 1
-          if (zle < z(le+1)) then         ! Check if we need to recalculate
-            if (searchdir /= 'back') then ! Stop search if bouncing back & forth
-              searchdir = 'fwrd'
-              switch = .false.
-              switch_override = .true.
-              i = i + 1                  
-            end if
-          end if
-        end if
-
-     else
-        i = i + 1
-     end if
+        addpoint_loc = 1
+      else
+        le = i+1
+        addpoint_loc = -1
+      end if
+      exit
+    end if
   end do
 
 end subroutine le_find
-
-!=============================================================================80
-!
-! Golden search: bounded optimization in one dimension
-!
-! Inputs: 
-!   objfunc: objective function
-!   bounds: lower and upper bounds for the search
-!
-! Output: xmin, fmin
-!
-!=============================================================================80
-subroutine golden_search(objfunc, bounds, xopt, fmin)
-
-  double precision, dimension(2), intent(in) :: bounds
-  double precision, intent(out) :: xopt, fmin
-
-  interface
-    double precision function objfunc(x)
-      double precision, intent(in) :: x
-    end function
-  end interface
-
-  double precision :: tol, T, dist
-  double precision, dimension(4) :: xval, fval
-  integer i, imax
-
-  tol = 1.0e-09
-
-  imax = 100
-  dist = 1000.0d0
-
-! Initialize search
-
-  xval = (/ bounds(1), 0.d0, 0.d0, bounds(2) /)
-  dist = bounds(2) - bounds(1)
-  T = (3.d0 - sqrt(5.d0))/2.d0                  !Golden section
-  xval(2) = (1.d0-T)*xval(1) + T*xval(4)
-  xval(3) = T*xval(1) + (1.d0-T)*xval(4)
-  fval = (/ objfunc(xval(1)), objfunc(xval(2)), objfunc(xval(3)),              &
-            objfunc(xval(4)) /)
-  if (fval(1) > fval(4)) then
-     xopt = xval(4)
-     fmin = fval(4)
-  else
-     xopt = xval(1)
-     fmin = fval(1)
-  end if
-
-  i = 2
-  do while (i < imax .and. dist > tol)
-
-!    Eliminate the appropriate region
-
-     if (fval(2) > fval(3)) then
-        xopt = xval(3)
-        fmin = fval(3)
-        xval(1) = xval(2)
-        xval(2) = xval(3)
-        fval(1) = fval(2)
-        fval(2) = fval(3)
-        xval(3) = T*xval(1) + (1.d0-T)*xval(4)
-        fval(3) = objfunc(xval(3))
-     else
-        xopt = xval(2)
-        fmin = fval(2)
-        xval(4) = xval(3)
-        xval(3) = xval(2)
-        fval(4) = fval(3)
-        fval(3) = fval(2)
-        xval(2) = (1.d0-T)*xval(1) + T*xval(4)
-        fval(2) = objfunc(xval(2))
-     end if
-     dist = xval(4) - xval(1)
-
-!    Print out warning if maximum number of iterations is reached
-
-     if (i == imax .and. dist > tol) then
-        write(*,*)
-        write(*,*) 'Warning: golden search reached maximum number of iterations'
-        write(*,*) '  without converging to the specified absolute error.'
-        write(*,*)
-     end if
-
-     i = i + 1
-
-  end do
-
-end subroutine golden_search
-
-!=============================================================================80
-!
-! Fifth order polynomial
-!
-!=============================================================================80
-function quintic(x)
-
-  double precision, intent(in) :: x
-  double precision :: quintic
-
-  quintic = polynomial_coefs(1)*x**5.d0 + polynomial_coefs(2)*x**4.d0 +        &
-            polynomial_coefs(3)*x**3.d0 + polynomial_coefs(4)*x**2.d0 +        &
-            polynomial_coefs(5)*x + polynomial_coefs(6)
-
-end function quintic
 
 !=============================================================================80
 !
