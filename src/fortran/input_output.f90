@@ -937,16 +937,40 @@ end subroutine namelist_check
 !=============================================================================80
 subroutine read_clo(input_file, output_prefix)
 
+  use airfoil_operations, only : my_stop
+
   character(*), intent(inout) :: input_file, output_prefix
 
-! Read supplied names
+  character(80) :: arg
+  integer i, nargs
+  logical getting_args
 
-  if (iargc() >= 1) then
-    call getarg(1, input_file)
-  end if
-  if (iargc() >= 2) then
-    call getarg(2, output_prefix)
-  end if
+  nargs = iargc()
+  getting_args = .true.
+  i = 1
+  do while (getting_args)
+    call getarg(i, arg) 
+
+    if (trim(arg) == "-i") then
+      if (i == nargs) then
+        call my_stop("Must specify an input file with -i option.")
+      else
+        call getarg(i+1, input_file)
+        i = i+2
+      end if
+    else if (trim(arg) == "-o") then
+      if (i == nargs) then
+        call my_stop("Must specify an output prefix with -o option.")
+      else
+        call getarg(i+1, output_prefix)
+        i = i+2
+      end if
+    else
+      call my_stop("Unrecognized option "//trim(arg)//".")
+    end if
+
+    if (i > nargs) getting_args = .false.
+  end do
 
 end subroutine read_clo
 

@@ -1,15 +1,20 @@
 For 2.0
 --------------------------------------------------------------------------------
-* Change y hinge location specification? (Fraction of lower->upper surface?)
+* curses input file editor?
+
+For 1.11
+--------------------------------------------------------------------------------
 * Additional thickness constraints?
 * Add proper --help and --version outputs to xoptfoil and xfoil_only
 * Test xoptfoil_visualizer with python2 and python3
 * Package for Windows with needed MinGW libs
 * Update documentation with build / packaging changes
-* curses input file editor?
 
 Complete:
 * Switch to CMake-based build system
 * Fix bug with min_te_angle = 0
 * Optimization type to maximize lift curve slope
 * Allow specifying ncrit per operating point
+* Option to specify y hinge location as fraction of lower->upper surface
+* Improve detection of leading edge and point ordering direction
+* Specify CLOs with flags: -i {input file}, -o {output prefix}
