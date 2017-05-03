@@ -308,6 +308,14 @@ subroutine le_find(x, z, le, xle, zle, addpoint_loc)
   double precision, dimension(2) :: r1, r2
   double precision :: sle, dist1, dist2, dot
 
+  interface
+    double precision function SEVAL(SS, X, XS, S, N)
+      integer, intent(in) :: N
+      double precision, intent(in) :: SS
+      double precision, dimension(N), intent(in) :: X, XS, S
+    end function SEVAL
+  end interface 
+
 ! Get leading edge location from Xfoil
 
   npt = size(x,1)
@@ -318,8 +326,8 @@ subroutine le_find(x, z, le, xle, zle, addpoint_loc)
   call SEGSPL(x, xp, s, npt)
   call SEGSPL(z, zp, s, npt)
   call LEFIND(sle, x, xp, z, zp, s, npt, .true.)
-  call SEVAL_INTERFACE(xle, sle, x, xp, s, npt)
-  call SEVAL_INTERFACE(zle, sle, z, zp, s, npt)
+  xle = SEVAL(sle, x, xp, s, npt)
+  zle = SEVAL(sle, z, zp, s, npt)
   deallocate(s)
   deallocate(xp)
   deallocate(zp)

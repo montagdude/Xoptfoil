@@ -369,20 +369,6 @@ C
 
 C===================================================================70
 C
-C     DP mod: interface for SEVAL, allowing it to be called from f90
-C     subroutines.
-C
-C===================================================================70
-      SUBROUTINE SEVAL_INTERFACE(XOUT, SS, X, XS, S, N)
-      DIMENSION X(N), XS(N), S(N)
-      REAL :: XOUT 
-     
-      XOUT = SEVAL(SS, X, XS, S, N)
-      RETURN
-      END
-
-C===================================================================70
-C
 C     Calculates X(SS)                             |
 C     XS array must have been calculated by SPLINE |
 C
