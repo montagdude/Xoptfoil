@@ -106,12 +106,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   iunit = 12
   open(unit=iunit, file=input_file, status='old', iostat=ioerr)
-  if (ioerr /= 0) then
-    write(*,*)
-    write(*,*) 'Error: could not find input file '//trim(input_file)//'.'
-    write(*,*)
-    stop
-  end if
+  if (ioerr /= 0)                                                              &
+    call my_stop('Could not find input file '//trim(input_file)//'.')
 
 ! Set defaults for main namelist options
 
@@ -137,13 +133,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Error checking and setting search algorithm options
 
   if (trim(search_type) /= 'global_and_local' .and. trim(search_type) /=       &
-      'global' .and. trim(search_type) /= 'local') then
-    write(*,*)
-    write(*,*) "Error: search_type must be 'global_and_local', 'global', "//   &
-               "or 'local'."
-    write(*,*)
-    stop
-  end if
+      'global' .and. trim(search_type) /= 'local')                             &
+    call my_stop("search_type must be 'global_and_local', 'global', "//   &
+                 "or 'local'.")
 
 ! Set defaults for operating conditions and constraints
 
@@ -383,15 +375,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       end if
 
     else
-
-      write(*,*)
-      write(*,*) "Namelist error: global search type '"//trim(global_search)// &
-                 "' is not available."
-      write(*,*)
-      stop
-     
+      call my_stop("Global search type '"//trim(global_search)//               &
+                   "' is not available.")
     end if
-
   end if
 
   if (trim(search_type) == 'global_and_local' .or. trim(search_type) ==        &
@@ -414,13 +400,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       end if
 
     else
-
-      write(*,*)
-      write(*,*) "Namelist error: local search type '"//trim(local_search)//   &
-                 "' is not available."
-      write(*,*)
-      stop
-     
+      call my_stop("Local search type '"//trim(local_search)//   &
+                   "' is not available.")
     end if
 
   end if 
@@ -946,7 +927,12 @@ subroutine read_clo(input_file, output_prefix)
   logical getting_args
 
   nargs = iargc()
-  getting_args = .true.
+  if (nargs > 0) then
+    getting_args = .true.
+  else
+    getting_args = .false.
+  end if
+
   i = 1
   do while (getting_args)
     call getarg(i, arg) 
