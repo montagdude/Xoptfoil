@@ -50,15 +50,15 @@ program main
   double precision :: f0, fmin, xoffset, zoffset, foilscale
   logical :: restart
 
-  write(*,*)
-  write(*,*) 'This is Xoptfoil: airfoil optimization with Xfoil'
-  write(*,*) 'Copyright 2014 -- 2016 Daniel Prosser'
-
 ! Set default names and read command line arguments
 
   input_file = 'inputs.txt'
   output_prefix = 'optfoil'
   call read_clo(input_file, output_prefix)
+
+  write(*,*)
+  write(*,*) 'This is Xoptfoil: airfoil optimization with Xfoil'
+  write(*,*) 'Copyright 2014 -- 2016 Daniel Prosser'
 
 ! Read inputs from namelist file
 

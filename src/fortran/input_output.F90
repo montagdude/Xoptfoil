@@ -21,6 +21,10 @@ module input_output
 
   implicit none
 
+#ifndef PACKAGE_VERSION
+  #define PACKAGE_VERSION ""
+#endif
+
   contains
 
 !=============================================================================80
@@ -951,6 +955,9 @@ subroutine read_clo(input_file, output_prefix)
         call getarg(i+1, output_prefix)
         i = i+2
       end if
+    else if ( (trim(arg) == "-v") .or. (trim(arg) == "--version") ) then
+      call print_version()
+      stop
     else
       call my_stop("Unrecognized option "//trim(arg)//".")
     end if
@@ -959,6 +966,17 @@ subroutine read_clo(input_file, output_prefix)
   end do
 
 end subroutine read_clo
+
+!=============================================================================80
+!
+! Prints version information
+!
+!=============================================================================80
+subroutine print_version()
+
+  write(*,'(A)') "Xoptfoil version "//trim(PACKAGE_VERSION)
+
+end subroutine print_version
 
 !=============================================================================80
 !

@@ -26,6 +26,9 @@ set(DATADIR ${CMAKE_INSTALL_PREFIX}/share/xoptfoil
     CACHE PATH "Directory to install shared data and examples."
 )
 
+# Preprocessor definitions
+add_definitions(-DPACKAGE_VERSION=\"${XOPTFOIL_VERSION}\")
+
 # Set source files (exclude programs here)
 file(GLOB SOURCESDBLE "src/fortran/*.f90" "src/fortran/*.F90" "src/fortran/xfoil_deps/*.f90")
 file(GLOB SOURCESREAL "src/fortran/xfoil_deps/*.f" "src/fortran/naca456_deps/*.f90")
