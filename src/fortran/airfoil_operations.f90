@@ -588,7 +588,7 @@ subroutine my_stop(message, stoptype)
     write(*,*)
     write(*,'(A)') 'Error: '//trim(message)
     write(*,*)
-    stop
+    stop 1
   else
     write(*,*)
     write(*,'(A)') 'Warning: '//trim(message)
