@@ -958,8 +958,13 @@ subroutine read_clo(input_file, output_prefix)
     else if ( (trim(arg) == "-v") .or. (trim(arg) == "--version") ) then
       call print_version()
       stop
+    else if ( (trim(arg) == "-h") .or. (trim(arg) == "--help") ) then
+      call print_usage()
+      stop
     else
-      call my_stop("Unrecognized option "//trim(arg)//".")
+      write(*,'(A)') "Unrecognized option "//trim(arg)//"."
+      call print_usage()
+      stop 1
     end if
 
     if (i > nargs) getting_args = .false.
@@ -983,6 +988,30 @@ subroutine print_version()
   write(*,'(A)') "There is NO WARRANTY, to the extent permitted by law."
 
 end subroutine print_version
+
+!=============================================================================80
+!
+! Prints usage information
+!
+!=============================================================================80
+subroutine print_usage()
+
+  write(*,'(A)') "Usage: xoptfoil [OPTION]"
+  write(*,'(A)')
+  write(*,'(A)') "Options:"
+  write(*,'(A)') "  -i input_file     Specify a non-default input file"
+  write(*,'(A)') "  -o output_prefix  Specify a non-default output prefix"
+  write(*,'(A)') "  -h, --help        Display usage information and exit"
+  write(*,'(A)') "  -v, --version     Display Xoptfoil version and exit"
+  write(*,'(A)')
+  write(*,'(A)') "Refer to the PDF user guide for complete input help."
+  write(*,'(A)')
+  write(*,'(A)') "Home page: https://sourceforge.net/projects/xoptfoil/"
+  write(*,'(A)') "Development page: https://github.com/montagdude/Xoptfoil"
+  write(*,'(A)') "Report bugs using the issue reporting system at either "//   &
+                 "of the above sites."
+
+end subroutine print_usage
 
 !=============================================================================80
 !
