@@ -974,7 +974,13 @@ end subroutine read_clo
 !=============================================================================80
 subroutine print_version()
 
-  write(*,'(A)') "Xoptfoil version "//trim(PACKAGE_VERSION)
+  write(*,'(A)') "Xoptfoil "//trim(PACKAGE_VERSION)
+  write(*,'(A)') "Copyright (C) 2017 Daniel Prosser"
+  write(*,'(A)') "License GPLv3+: GNU GPL version 3 or later "//               &
+                 "<http://gnu.org/licenses/gpl.html>"
+  write(*,'(A)') "This is free software: you are free to change and "//        &
+                 "redistribute it."
+  write(*,'(A)') "There is NO WARRANTY, to the extent permitted by law."
 
 end subroutine print_version
 
