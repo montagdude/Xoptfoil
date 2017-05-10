@@ -5,7 +5,6 @@ For 2.0
 For 1.11
 --------------------------------------------------------------------------------
 * Additional thickness constraints?
-* Add proper --help and --version outputs to xoptfoil and xfoil_only
 * Test xoptfoil_visualizer with python2 and python3
 * Package for Windows with needed MinGW libs
 * Update documentation with build / packaging changes
@@ -18,3 +17,4 @@ Complete:
 * Option to specify y hinge location as fraction of lower->upper surface
 * Improve detection of leading edge and point ordering direction
 * Specify CLOs with flags: -i {input file}, -o {output prefix}
+* Add proper --help and --version outputs to xoptfoil and xfoil_only

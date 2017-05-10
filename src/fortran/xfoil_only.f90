@@ -54,7 +54,7 @@ program xfoil_only
 
   input_file = 'inputs.txt'
   output_prefix = 'optfoil'
-  call read_clo(input_file, output_prefix)
+  call read_clo(input_file, output_prefix, "xfoil_only")
 
 ! Read inputs from namelist file
 

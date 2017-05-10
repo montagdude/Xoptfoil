@@ -920,15 +920,22 @@ end subroutine namelist_check
 ! Reads command line arguments for input file name and output file prefix
 !
 !=============================================================================80
-subroutine read_clo(input_file, output_prefix)
+subroutine read_clo(input_file, output_prefix, exename)
 
   use airfoil_operations, only : my_stop
 
   character(*), intent(inout) :: input_file, output_prefix
+  character(*), intent(in), optional :: exename
 
-  character(80) :: arg
+  character(80) :: arg, exeprint
   integer i, nargs
   logical getting_args
+
+  if (present(exename)) then
+    exeprint = exename
+  else
+    exeprint = "xoptfoil"
+  end if 
 
   nargs = iargc()
   if (nargs > 0) then
@@ -959,11 +966,11 @@ subroutine read_clo(input_file, output_prefix)
       call print_version()
       stop
     else if ( (trim(arg) == "-h") .or. (trim(arg) == "--help") ) then
-      call print_usage()
+      call print_usage(exeprint)
       stop
     else
       write(*,'(A)') "Unrecognized option "//trim(arg)//"."
-      call print_usage()
+      call print_usage(exeprint)
       stop 1
     end if
 
@@ -994,9 +1001,11 @@ end subroutine print_version
 ! Prints usage information
 !
 !=============================================================================80
-subroutine print_usage()
+subroutine print_usage(exeprint)
 
-  write(*,'(A)') "Usage: xoptfoil [OPTION]"
+  character(*), intent(in) :: exeprint
+
+  write(*,'(A)') "Usage: "//trim(exeprint)//" [OPTION]"
   write(*,'(A)')
   write(*,'(A)') "Options:"
   write(*,'(A)') "  -i input_file     Specify a non-default input file"
