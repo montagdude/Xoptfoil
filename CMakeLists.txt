@@ -4,27 +4,47 @@ set(XOPTFOIL_VERSION 1.11.0)
 project(Xoptfoil)
 enable_language(Fortran)
 
-# Determine compiler
-get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
-message("Fortran compiler: " ${CMAKE_Fortran_COMPILER})
-
-# Default compiler flags
-if (Fortran_COMPILER_NAME MATCHES "gfortran")
-  set (CMAKE_Fortran_FLAGS_RELEASE "-O3 -fopenmp")
-  set (CMAKE_Fortran_FLAGS_DEBUG "-g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -Wall")
-  set (Fortran_REAL8_FLAG "-fdefault-real-8")
-elseif (Fortran_COMPILER_NAME MATCHES "ifort")
-  set (CMAKE_Fortran_FLAGS_RELEASE "-O3 -fopenmp")
-  set (CMAKE_Fortran_FLAGS_DEBUG "-g -warn all")
-  set (Fortran_REAL8_FLAG "-r8")
-else (Fortran_COMPILER_NAME MATCHES "gfortran")
-  message(FATAL_ERROR "Fortran compiler not supported.")
-endif (Fortran_COMPILER_NAME MATCHES "gfortran")
-
 # Some default directories
 set(DATADIR ${CMAKE_INSTALL_PREFIX}/share/xoptfoil
     CACHE PATH "Directory to install shared data and examples."
 )
+
+# Determine compiler
+get_filename_component(Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
+message("Fortran compiler: " ${CMAKE_Fortran_COMPILER})
+
+# Option to build with/without OpenMP support
+set(ENABLE_OPENMP TRUE
+    CACHE BOOL "Whether to build with OpenMP support."
+)
+
+# Enable OpenMP by default for Release builds, but disable by default for Debug
+if (CMAKE_BUILD_TYPE MATCHES "Release")
+  set (OPENMP_FLAG "-fopenmp")
+  if (NOT ENABLE_OPENMP)
+    MESSAGE(WARNING "Disabling OpenMP support since ENABLE_OPENMP=FALSE")
+    set (OPENMP_FLAG "")
+  endif (NOT ENABLE_OPENMP)
+elseif (CMAKE_BUILD_TYPE MATCHES "Debug")
+  set (OPENMP_FLAG "")
+  if (ENABLE_OPENMP)
+    MESSAGE(WARNING "Enabling OpenMP support for debug release since ENABLE_OPENMP=TRUE")
+    set (OPENMP_FLAG "-fopenmp")
+  endif (ENABLE_OPENMP)
+endif (CMAKE_BUILD_TYPE MATCHES "Release")
+
+# Default compiler flags
+if (Fortran_COMPILER_NAME MATCHES "gfortran")
+  set (CMAKE_Fortran_FLAGS_RELEASE "-O3 ${OPENMP_FLAG}")
+  set (CMAKE_Fortran_FLAGS_DEBUG "-g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -Wall ${OPENMP_FLAG}")
+  set (Fortran_REAL8_FLAG "-fdefault-real-8")
+elseif (Fortran_COMPILER_NAME MATCHES "ifort")
+  set (CMAKE_Fortran_FLAGS_RELEASE "-O3 ${OPENMP_FLAG}")
+  set (CMAKE_Fortran_FLAGS_DEBUG "-g -warn all ${OPENMP_FLAG}")
+  set (Fortran_REAL8_FLAG "-r8")
+else (Fortran_COMPILER_NAME MATCHES "gfortran")
+  message(FATAL_ERROR "Fortran compiler not supported.")
+endif (Fortran_COMPILER_NAME MATCHES "gfortran")
 
 # Preprocessor definitions
 add_definitions(-DPACKAGE_VERSION=\"${XOPTFOIL_VERSION}\")
