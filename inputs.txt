@@ -156,6 +156,18 @@
   min_moment(3) = -0.11
   min_moment(4) = -0.11
   min_moment(5) = -0.11
+
+  ! Additional thickness constraints at specified x/c (max 10)
+
+  naddthickconst = 2       ! Number of additional thickness constraints
+
+  addthick_x(1) = 0.5      ! x/c location of constraint 1
+  addthick_min(1) = 0.10   ! Min thickness at x/c 1
+  addthick_max(1) = 1000.0 ! Max thickness at x/c 1
+
+  addthick_x(2) = 0.9      ! x/c location of constraint 2
+  addthick_min(2) = 0.02   ! Min thickness at x/c 2
+  addthick_max(2) = 1000.0 ! Max thickness at x/c 2
 /
 
 &naca_airfoil

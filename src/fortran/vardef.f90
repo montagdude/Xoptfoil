@@ -72,6 +72,11 @@ module vardef
 
   character(80) :: output_prefix
 
+  integer :: naddthickconst
+  integer, parameter :: max_addthickconst = 10
+  double precision, dimension(max_addthickconst) :: addthick_x, addthick_min,  &
+                                                    addthick_max
+
 !$omp threadprivate(curr_foil)
 
 end module vardef

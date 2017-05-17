@@ -87,7 +87,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
                          min_moment, min_te_angle, check_curvature,            &
                          max_curv_reverse_top, max_curv_reverse_bot,           &
                          curv_threshold, symmetrical, min_flap_degrees,        &
-                         max_flap_degrees, min_camber, max_camber
+                         max_flap_degrees, min_camber, max_camber,             &
+                         naddthickconst, addthick_x, addthick_min, addthick_max
   namelist /naca_airfoil/ family, maxt, xmaxt, maxc, xmaxc, design_cl, a,      &
                           leidx, reflexed
   namelist /initialization/ feasible_init, feasible_limit,                     &
@@ -172,6 +173,10 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   symmetrical = .false.
   min_flap_degrees = -5.d0
   max_flap_degrees = 15.d0
+  naddthickconst = 0
+  addthick_x(:) = 0.01d0
+  addthick_min(:) = -1000.d0
+  addthick_max(:) = 1000.d0
 
 ! Read operating conditions and constraints
 
@@ -569,6 +574,14 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " max_flap_degrees = ", max_flap_degrees
   write(*,*) " min_camber = ", min_camber
   write(*,*) " max_camber = ", max_camber
+  write(*,*)," naddthickconst = ", naddthickconst
+  do i = 1, naddthickconst
+    write(text,*), i
+    text = adjustl(text)
+    write(*,*) " addthick_x("//trim(text)//") = ", addthick_x(i)
+    write(*,*) " addthick_min("//trim(text)//") = ", addthick_min(i)
+    write(*,*) " addthick_max("//trim(text)//") = ", addthick_max(i)
+  end do
   write(*,'(A)') " /"
   write(*,*)
 
@@ -746,6 +759,8 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 
   if (min_thickness <= 0.d0) call my_stop("min_thickness must be > 0.")
   if (max_thickness <= 0.d0) call my_stop("max_thickness must be > 0.")
+  if (min_thickness >= max_thickness)                                          &
+    call my_stop("min_thickness must be < max_thickness.")
   do i = 1, noppoint
     if (trim(moment_constraint_type(i)) /= 'use_seed' .and.                    &
       trim(moment_constraint_type(i)) /= 'specify' .and.                       &
@@ -770,6 +785,18 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     call my_stop("max_flap_degrees must be < 90.")
   if (min_camber >= max_camber)                                                &
     call my_stop("min_camber must be < max_camber.")
+  
+  if (naddthickconst > max_addthickconst) then
+     write(text,*) max_addthickconst
+     text = adjustl(text)
+     call my_stop("naddthickconst must be <= "//trim(text)//".")
+  end if
+  do i = 1, naddthickconst
+    if (addthick_x(i) <= 0.d0) call my_stop("addthick_x must be > 0.")
+    if (addthick_x(i) >= 1.d0) call my_stop("addthick_x must be < 1.")
+    if (addthick_min(i) >= addthick_max(i))                                    &
+      call my_stop("addthick_min must be < addthick_max.")
+  end do
 
 ! Naca airfoil options
 

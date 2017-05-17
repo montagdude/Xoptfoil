@@ -42,6 +42,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
   double precision, dimension(:), allocatable :: zt_interp, zb_interp
   double precision, dimension(size(xseedt,1)) :: curvt
   double precision, dimension(size(xseedb,1)) :: curvb
+  double precision, dimension(naddthickconst) :: add_thickvec
   double precision :: penaltyval, tegap, gapallow, maxthick, heightfactor
   double precision :: panang1, panang2, maxpanang, curv1, curv2
   double precision :: checkval, len1, len2, growth1, growth2, xtrans, ztrans
@@ -51,6 +52,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
   integer :: i, nptt, nptb, nreversalst, nreversalsb, nptint
   character(30) :: text, text2
   character(14) :: opt_type
+  logical :: addthick_violation
 
   penaltyval = 0.d0
   pi = acos(-1.d0)
@@ -171,19 +173,42 @@ subroutine check_seed(xoffset, zoffset, foilscale)
 
   end do
 
-! Free memory
-
-  deallocate(x_interp)
-  deallocate(zt_interp)
-  deallocate(zb_interp)
-  deallocate(thickness)
-
 ! Too thin on back half
 
   if (penaltyval > 0.d0)                                                       &
      call ask_stop("Seed airfoil is thinner than min_te_angle near the "//&
                    "trailing edge.")
   penaltyval = 0.d0
+
+! Check additional thickness constraints
+
+  if (naddthickconst > 0) then
+    call interp_vector(x_interp, thickness,                                    &
+                       addthick_x(1:naddthickconst), add_thickvec)
+
+    addthick_violation = .false.
+    do i = 1, naddthickconst
+      if ( (add_thickvec(i) < addthick_min(i)) .or.                            &
+           (add_thickvec(i) > addthick_max(i)) ) then
+        addthick_violation = .true.
+        write(text,'(F8.4)') addthick_x(i)
+        text = adjustl(text)
+        write(text2,'(F8.4)') add_thickvec(i)
+        text2 = adjustl(text2)
+        write(*,*) "Thickness at x = "//trim(text)//": "//trim(text2)
+      end if
+    end do
+
+    if (addthick_violation)                                                    &
+      call ask_stop("Seed airfoil violates one or more thickness constraints.")
+  end if
+  
+! Free memory
+
+  deallocate(x_interp)
+  deallocate(zt_interp)
+  deallocate(zb_interp)
+  deallocate(thickness)
 
 ! Max thickness too low
 

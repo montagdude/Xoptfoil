@@ -105,6 +105,7 @@ function aero_objective_function(designvars, include_penalty)
   double precision, dimension(size(xseedb,1)) :: zb_new
   double precision, dimension(size(xseedt,1)) :: curvt
   double precision, dimension(size(xseedb,1)) :: curvb
+  double precision, dimension(naddthickconst) :: add_thickvec
   integer :: nmodest, nmodesb, nptt, nptb, i, dvtbnd1, dvtbnd2, dvbbnd1,       &
              dvbbnd2, ncheckpt, nptint
   double precision :: penaltyval
@@ -248,6 +249,18 @@ function aero_objective_function(designvars, include_penalty)
     end if
 
   end do
+
+! Check additional thickness constraints
+
+  if (naddthickconst > 0) then
+    call interp_vector(x_interp, thickness,                                    &
+                       addthick_x(1:naddthickconst), add_thickvec)
+
+    do i = 1, naddthickconst
+      penaltyval = penaltyval + max(0.d0,addthick_min(i)-add_thickvec(i))/0.1d0
+      penaltyval = penaltyval + max(0.d0,add_thickvec(i)-addthick_max(i))/0.1d0
+    end do
+  end if
 
 ! Penalties for max thickness too low or high
 
