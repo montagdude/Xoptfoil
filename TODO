@@ -4,7 +4,6 @@ For 2.0
 
 For 1.11
 --------------------------------------------------------------------------------
-* Additional thickness constraints?
 * Test xoptfoil_visualizer with python2 and python3
 * Package for Windows with needed MinGW libs
 * Update documentation with build / packaging changes
@@ -18,3 +17,4 @@ Complete:
 * Improve detection of leading edge and point ordering direction
 * Specify CLOs with flags: -i {input file}, -o {output prefix}
 * Add proper --help and --version outputs to xoptfoil and xfoil_only
+* Additional thickness constraints
