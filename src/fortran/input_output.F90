@@ -728,6 +728,11 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
 ! Operating points
 
   if (noppoint < 1) call my_stop("noppoint must be > 0.")
+  if (noppoint > max_op_points) then
+     write(text,*) max_op_points
+     text = adjustl(text)
+     call my_stop("noppoints must be <= "//trim(text)//".")
+  end if
   if ((use_flap) .and. (x_flap <= 0.0)) call my_stop("x_flap must be > 0.")
   if ((use_flap) .and. (x_flap >= 1.0)) call my_stop("x_flap must be < 1.")
   if ((use_flap) .and. (y_flap_spec /= 'y/c') .and. (y_flap_spec /= 'y/t'))    &
