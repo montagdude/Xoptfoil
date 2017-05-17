@@ -167,7 +167,7 @@ subroutine check_seed(xoffset, zoffset, foilscale)
         write(text,'(F8.4)') xtrans
         text = adjustl(text)
         write(*,*) "Detected too thin at x = "//trim(text)
-        penaltyval = penaltyval + (gapallow - thickness(i))/0.001d0
+        penaltyval = penaltyval + (gapallow - thickness(i))/0.1d0
       end if
     end if
 

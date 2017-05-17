@@ -245,7 +245,7 @@ function aero_objective_function(designvars, include_penalty)
     if (xseedt(i) > 0.5d0) then
       gapallow = tegap + 2.d0 * heightfactor * (x_interp(nptint) -             &
                                                 x_interp(i))
-      penaltyval = penaltyval + max(0.d0,gapallow-thickness(i))/0.001d0
+      penaltyval = penaltyval + max(0.d0,gapallow-thickness(i))/0.1d0
     end if
 
   end do
