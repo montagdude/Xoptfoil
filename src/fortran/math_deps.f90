@@ -442,4 +442,79 @@ function random_double(low, high)
 
 end function random_double
 
+!=============================================================================80
+!
+! Swaps two elements of vector
+!
+!=============================================================================80
+subroutine swap_double(vec, idx0, idx1)
+
+  double precision, dimension(:), intent(inout) :: vec
+  integer, intent(in) :: idx0, idx1
+
+  double precision :: t1, t2
+
+  t1 = vec(idx0)
+  t2 = vec(idx1)
+  vec(idx0) = t2
+  vec(idx1) = t1
+
+end subroutine swap_double
+
+subroutine swap_int(vec, idx0, idx1)
+
+  integer, dimension(:), intent(inout) :: vec
+  integer, intent(in) :: idx0, idx1
+
+  integer :: t1, t2
+
+  t1 = vec(idx0)
+  t2 = vec(idx1)
+  vec(idx0) = t2
+  vec(idx1) = t1
+
+end subroutine swap_int
+
+!=============================================================================80
+!
+! Sorts a vector via bubble sort. Optionally records map of indices relative to
+! input vector.
+!
+!=============================================================================80
+subroutine sort_vector(vec, idxs)
+
+  double precision, dimension(:), intent(inout) :: vec
+  integer, dimension(:), intent(inout), optional :: idxs
+
+  integer :: nelem, i, sortcounter
+  logical :: sorted
+
+! Set up indexing array
+
+  nelem = size(vec,1)
+  if (present(idxs)) then
+    do i = 1, nelem
+      idxs(i) = i
+    end do
+  end if
+
+! Bubble sorting algorithm
+
+  sorted = .false.
+  do while (.not. sorted)
+
+    sortcounter = 0
+    do i = 1, nelem-1
+      if (vec(i+1) < vec(i)) then
+        call swap_double(vec, i, i+1)
+        sortcounter = sortcounter + 1
+        if (present(idxs)) call swap_int(idxs, i, i+1)
+      end if
+    end do
+    if (sortcounter == 0) sorted = .true.
+
+  end do
+
+end subroutine sort_vector
+
 end module math_deps

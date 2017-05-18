@@ -45,12 +45,15 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   use airfoil_operations, only : my_stop
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
   use naca,               only : naca_options_type
+  use math_deps,          only : sort_vector
  
   character(*), intent(in) :: input_file
   character(80), intent(out) :: search_type, global_search, local_search,      &
                                 seed_airfoil, airfoil_file, matchfoil_file
   integer, intent(out) :: nfunctions_top, nfunctions_bot
   integer, dimension(:), allocatable, intent(inout) :: constrained_dvs
+  integer, dimension(max_addthickconst) :: sort_idxs
+  double precision, dimension(max_addthickconst) :: temp_thickmin, temp_thickmax
   type(naca_options_type), intent(out) :: naca_options
   type(pso_options_type), intent(out) :: pso_options
   type(ga_options_type), intent(out) :: ga_options
@@ -214,6 +217,18 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
     
     if (nmoment_constraint > 0) choice = ask_moment_constraints()
     if (choice == 'y') moment_constraint_type(:) = 'none'
+  end if
+
+! Sort thickness constraints in ascending x/c order
+
+  if (naddthickconst > 0) then
+    call sort_vector(addthick_x(1:naddthickconst), sort_idxs(1:naddthickconst))
+    temp_thickmin = addthick_min
+    temp_thickmax = addthick_max
+    do i = 1, naddthickconst
+      addthick_min(i) = temp_thickmin(sort_idxs(i))
+      addthick_max(i) = temp_thickmax(sort_idxs(i))
+    end do
   end if
 
 ! Set defaults for naca airfoil options
