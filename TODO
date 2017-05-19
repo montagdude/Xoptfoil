@@ -4,7 +4,6 @@ For 2.0
 
 For 1.11
 --------------------------------------------------------------------------------
-* Test xoptfoil_visualizer with python2 and python3
 * Package for Windows with needed MinGW libs
 * Update documentation with build / packaging changes
 
@@ -15,6 +14,8 @@ Complete:
 * Allow specifying ncrit per operating point
 * Option to specify y hinge location as fraction of lower->upper surface
 * Improve detection of leading edge and point ordering direction
-* Specify CLOs with flags: -i {input file}, -o {output prefix}
+* Specify input file and output prefix with -i and -o flags
 * Add proper --help and --version outputs to xoptfoil and xfoil_only
-* Additional thickness constraints
+* Allow constraining min/max thickness at specified x/c locations
+* Write stop_monitoring file so xoptfoil_visualizer can automatically detect
+  when run is done

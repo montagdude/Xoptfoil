@@ -519,6 +519,8 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
       write(iunit,'(A18,ES9.3)') " Reynolds number: ", reynolds(i)
       write(*,'(A14,F9.5)') " Mach number: ", mach(i)
       write(iunit,'(A14,F9.5)') " Mach number: ", mach(i)
+      write(*,'(A8,F9.5)') " ncrit: ", ncrit_pt(i)
+      write(iunit,'(A8,F9.5)') " ncrit: ", ncrit_pt(i)
       if (use_flap) then
         write(*,'(A25,F9.5,A12)') " Flap setting (degrees): ",                 &
                                   actual_flap_degrees(i), flapnote
