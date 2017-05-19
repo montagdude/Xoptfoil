@@ -151,6 +151,12 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
   character(100) :: restart_status_file
   character(19) :: restart_status
 
+! Delete any stop_monitoring file
+
+  iunit = 23
+  open(unit=iunit, file='stop_monitoring', status='old', iostat=stat)
+  if (stat == 0) close(iunit, status='delete')
+
 ! Restart status file setup
 
   iunit = 15
@@ -380,6 +386,12 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
 
   steps = stepsg + stepsl
   fevals = fevalsg + fevalsl
+
+! Write stop_monitoring file
+
+  iunit = 23
+  open(unit=iunit, file='stop_monitoring', status='replace')
+  close(iunit)
 
 end subroutine optimize
 
