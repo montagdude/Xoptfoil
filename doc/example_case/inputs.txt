@@ -1,0 +1,119 @@
+&optimization_options
+  search_type = 'global_and_local'
+  global_search = 'particle_swarm'
+  local_search = 'simplex'
+  seed_airfoil = 'naca'
+  shape_functions = 'hicks-henne'
+  min_bump_width = 0.1
+  nfunctions_top = 4
+  nfunctions_bot = 4
+  initial_perturb = 0.025
+  restart = .false.
+  restart_write_freq = 30
+  write_designs = .true.
+/  
+
+&operating_conditions
+  noppoint = 5
+  use_flap = .false.
+
+  op_mode(1) = 'spec-cl'
+  op_point(1) = -0.3
+  optimization_type(1) = 'min-drag'
+  reynolds(1) = 0.9E+05
+  mach(1) = 0.08
+
+  op_mode(2) = 'spec-cl'
+  op_point(2) = 0.0
+  optimization_type(2) = 'min-drag'
+  reynolds(2) = 1.5E+05
+  mach(2) = 0.10
+
+  op_mode(3) = 'spec-cl'
+  op_point(3) = 0.3
+  optimization_type(3) = 'min-drag'
+  reynolds(3) = 0.9E+05
+  mach(3) = 0.08
+
+  op_mode(4) = 'spec-cl'
+  op_point(4) = 0.8
+  optimization_type(4) = 'min-drag'
+  reynolds(4) = 8.0E+04
+  mach(4) = 0.04
+
+  op_mode(5) = 'spec-cl'
+  op_point(5) = 1.2
+  optimization_type(4) = 'min-drag'
+  reynolds(5) = 7.0E+04
+  mach(5) = 0.03
+/
+
+&constraints
+  min_thickness = 0.06
+  max_thickness = 1000.0
+  min_te_angle = 4.0
+  check_curvature = .true.
+  max_curv_reverse_top = 1
+  max_curv_reverse_bot = 1
+  curv_threshold = 0.10
+  symmetrical = .false.
+
+  moment_constraint_type(1) = 'use_seed'
+  moment_constraint_type(2) = 'use_seed'
+  moment_constraint_type(3) = 'use_seed'
+  moment_constraint_type(4) = 'none'
+  moment_constraint_type(5) = 'none'
+/
+
+&naca_airfoil
+  family  = '4'     
+  maxt = 0.10        
+  xmaxt = 0.40       
+  maxc = 0.03        
+  xmaxc = 0.40       
+  design_cl = 0.3    
+  a = 0.5            
+  leidx = 6.0        
+  reflexed = .false.  
+/
+
+&initialization
+  feasible_init = .true.
+  feasible_limit = 50000.0
+  feasible_init_attempts = 1000
+/
+
+&particle_swarm_options
+  pso_pop = 40
+  pso_tol = 0.0001
+  pso_convergence_profile = 'exhaustive'
+  pso_maxit = 700
+/
+
+&simplex_options
+  simplex_tol = 1.0E-06
+  simplex_maxit = 1000
+/
+
+&xfoil_run_options
+  ncrit = 9.0
+  xtript = 1.0
+  xtripb = 1.0
+  viscous_mode = .true.
+  silent_mode = .true.
+  bl_maxit = 100
+  vaccel = 0.01
+  fix_unconverged = .true.
+  reinitialize = .true.
+/
+
+&xfoil_paneling_options
+  npan = 160
+  cvpar = 1.0
+  cterat = 0.15
+  ctrrat = 0.2
+  xsref1 = 1.0
+  xsref2 = 1.0
+  xpref1 = 1.0
+  xpref2 = 1.0
+/
