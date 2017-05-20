@@ -12,7 +12,7 @@
 
 \begin{document}
 
-\title{Xoptfoil Version 1.10.0 User Guide}
+\title{Xoptfoil Version 1.11.0 User Guide}
 \author{Daniel Prosser}
 \date{\today}
 \maketitle
@@ -80,18 +80,18 @@ compiler used to build Xoptfoil) and mingw32-base, which includes some other too
 which will be needed.  The dialog should look something like the one in Fig.
 \ref{fig:installmingw1}(a) (note the selected items).
 
-\begin{figure}[!h]
-\centering
-   \subfloat[Selecting Fortran compiler]{
-     \includegraphics[width=0.95\textwidth]{manual_figs/selections.png}}
-
-   \subfloat[pthreads library for parallel processing]{
-     \includegraphics[width=0.95\textwidth]{manual_figs/pthreads_mingw.png}}
-   \caption{MinGW Installation Manager showing compilers and libraries to be installed.
-Note the screenshots in (a) and (b) are from different versions of the installer; hence
-the slightly different appearance.}
-\label{fig:installmingw1}
-\end{figure}
+%\begin{figure}[!h]
+%\centering
+%   \subfloat[Selecting Fortran compiler]{
+%     \includegraphics[width=0.95\textwidth]{manual_figs/selections.png}}
+%
+%   \subfloat[pthreads library for parallel processing]{
+%     \includegraphics[width=0.95\textwidth]{manual_figs/pthreads_mingw.png}}
+%   \caption{MinGW Installation Manager showing compilers and libraries to be installed.
+%Note the screenshots in (a) and (b) are from different versions of the installer; hence
+%the slightly different appearance.}
+%\label{fig:installmingw1}
+%\end{figure}
 
 In order to compile the parallel version on Windows, you also need to install the pthreads
 library.  To do that, find the three packages labeled mingw32-pthreads-w32.  In the latest
@@ -684,17 +684,17 @@ design at the requested operating points.}
 \item{\textbf{optfoil\_design\_coordinates.dat}: Airfoil coordinates for each
 progressively better design found during the optimization.  Only written if the option
 write\_designs is set to .true.  Each new design is identified under one of the ``zone
-t=...'' labels.  You can plot these using the design visualizer tool. See section 
-\ref{sec:design_visualizer} for more information.}
+t=...'' labels.  You can plot these using xoptfoil\_visualizer. See section 
+\ref{sec:xoptfoil_visualizer} for more information.}
 \item{\textbf{optfoil\_design\_polars.dat}: Airfoil polars (lift and drag coefficients) at
 the requested operating points for each progressively better design found during the 
 optimization.  Only written if the option write\_designs is set to .true.  Each new design
-is identified under one of the ``zone t=...'' labels.  You can plot these using the design
-visualizer tool. See section \ref{sec:design_visualizer} for more information.}
+is identified under one of the ``zone t=...'' labels.  You can plot these using 
+xoptfoil\_visualizer. See section \ref{sec:xoptfoil_visualizer} for more information.}
 \item{\textbf{optimization\_history.dat}: Convergence information from the optimizer,
 including the iteration, objective function value of the best design, percent improvement
 over the seed airfoil, and radius of the candidate designs. This information can be
-plotted using the design visualizer tool; see section \ref{sec:design_visualizer} for more
+plotted using xoptfoil\_visualizer; see section \ref{sec:xoptfoil_visualizer} for more
 information.}
 \item{\textbf{A number of files with the pattern restart\_*\_optfoil}: Restart data
 written by Xoptfoil.  These files are required to restart a prior optimization that was
@@ -730,13 +730,14 @@ that do not affect the number of design variables or population of designs and s
 restart successfully.  For example, Xfoil paneling and run options can be changed when
 restarting, but the number of operating points cannot. 
 
-\section{Using the design visualizer}\label{sec:design_visualizer}
+\section{Using xoptfoil\_visualizer}\label{sec:xoptfoil_visualizer}
 
-A Python script called design\_visualizer.py is provided to plot and animate airfoil
+A Python script called xoptfoil\_visualizer is provided to plot and animate airfoil
 designs generated during the optimization process, either while the optimization is going
 on or afterwards.  In order to use this tool, it is
-necessary to have Python with matplotlib and numpy installed.  Python 3 with matplotlib
-version 1.5.0 or higher is recommended.  On Windows, the easiest
+necessary to have Python with matplotlib and numpy installed. It has been tested with
+Python 2.7.x and Python 3.6.x, and matplotlib version 1.5.0 or higher is recommended.
+On Windows, the easiest
 way to achieve this is to install one of the free packaged Python distributions.  The
 Anaconda Python distribution is recommended because it is easy to install and includes
 up-to-date versions of all the required packages.  Anaconda can be downloaded here:
@@ -752,21 +753,18 @@ to your path, following a similar method to the one described in Section
 If you are using Linux, it is likely that you already have Python installed on your
 system.  However, matplotlib may not be installed by default; if so, install it from your
 distro's software repository.  Note that there may be different packages for matplotlib
-and numpy depending on whether you are using Python 2 or Python 3. 
-For example, on Ubuntu and Linux Mint, Python 2 is installed by default, and the
-matplotlib package for Python 3 is called python3-matplotlib.   Again, for best results,
-matplotlib version 1.5.0 or higher is recommended.
+and numpy depending on whether you are using Python 2 or Python 3. Again, matplotlib
+version 1.5.0 or higher is recommended.
 
-Before running the design visualizer, you must first run an optimization with the option
-write\_designs set to .true. Next, in the same directory, run the design visualizer using
-the following command:
+To use xoptfoil\_visualizer, you must first start an optimization with write\_designs set
+to .true. In the same directory, run xoptfoil\_visualizer using the following command:
 
 \begin{verbatim}
 python design_visualizer.py
 \end{verbatim}
 
-Note that design\_visualizer.py must be present in the directory where you try to run it,
-or it must be in your system path.  The design visualizer is menu based.  When it is run, 
+Note that xoptfoil\_visualizer must be present in the directory where you try to run it,
+or it must be in your system path.  xoptfoil\_visualizer is menu based.  When it is run, 
 it first asks for the case name of the optimization.  By default, this is `optfoil', but
 it will be different if you specified a different name as a command line argument to
 xoptfoil. (It is the prefix in front of the files 
@@ -818,20 +816,20 @@ the ones shown in Fig. \ref{fig:design_visualizer_plot}.  However, as mentioned
 previously, the different plot elements can be turned on or off via the plot options menu.
 To quit the design visualizer tool, enter 0 at the main menu.
 
-\begin{figure}
-\centering
-  \subfloat[Airfoils]{
-    \includegraphics[width=0.49\textwidth]{manual_figs/airfoil_plots.png}}
-  \subfloat[Aerodynamics]{
-    \includegraphics[width=0.49\textwidth]{manual_figs/aero_plots.png}}
+%\begin{figure}
+%\centering
+%  \subfloat[Airfoils]{
+%    \includegraphics[width=0.49\textwidth]{manual_figs/airfoil_plots.png}}
+%  \subfloat[Aerodynamics]{
+%    \includegraphics[width=0.49\textwidth]{manual_figs/aero_plots.png}}
+%
+%  \subfloat[Optimization history]{
+%    \includegraphics[width=0.49\textwidth]{manual_figs/optimization_history.png}}
+%\caption{Example of plots generated by design\_visualizer.py.}
+%\label{fig:design_visualizer_plot}
+%\end{figure}
 
-  \subfloat[Optimization history]{
-    \includegraphics[width=0.49\textwidth]{manual_figs/optimization_history.png}}
-\caption{Example of plots generated by design\_visualizer.py.}
-\label{fig:design_visualizer_plot}
-\end{figure}
-
-\section{Using the xfoil\_only tool}
+\section{Using xfoil\_only}
 
 Xoptfoil comes with a tool called xfoil\_only, which does exactly what it sounds like it
 does: it runs Xfoil alone without optimizing. This can be useful for getting an idea of
