@@ -45,8 +45,8 @@
 
   op_mode(1) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
   optimization_type(1) = 'min-drag'
-                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
-                           !  'max-xtr'
+                           !'min-sink', 'max-glide', 'min-drag', 'max-lift',
+                           !  'max-xtr', or 'max-lift-slope'
   op_point(1) = -0.1       !Specified Cl or specified AoA for point 1
   reynolds(1) = 0.9E+05    !Reynolds number for point 1
   mach(1) = 0.20           !Mach number for point 1
@@ -56,63 +56,48 @@
   flap_degrees(1) = 0.0    !Flap deflection in degrees for point 1 (+ve down)
   weighting(1) = 1.0       !Relative weight for operating point 1. Note: 
                            !  the code automatically normalizes weights.
+  ncrit_pt(1) = 9.0        !ncrit for operating point 1. Defaults to value from
+                           !  xfoil_run_options.
 
-  op_mode(2) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  op_mode(2) = 'spec-cl'
   optimization_type(2) = 'max-xtr'
-                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
-                           !  'max-xtr'
-  op_point(2) = 0.2        !Specified Cl or specified AoA for point 2
-  reynolds(2) = 1.5E+05    !Reynolds number for point 2
-  mach(2) = 0.30           !Mach number for point 2
+  op_point(2) = 0.2
+  reynolds(2) = 1.5E+05
+  mach(2) = 0.30
   flap_selection(2) = 'specify'
-                           !'specify' or 'optimize'; if the latter, the flap
-                           !  deflection will be selected by the optimizer
-  flap_degrees(2) = 0.0    !Flap deflection in degrees for point 2 (+ve down)
-  weighting(2) = 1.0       !Relative weight for operating point 2. Note:
-                           !  the code automatically normalizes weights.
+  flap_degrees(2) = 0.0
+  weighting(2) = 1.0
+  ncrit_pt(2) = 9.0
 
-  op_mode(3) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  op_mode(3) = 'spec-cl'
   optimization_type(3) = 'min-drag'
-                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
-                           !  'max-xtr'
-  op_point(3) = 0.6        !Specified Cl or specified AoA for point 3
-  reynolds(3) = 1.1E+05    !Reynolds number for point 3
-  mach(3) = 0.20           !Mach number for point 3
+  op_point(3) = 0.6
+  reynolds(3) = 1.1E+05
+  mach(3) = 0.20
   flap_selection(3) = 'optimize'
-                           !'specify' or 'optimize'; if the latter, the flap
-                           !  deflection will be selected by the optimizer
-  flap_degrees(3) = 0.0    !Flap deflection in degrees for point 3 (+ve down)
-  weighting(3) = 1.0       !Relative weight for operating point 3.  Note:
-                           !  the code automatically normalizes weights.
+  flap_degrees(3) = 0.0
+  weighting(3) = 1.0
+  ncrit_pt(3) = 9.0
 
-  op_mode(4) = 'spec-cl'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  op_mode(4) = 'spec-cl'
   optimization_type(4) = 'min-drag'
-                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
-                           !  'max-xtr'
-  op_point(4) = 0.9        !Specified Cl or specified AoA for point 4
-  reynolds(4) = 0.9E+05    !Reynolds number for point 4
-  mach(4) = 0.20           !Mach number for point 4
+  op_point(4) = 0.9
+  reynolds(4) = 0.9E+05
+  mach(4) = 0.20
   flap_selection(4) = 'optimize'
-                           !'specify' or 'optimize'; if the latter, the flap
-                           !  deflection will be selected by the optimizer
-  flap_degrees(4) = 0.0    !Flap deflection in degrees for point 4 (+ve down)
-  weighting(4) = 1.0       !Relative weight for operating point 4.  Note:
-                           !  the code automatically normalizes weights.
+  flap_degrees(4) = 0.0
+  weighting(4) = 1.0
+  ncrit_pt(4) = 9.0
 
-  op_mode(5) = 'spec-al'   !'spec-cl' (constant Cl) or 'spec-al' (constant AoA)
+  op_mode(5) = 'spec-al'
   optimization_type(5) = 'max-lift'
-                           !'min-sink', 'max-glide', 'min-drag', 'max-lift', or
-                           !  'max-xtr'
-  op_point(5) = 15         !Specified Cl or specified AoA for point 5
-  reynolds(5) = 0.7E+05    !Reynolds number for point 5
-  mach(5) = 0.10           !Mach number for point 5
+  op_point(5) = 15
+  reynolds(5) = 0.7E+05
+  mach(5) = 0.10
   flap_selection(5) = 'optimize'
-                           !'specify' or 'optimize'; if the latter, the flap
-                           !  deflection will be selected by the optimizer
-  flap_degrees(5) = 0.0    !Flap deflection in degrees for point 5 (+ve down)
-  weighting(5) = 0.25      !Relative weight for operating point 5.  Note:
-                           !  the code automatically normalizes weights.
-
+  flap_degrees(5) = 0.0
+  weighting(5) = 0.25
+  ncrit_pt(5) = 9.0
 /
 
 &constraints
@@ -165,9 +150,9 @@
   addthick_min(1) = 0.10   ! Min thickness at x/c 1
   addthick_max(1) = 1000.0 ! Max thickness at x/c 1
 
-  addthick_x(2) = 0.9      ! x/c location of constraint 2
-  addthick_min(2) = 0.02   ! Min thickness at x/c 2
-  addthick_max(2) = 1000.0 ! Max thickness at x/c 2
+  addthick_x(2) = 0.9
+  addthick_min(2) = 0.02
+  addthick_max(2) = 1000.0
 /
 
 &naca_airfoil
