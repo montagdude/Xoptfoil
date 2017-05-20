@@ -6,6 +6,7 @@ For 1.11
 --------------------------------------------------------------------------------
 * Package for Windows with needed MinGW libs
 * Update documentation with build / packaging changes
+* Fix date on copyright notices
 
 Complete:
 * Switch to CMake-based build system
