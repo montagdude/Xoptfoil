@@ -7,6 +7,8 @@ For 1.11
 * Package for Windows with needed MinGW libs
 * Update documentation with build / packaging changes
 * Fix date on copyright notices
+* Add AUTHORS file noting contributions from Drela/Youngren/Carmichael
+* Use run_control file to control optimization and visualization
 
 Complete:
 * Switch to CMake-based build system

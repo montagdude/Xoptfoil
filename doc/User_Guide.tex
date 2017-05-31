@@ -13,216 +13,228 @@
 \begin{document}
 
 \title{Xoptfoil Version 1.11.0 User Guide}
-\author{Daniel Prosser}
 \date{\today}
 \maketitle
 
 \tableofcontents
 
-\section{Compiling}
+\section{Installing}\label{sec:installing}
 
-For convenience, precompiled versions of Xoptfoil and its related tools are
-located in the bin/x86-64 directory for Windows and Linux. These should work as long as
-your CPU architecture is of x86-64 type, but to run the parallel version you will need to
-compile it yourself. If your computer has more than one core, it will be greatly
-beneficial to run the parallel code, so it's highly recommended that you compile it
-yourself (plus it's not hard). The steps below explain how to compile the code.
+\subsection{Linux}\label{sec:build_linux}
 
-\subsection{Linux}
+Precompiled binaries are not provided for Linux, because it is
+generally very easy to get the software required to compile it, and a build script is
+provided for convenience. CMake version 2.8.8 or later is required, as are gcc, g++, and
+gfortran. Your distribution should have packages for all of these, so locate and install
+them first through the package manager.
 
-Compiling is quite simple on Linux, but you will first need to install the compiler. The
-GNU Fortran compiler, gfortran, is recommended and can be installed via the package
-manager for your distro.  For example, on Ubuntu or Linux Mint, issue the command:
-
-\begin{verbatim}
-sudo apt-get install gfortran
-\end{verbatim}
-
-Next, navigate to the Xoptfoil/bin directory.  A Makefile is included for compiling. Issue
-the following command:
+Once the requirements are installed, all that is necessary is to run the build script.
+Navigate to the top-level Xoptfoil directory and open a terminal window there. Then, run
+the build script using the following command:
 
 \begin{verbatim}
-make -f Makefile_Linux_MacOSX
+sh build_linux.sh
 \end{verbatim}
 
-This should compile all the source files and then link them into an executable.  If for
-some reason Make isn't included on your system by default, install it using your package 
-manager. If you invoke the command above without specifying a file name, it will 
-automatically look
-for a file called ``Makefile.''  Therefore, by renaming ``Makefile\_Linux\_MacOSX'' as
-``Makefile,'' the make command can be simplified to:
+If all goes well, Xoptfoil and its related tools will be installed in linux/bin under the
+top-level Xoptfoil directory. If desired, it is possible to change this location by
+changing the INSTALLDIR variable in the build script.
+
+You may want to edit your PATH environment variable so that Xoptfoil and its related tools
+can be run from any directory. This is done by adding a line to your shell startup script,
+normally \$HOME/.bashrc, like the following:
 
 \begin{verbatim}
-make
+export PATH=/path/to/Xoptfoil/linux/bin:$PATH
 \end{verbatim}
 
-The Makefile contains various compiler options.  The default ones should work fine, but
-you can feel free to change them if you want (look up gfortran compiler flags online).
-Xoptfoil is written so that it can run in parallel on computers with multiple
-cores/threads.  This option is disabled in the precompiled binary, because it depends on
-the pthreads system library.  You can enable it by compiling Xoptfoil yourself.  If you
-want to compile it yourself but don't want to use the parallel version, comment the flag
-called OMP\_FLAG (by placing a \# character in front). Two executables are
-created: xoptfoil, which is the main optimizer, and xfoil\_only, which can be used to run 
-Xfoil by itself for an airfoil at a given set of operating conditions.
+\noindent where the string above is changed to the actual location where Xoptfoil is
+installed. A different approach is to install Xoptfoil in a system location, which can be
+accomplished most easily by simply removing the line
+`-DCMAKE\_INSTALL\_PREFIX:PATH=``\$INSTALLDIR'' \textbackslash' in the build script. The
+build script will need to be run with root privileges with this approach. Executables will
+then be installed in /usr/local/bin, which should already be in the PATH.
 
-\subsection{Windows}\label{sec:compile_windows}
+\subsection{Windows}\label{sec:install_windows}
 
-The easiest way to get compilers for Windows is the MinGW project, which provides the GNU
-compilers (gcc, g++, gfortran, etc.) and also some other tools such.  The main page for
-MinGW is \url{mingw.org}.  The installation instructions are at
-\url{http://mingw.org/wiki/Getting_Started}.  Follow the instructions under the section
-``Graphical User Interface Installer'' first.  The process is fairly simple.  Once it is
-installed, click Continue to open the MinGW installation manager.  The next step is to
-select the components to install.  You will want to select mingw32-gcc-fortran 
-(which will install gfortran, the Fortran
-compiler used to build Xoptfoil) and mingw32-base, which includes some other tools
-which will be needed.  The dialog should look something like the one in Fig.
-\ref{fig:installmingw1}(a) (note the selected items).
+The Windows release includes precompiled binaries of Xoptfoil and its related tools. These
+should work on 32-bit or 64-bit Windows computers. The release also includes some required
+libraries so that the user does not have to install compilers just to run Xoptfoil. As of
+Xoptfoil 1.11.0, parallel processing is supported in the precompiled versions; it is not
+necessary to compile the code manually to benefit from this feature.
 
-%\begin{figure}[!h]
-%\centering
-%   \subfloat[Selecting Fortran compiler]{
-%     \includegraphics[width=0.95\textwidth]{manual_figs/selections.png}}
-%
-%   \subfloat[pthreads library for parallel processing]{
-%     \includegraphics[width=0.95\textwidth]{manual_figs/pthreads_mingw.png}}
-%   \caption{MinGW Installation Manager showing compilers and libraries to be installed.
-%Note the screenshots in (a) and (b) are from different versions of the installer; hence
-%the slightly different appearance.}
-%\label{fig:installmingw1}
-%\end{figure}
+Currently, the Windows release does not have an official installer; all that is needed is
+to unzip the release package and place it somewhere convenient. The executables and
+runtime libraries are located in the bin directory. For convenience, it is recommended to
+add this directory to the PATH so that Xoptfoil can be executed from other locations. If
+you don't do this step, you will need to always run it from the bin directory where the
+executables are located or specify the full path when referencing the executables.
+To add the Xoptfoil bin directory to your path, on Windows 10:
 
-In order to compile the parallel version on Windows, you also need to install the pthreads
-library.  To do that, find the three packages labeled mingw32-pthreads-w32.  In the latest
-version of the MinGW package installer, these are listed under the MinGW Libraries
-grouping, as shown in Fig. \ref{fig:installmingw1}(b).  Mark each of these for
-installation as well as the Fortran compiler. After making those selections, select
-\textit{Apply Changes} under the Installation entry on the menu bar.  The installer will 
-download and install the compilers you need.
+\begin{enumerate}
+  \item{Type ``environment'' in the search box in the task bar.}
+  \item{Select ``Edit environment variables for your account.''}
+  \item{In the top box, labeled ``Environment variables for $<$user$>$,'' select PATH and
+then click EDIT.}
+  \item{In the window that appears, add a new entry and then type the location or browse to
+the Xoptfoil bin directory. Make sure you do not overwrite any existing entries.}
+  \item{Click OK in both windows to save the settings.}
+\end{enumerate}
 
-At this point, the needed compilers are installed.  The next thing you need to do is to
-make sure your computer can find them.  Follow the instructions under ``Environment
-Settings'' on the MinGW Getting Started web page.  You will be creating (if it doesn't
-exist) or modifying (if it already exists) the PATH user environment variable.  If this
-variable doesn't exist for the user, create it, giving it the name PATH and entering
-``C:$\backslash$MinGW$\backslash$bin'' as the value.  If it already exists, edit it,
-appending ``;C:$\backslash$MinGW$\backslash$bin'' to the end.  (If you changed the
-installation directory to something other than ``C:$\backslash$MinGW'' when you ran the
-installation manager, then enter the appropriate location instead of
-``C:$\backslash$MinGW.'')
+\begin{figure}
+\centering
+  \includegraphics[width=0.85\textwidth]{User_Guide_figs/set_path.png}
+\caption{Adding Xoptfoil to the PATH environment variable in Windows.}
+\label{fig:set_path}
+\end{figure}
 
-The next step is to compile Xoptfoil. This is process is automated using a program called
-Make.  On MinGW, this tool is called mingw32-make.  To compile Xoptfoil using Make, run the
-following command from the command line inside the Xoptfoil$\backslash$bin directory:
+The two windows should look something like Fig. \ref{fig:set_path}.
+On older versions of Windows, the process is similar, but you may need to navigate to the
+correct area of the Control Panel to find the environment variable settings, e.g. Control
+Panel $\rightarrow$ System $\rightarrow$ Advanced $\rightarrow$ Environment variables. If
+you are having trouble finding it, do an internet search for how to set the PATH
+environment variable on your version of Windows.
 
-\begin{verbatim}
-mingw32-make -f Makefile_Windows
-\end{verbatim}
+\subsubsection{Optional: compiling}
 
-This should compile all the source files and then link them into an executable.  If
-mingw32-make is not found, it is probably either because you didn't install mingw32-base
-from the MinGW installation manager or because you didn't add the MinGW$\backslash$bin
-directory to the Path system environment variable.  Check to make sure that mingw32-make
-is in the MinGW$\backslash$bin directory first.  If it's not, then install it through the
-MinGW installation manager.
+It is not necessary to compile Xoptfoil on Windows, but you are free to do so if desired
+(or if you want to make changes to the code). There are a couple prerequesites for
+compiling on Windows:
 
-If you invoke the command above without specifying a file name, it will automatically look
-for a file called ``Makefile.''  Therefore, by renaming ``Makefile\_Windows'' as
-``Makefile,'' the mingw32-make command can be simplified to:
+\begin{itemize}
+  \item{CMake version 2.8.8 or later, and}
+  \item{MinGW32 including the gcc, g++, and gfortran compilers.}
+\end{itemize}
 
-\begin{verbatim}
-mingw32-make
-\end{verbatim}
+To install CMake, just download and run the installer from the website:
+\url{https://cmake.org/download/}. Installing MinGW32 is a little bit more complicated.
+The main page for
+MinGW is \url{mingw.org}. The installation instructions are at
+\url{http://mingw.org/wiki/Getting_Started}. Follow the instructions under the section
+``Graphical User Interface Installer'' first. This process will install the MinGW
+installation manager, which is a graphical tool used to download and install the MinGW
+compilers. 
 
-The Makefile contains various compiler options.  The default ones should work fine, but
-you can feel free to change them if you want (look up gfortran compiler flags online).
-Xoptfoil is written so that it can run in parallel on computers with multiple
-cores/threads.  This option is disabled in the precompiled binary, because it depends on
-the pthreads system library.  You can enable it by compiling Xoptfoil yourself.  If you
-want to compile it yourself but don't want to use the parallel version, comment the flag
-called OMP\_FLAG (by placing a \# character in front). Two executables are
-created: xoptfoil.exe, which is the main optimizer, and xfoil\_only.exe, which can be 
-used to run Xfoil by itself for an airfoil at a given set of operating conditions.
-
-\subsubsection{Parallel Optimizer Compiling Problem on Windows}
-
-As of this writing, the latest version of MinGW GCC (4.9.3-1) does not support OpenMP.
-Therefore, if you attempt to compile with parallel support on Windows, you will get an
-error and Xoptfoil will not compile.  The way to fix this is to install an older version
-of GCC.  First, using the MinGW graphical installer, remove all packages that are at 
-version 4.9.3-1 (but do not remove any other packages). Simply browse through the list of
-packages, mark all packages for removal that list ``Installed Version'' as 4.9.3-1, and 
-then select ``Apply all changes'' from the menu.  Then, from the command line, type 
-the following commands to install the older versions of these packages:
+Unfortunately, the compiler version that appears in the installation manager does not
+properly support building parallel applications, so you need to install older versions
+instead. After installing the MinGW32 installation manager, open a Windows command prompt
+and enter the following commands to install the required versions of the compilers:
 
 \begin{verbatim}
 mingw-get install "gcc=4.8.1-4"
+mingw-get install "gcc-c++=4.8.1-4"
 mingw-get install "gcc-fortran=4.8.1-4"
 \end{verbatim}
 
-The initial removal of all installed 4.9.3-1 packages and installation of the two above
-should replace everything that you need, and you should be able to compile the parallel
-version of Xoptfoil again.
+\noindent Each command may take a few minutes to download and install the compilers. 
+It is also necessary to install mingw32-make and mingw32-pthreads-w32. These last two can
+either be installed from the command line (e.g. `mingw-get install mingw32-make') or with
+the graphical installation manager.
+
+At this point, everything you need to compile Xoptfoil should be installed. A build script
+is provided in the top-level Xoptfoil directory. Though you can run it by double-clicking,
+it is recommended to run it from the command line so that the output is visible in case
+anything goes wrong. Open a command prompt in that directory browsing there in Windows
+explorer, Shift + right-clicking, and selecting ``Open command window here.''
+Then, run the build script by entering the following command:
+
+\begin{verbatim}
+build_windows.bat
+\end{verbatim}
+
+If all goes well, Xoptfoil and its related tools will be installed in
+windows{\textbackslash}bin under
+the top-level directory.
 
 \subsection{Mac OSX}
 
-In order to compile Xoptfoil, you will need a compiler.  It is recommended to use the GNU
-Fortran compiler, gfortran.  On Mac OSX, gfortran binaries are available at 
-\url{http://gcc.gnu.org/wiki/GFortranBinaries#MacOS}.  Follow the instructions on that
-website to install gfortran.  You will also need to install a program called Make.  Make
-is available by installing Xcode developer tools from the App Store, which should
-automatically place the make executable in a directory within your path. Once you have
-gfortran and Make installed, the rest of the compiling process is identical to the Linux
-instructions above.
+To install Xoptfoil on Max OSX, you will need to compile it. (Unfortunately, I don't have a
+Mac available to create binaries and do testing.) As with the other platforms, CMake and
+a compiler suite are required. CMake is available as a dmg file from the official website:
+\url{https://cmake.org/download/}. The GNU compilers are recommended (gcc, g++, and
+gfortran), which are available for Mac OSX at
+\url{http://gcc.gnu.org/wiki/GFortranBinaries#MacOS}. Because Mac OSX is a Unix-like
+system, the build script for Linux should work for Mac OSX as well. Therefore, after
+installing CMake and the compilers, you can refer to the Linux compiling instructions in
+Section \ref{sec:build_linux} for the rest of the process.
 
 \section{Running Xoptfoil}\label{sec:running}
 
-Xoptfoil is a command-line based program.  Once you have compiled binaries for your
-machine (see the Compiling Guide), running the program is very easy.  Simply open a
-terminal (``Command Prompt'' in Windows) and navigate to the directory where the Xoptfoil
-executable resides.  For Windows, a simple batch script is included that will open a
-command prompt in the current directory when you double-click on it.  On recent versions
-of Windows, at least, you can also use Shift + Right click in the Windows Explorer file
-browser to show the expanded context menu, which will list an option to open a command 
-prompt in that directory. To run Xoptfoil, simply type the following at the command 
-prompt:
+Xoptfoil is a command-line program. While it is possible to run it by double-clicking on
+the executable file, it is better to run it from the command line. (If you double-click to
+run it and there is an error, the window will disappear and you won't be able to read the
+error message.) Open a terminal
+(``command prompt'' in Windows) and navigate to the directory where you intend to run
+Xoptfoil. (In the Windows file explorer, you can Shift + right click and select ``Open
+command window here.'' Many Linux file browsers have a similar option.)
+
+Note: these instructions assume that you have added the Xoptfoil bin directory where 
+binaries are
+located to the PATH environment variable as described in Section \ref{sec:installing}.
+To run Xoptfoil, simply type the following command:
 
 \begin{verbatim}
-xoptfoil.exe
+xoptfoil
 \end{verbatim}
 
-\noindent if you are on Windows or:
-
-\begin{verbatim}
-./xoptfoil
-\end{verbatim}
-
-\noindent if you are on Linux or Mac OSX.  This will run Xoptfoil in the current working
+\noindent This command will run Xoptfoil in the current working
 directory.  Xoptfoil uses an input file called `inputs.txt,' which must also be in the
 working directory.  If the input file is not in the working directory where Xoptfoil is
-run, the program will notify you that it can't find the file and then stop.  For that
-reason, it's important that you follow the directions above to run the program to ensure
-that the working directory will be set correctly.  If you double-click on the executable
-instead of running it from the command prompt, it's possible that the working directory
-won't be set to the directory where `inputs.txt' resides, and the program won't be able to
-find it.
+run, the program will notify you that it can't find the file and then stop. It is also
+possible
+to use an input file with a different name; see Section \ref{sec:CLOs} for instructions.
 
-By default, Xoptfoil writes the final optimized airfoil to an output file called
-`optfoil.dat.'  However, you can change the name of both the input and output file, if
-desired, by supplying command-line options (CLOs) when you run the program.  If only one 
-CLO is present, it is
-taken to be the name of the input file.  If two options are present, the first is taken to
-be the name of the input file and the second as
-the name of the output airfoil (the output file will have `.dat' appended to the name you
-specify). If none are present, the program defaults to the
-original file names.  So, for example, if you are running on Windows and you want to
-use an input file called `case1.txt' and have the final optimized airfoil written to a
-file called 'case1\_coordinates.dat,' you would invoke the command in this way:
+By default, Xoptfoil writes output files with the prefix `optfoil' (the final optimized
+airfoil is called `optfoil.dat'). However, it is also possible to change the output
+prefix, as described in Section \ref{sec:CLOs}.
+
+\subsection{Command line options}\label{sec:CLOs}
+
+Xoptfoil accepts the following command-line options:
+
+\begin{itemize}
+  \item{-i \{input file\}
+  \begin{itemize}
+    \item{Specify an input file other than `inputs.txt.' Replace \{input file\} with the
+          name (if in the working directory) or full path to the input file.}
+  \end{itemize}}
+  \item{-o \{output prefix\}
+  \begin{itemize}
+    \item{Specify an output prefix other than `optfoil.' Replace \{output prefix\} with the
+          desired string.}
+  \end{itemize}}
+  \item{\texttt{-h, --help}
+  \begin{itemize}
+    \item{Display usage information and exit.}
+  \end{itemize}}
+  \item{\texttt{-v, --version}
+  \begin{itemize}
+    \item{Display Xoptfoil version and license information and exit.}
+  \end{itemize}}
+\end{itemize}
+
+By way of example, if you wanted to use an input file called `test.txt' and have output
+files written with the prefix `my\_airfoil,' you would invoke Xoptfoil with the following
+command:
 
 \begin{verbatim}
-xoptfoil.exe case1.txt case1_coordinates
+xoptfoil -i test.txt -o my_airfoil
 \end{verbatim}
+
+\section{Controlling an ongoing optimization}\label{sec:run_control}
+
+When Xoptfoil starts an begins an optimization, it creates an empty file called
+``run\_control.'' The user can enter commands in this file to control an ongoing
+optimization. The currently available commands are:
+
+\begin{itemize}
+\item{\textbf{stop}: Write restart data and stop the optimization at the end of the
+current iteration. Also writes a stop\_monitoring command, which is described in the next
+point.}
+\item{\textbf{stop\_monitoring}: In xoptfoil\_visualizer, stop monitoring the current
+optimization and return to the main menu. See Section \ref{sec:xoptfoil_visualizer} for
+more information.}
+\end{itemize}
 
 \section{Input file}
 
@@ -237,7 +249,7 @@ namelist.  A Fortran namelist is formatted as follows:
 &namelist_title
   input1 = value1          %Comments are preceeded by a percent sign
   input2 = value2
-  textinput1 = 'string1'
+  textinput1 = `string1'
   etc.
 /
 \end{verbatim}
@@ -247,8 +259,11 @@ a '/' character.  Variables for each namelist are then listed with their respect
 values.  To change an input, simply change the value to the right of the `=' sign.  Note
 that text-based inputs (for example, the name of the seed airfoil file) need to be
 surrounded by single or double quotes.  The inputs for each of the Xoptfoil namelists,
-stored in `inputs.txt,' are explained in the following sections. Sample input files are
-included with Xoptfoil.
+stored in `inputs.txt,' are explained in the following sections. A sample input file
+called `all\_inputs.txt' is included with Xoptfoil. This file contains all possible
+inputs with comments. Many of the inputs are not required, however, and default values
+will be used if they are absent. Any absent required inputs will result in an error when
+Xoptfoil is run.
 
 \subsection{optimization\_options namelist}
 
@@ -278,7 +293,7 @@ label on the first line (though it does not need to) and then the coordinates mu
 arranged in two columns for x and y, forming a closed loop beginning and ending at the
 trailing edge. There should be no blank lines, and you should also not include the number
 of points or any other information besides a header and then the data.  If the file is not 
-in the working directory, you must include the relative path.}
+in the working directory, you must include the full or relative path.}
 \item{\textbf{shape\_functions}: Identifier for the shape functions used to parameterize
 airfoils in the optimization.  This may be `naca' or `hicks-henne'.  A user-defined number
 of these shape functions are added to the top and bottom surfaces of the seed airfoil to
@@ -308,7 +323,7 @@ previous run must be present, and most inputs should be kept the same. See Secti
 \item{\textbf{restart\_write\_freq}: How often to write restart files, in terms of number
 of iterations.}
 \item{\textbf{write\_designs}: Whether to write airfoil coordinates and polars to files
-during the optimization.  See section \ref{sec:output_files} for more information on the
+during the optimization.  See Section \ref{sec:output_files} for more information on the
 output files generated.}
 \end{enumerate}
 
@@ -322,59 +337,73 @@ relative weighting of each operating point.
 \begin{enumerate}
 \item{\textbf{noppoint}: The total number of operating points at which to evaluate
 potential designs.  A maximum of 30 is allowed.  Including more operating points makes the
-final design more robust.  With only one or two operating points, the final airfoil will
+final design more robust, but there is probably also a point of diminishing returns.
+With only one or two operating points, the final airfoil will
 probably perform quite well at those conditions but do poorly elsewhere.  Including more
 operating points is more expensive, however, because Xfoil must be run for each airfoil at
-each operating point.  The inputs below should be specified for each operating point.}
-\item{\textbf{use\_flap}: Whether flap deflections will be applied.}
+each operating point. With many operating points, it is also more likely for Xfoil to not
+converge at one of
+them, which will result in the optimizer essentially throwing out that design.
+Typically, 5 - 10 operating points spanning the range of needed conditions is a
+good number.}
+\item{\textbf{use\_flap}: Whether flap deflections will be applied in the optimization.}
 \item{\textbf{x\_flap}: Flap hinge point in x (between 0 and 1). Only used if use\_flap is
 enabled.}
-\item{\textbf{y\_flap}: Flap hinge point in y. Only used if use\_flap is enabled.}
-\item{\textbf{op\_mode(\#)} (where \# is an integer ranging from 1 to noppoint): Tells
+\item{\textbf{y\_flap\_spec}: Method of specifying vertical hinge location. Either `y/c'
+(vertical location normalized by chord length) or `y/t' (vertical location normalized by
+local thickness at x\_flap). The default is `y/c'. Only used if use\_flap is enabled.}
+\item{\textbf{y\_flap}: Flap hinge point in y. Only used if use\_flap is enabled. If
+y\_flap\_spec is `y/c', y\_flap refers to the vertical location of the hinge normalized by
+the chord length. If instead y\_flap\_spec is `y/t', the position is normalized by the
+local thickness at x\_flap. In the latter case, for example, -1.0 places the hinge at the
+lower surface, and 1.0 places it at the upper surface.}
+\item{\textbf{op\_mode(n)} (where n is an integer ranging from 1 to noppoint): Tells
 Xfoil whether the angle of attack or lift coefficient is being specified for this
 operating point.  May be `spec-al' for specified angle of attack or `spec-cl' for
 specified lift coefficient. `spec-cl' is usually more useful, because generally the lift
 coefficient is known as a function of the aircraft weight and flight speed during design.}
-\item{\textbf{op\_point(\#)} (where \# is an integer ranging from 1 to noppoint):
+\item{\textbf{op\_point(n)} (where n is an integer ranging from 1 to noppoint):
 Specifies either the angle of attack (in degrees) or the lift coefficient for this
 operating point, depending on whether op\_mode is `spec-al' or `spec-cl' for this
 operating point.  Note that Xfoil calculations are not accurate above stall, so do not
 specify too large a lift coefficient or angle of attack.}
-\item{\textbf{optimization\_type(\#)}: (where \# is an integer ranging from 1 to
+\item{\textbf{optimization\_type(n)}: (where n is an integer ranging from 1 to
 noppoint): Specifies the optimization objective for this operating point. Current options 
 include `min-drag' (to minimize drag), `max-glide' (to maximize 
 glide slope), `min-sink' (to minimize sink rate), `max-lift' (to maximize lift at a
-specified angle of attack), or `max-xtr' (to move the turbulent transition location as far
-towards the trailing edge as possible).}
-\item{\textbf{reynolds(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
+specified angle of attack), `max-xtr' (to move the turbulent transition location as far
+towards the trailing edge as possible), or `max-lift-slope' (to maximize the lift curve
+slope at operating point n).}
+\item{\textbf{reynolds(n)} (where n is an integer ranging from 1 to noppoint): Specifies
 the Reynolds number based on chord for this operating point.}
-\item{\textbf{mach(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
+\item{\textbf{mach(n)} (where n is an integer ranging from 1 to noppoint): Specifies
 the Mach number for this operating point.  Note that Xfoil calculations are not accurate
 at or above the transonic regime, so do not specify too high a Mach number.}
-\item{\textbf{flap\_selection(\#)} (where \# is an integer ranging from 1 to noppoint):
+\item{\textbf{flap\_selection(n)} (where n is an integer ranging from 1 to noppoint):
 Options are `specify' or `optimize'.  In the former case, the input value of flap\_degrees
 will be used at this operating point for \textit{all} designs considered by the optimizer.
 In the latter case, the optimizer will consider the flap deflection as a design variable
 and optimize it at this operating point.  The value of flap\_degrees will then be used
 only for the seed airfoil to establish the reference seed airfoil performance.}
-\item{\textbf{flap\_degrees(\#)} (where \# is an integer ranging from 1 to noppoint):
+\item{\textbf{flap\_degrees(n)} (where n is an integer ranging from 1 to noppoint):
 Specifies the flap deflection for this operating point, in degrees, with a positive
 deflection being in the downward direction. Only used if use\_flap is enabled. The
 optimized flap deflection is subject to the constraints max\_flap\_degrees and
 min\_flap\_degrees.}
-\item{\textbf{weighting(\#)} (where \# is an integer ranging from 1 to noppoint): Specifies
+\item{\textbf{weighting(n)} (where n is an integer ranging from 1 to noppoint): Specifies
 the weighting for this operating point.  Operating points with a higher weighting are
 given more importance by the optimizer.  Note that the weightings are automatically 
 normalized by the optimizer so that they add up to 1.}
+\item{\textbf{ncrit\_pt(n)} (where n is an integer ranging from 1 to noppoint): Specifies
+ncrit for this operating point. If not specified, the ncrit value from the
+xfoil\_run\_options namelist will be used.}
 \end{enumerate}
 
 \subsection{constraints namelist}
 
 Specifies aerodynamic and geometric constraints for the optimization.  Constraints are
 implemented in the optimizer by assigning a large penalty value whenever a constraint is
-violated.  Note that in addition to the user-specified constraints, there are additional
-constraints in the code to ensure convergence of Xfoil viscous calculations and to prevent
-unusual designs which Xfoil may not be able to handle well.
+violated.
 
 \begin{enumerate}
 \item{\textbf{min\_thickness}: The minimum allowable thickness of designs, as a
@@ -392,14 +421,14 @@ set it to some large negative value (the default is -0.10).}
 \item{\textbf{max\_camber}: The maximum allowable camber of designs, as a fraction of the
 chord (for example, 0.02 means 2\% camber). If you don't want to impose this constraint,
 set it to some large positive value (the default is 0.10).}
-\item{\textbf{moment\_constraint\_type(\#)} (where \# is an integer ranging from 1 to
+\item{\textbf{moment\_constraint\_type(n)} (where n is an integer ranging from 1 to
 noppoint): How to implement the pitching moment constraint for the specified operating
 point. Either `none', `specify', or `use\_seed'.  If `none', then no pitching moment 
 constraint is applied at this operating point.  If `specify', then the user specifies the 
 minimum allowable moment using the min\_moment constraint.  If `use\_seed', then the 
 pitching moment from the seed airfoil at this operating point will be taken as the minimum
 allowable.}
-\item{\textbf{min\_moment(\#)} (where \# is an integer ranging from 1 to noppoint): The 
+\item{\textbf{min\_moment(n)} (where n is an integer ranging from 1 to noppoint): The 
 minimum allowable pitching moment coefficient at the specified operating point.  A larger
 negative pitching moment will require a larger tail.  For flying-wing airfoils, this is 
 usually set to 0.  This input is only used if moment\_constraint\_type = `specify'.} 
@@ -439,6 +468,14 @@ useful if you want to ensure that the final optimized airfoil is symmetrical.  T
 airfoil does not need
 to be symmetrical to use this option (but note that Xoptfoil will actually be using a
 symmetrical version of the seed airfoil instead of the actual one).}
+\item{\textbf{naddthickconst}: Number of additional thickness constraints to specify. The
+max allowed is 10.}
+\item{\textbf{addthick\_x(n)} (where n is an integer ranging from 1 to naddthickconst):
+x/c location where additional thickness constraint n is applied.}
+\item{\textbf{addthick\_min(n)} (where n is an integer ranging from 1 to naddthickconst):
+The minimum thickness allowed at the location specified by addthick\_x(n).}
+\item{\textbf{addthick\_max(n)} (where n is an integer ranging from 1 to naddthickconst):
+The maximum thickness allowed at the location specified by addthick\_x(n).}
 \end{enumerate}
 
 \subsection{naca\_airfoil namelist}
@@ -675,49 +712,49 @@ relative path.}
 
 \section{Output files}\label{sec:output_files}
 
-The following files are written out by the program:
+The following files are written out by the program. By default, \{prefix\} is ``optfoil,''
+unless otherwise specified with the -o command line option as described in Section
+\ref{sec:CLOs}.
 
 \begin{enumerate}
-\item{\textbf{optfoil.dat}: The coordinates of the final optimized design.}
-\item{\textbf{optfoil\_performance\_summary.dat}: Aerodynamic data for the final optimized
+\item{\textbf{\{prefix\}.dat}: The coordinates of the final optimized design.}
+\item{\textbf{\{prefix\}\_performance\_summary.dat}: Aerodynamic data for the final optimized
 design at the requested operating points.}
-\item{\textbf{optfoil\_design\_coordinates.dat}: Airfoil coordinates for each
+\item{\textbf{\{prefix\}\_design\_coordinates.dat}: Airfoil coordinates for each
 progressively better design found during the optimization.  Only written if the option
 write\_designs is set to .true.  Each new design is identified under one of the ``zone
-t=...'' labels.  You can plot these using xoptfoil\_visualizer. See section 
+t=...'' labels.  You can plot these using xoptfoil\_visualizer. See Section 
 \ref{sec:xoptfoil_visualizer} for more information.}
-\item{\textbf{optfoil\_design\_polars.dat}: Airfoil polars (lift and drag coefficients) at
+\item{\textbf{\{prefix\}\_design\_polars.dat}: Airfoil polars (lift, drag, pitching
+moment coefficients, and transition locations) at
 the requested operating points for each progressively better design found during the 
 optimization.  Only written if the option write\_designs is set to .true.  Each new design
 is identified under one of the ``zone t=...'' labels.  You can plot these using 
-xoptfoil\_visualizer. See section \ref{sec:xoptfoil_visualizer} for more information.}
+xoptfoil\_visualizer. See Section \ref{sec:xoptfoil_visualizer} for more information.}
 \item{\textbf{optimization\_history.dat}: Convergence information from the optimizer,
 including the iteration, objective function value of the best design, percent improvement
 over the seed airfoil, and radius of the candidate designs. This information can be
-plotted using xoptfoil\_visualizer; see section \ref{sec:xoptfoil_visualizer} for more
+plotted using xoptfoil\_visualizer; see Section \ref{sec:xoptfoil_visualizer} for more
 information.}
-\item{\textbf{A number of files with the pattern restart\_*\_optfoil}: Restart data
+\item{\textbf{A number of files with the pattern restart\_*\_\{prefix\}}: Restart data
 written by Xoptfoil.  These files are required to restart a prior optimization that was
 terminated early. More information is available in Section \ref{sec:restarting}.}
 \end{enumerate}
 
-The prefix of each of these files can be changed from the default ``optfoil'' to something
-else via the second command-line option when xoptfoil is run. See section
-\ref{sec:running} for more information on running xoptfoil with command-line options.
-
 \section{Restarting an optimization}\label{sec:restarting}
 
 Because Xoptfoil can take several hours to optimize an airfoil design, sometimes it is
-desirable to terminate an optimization early and pick up again later.  Terminating an
-ongoing optimization my be done either by typing CTRL+C in the command window or by
-closing the command window.  Xoptfoil can restart a prior optimization
-by reading restart files that are written periodically. The file restart\_status\_optfoil
+desirable to terminate an optimization early and pick up again later. Terminating an
+ongoing optimization may be done by entering the ``stop'' command in the run\_control
+file. Xoptfoil can restart a prior optimization
+by reading restart files that are written periodically. The file
+restart\_status\_\{prefix\}
 saves the current optimization method being used, either global optimization (i.e.,
-particle swarm) or local optimization (simplex).  The file restart\_pso\_optfoil contains
+particle swarm) or local optimization (simplex).  The file restart\_pso\_\{prefix\} contains
 data required by the particle swarm optimizer to restart a prior optimization. Similarly,
-the file restart\_simplex\_optfoil contains restart data for the simplex search. (In each
-of these, if the user specifies a case name other than `optfoil' as a command-line option
-to Xoptfoil, the file names will be changed accordingly.)  Each of these files must be
+the file restart\_ga\_\{prefix\} contains restart data for the genetic algorithm,
+and restart\_simplex\_\{prefix\} contains restart data for the simplex search.
+Each of these files must be
 present in the working directory when Xoptfoil is run in order to restart properly.
 
 The two relevant inputs are \textbf{restart} and \textbf{restart\_write\_freq} in the
@@ -748,11 +785,12 @@ the option to add Python to your system path.  That way, Python can be run from 
 command prompt.  If you are not using Anaconda and the option to modify the system path is
 not offered, you should manually add the appropriate directory with the python executable
 to your path, following a similar method to the one described in Section
-\ref{sec:compile_windows} where MinGW was added to the path.
+\ref{sec:install_windows} where the Xoptfoil bin directory was added to the path.
 
 If you are using Linux, it is likely that you already have Python installed on your
 system.  However, matplotlib may not be installed by default; if so, install it from your
-distro's software repository.  Note that there may be different packages for matplotlib
+distribution's software repository.  Note that there may be different packages for 
+matplotlib
 and numpy depending on whether you are using Python 2 or Python 3. Again, matplotlib
 version 1.5.0 or higher is recommended.
 
@@ -760,16 +798,16 @@ To use xoptfoil\_visualizer, you must first start an optimization with write\_de
 to .true. In the same directory, run xoptfoil\_visualizer using the following command:
 
 \begin{verbatim}
-python design_visualizer.py
+python xoptfoil_visualizer
 \end{verbatim}
 
 Note that xoptfoil\_visualizer must be present in the directory where you try to run it,
 or it must be in your system path.  xoptfoil\_visualizer is menu based.  When it is run, 
-it first asks for the case name of the optimization.  By default, this is `optfoil', but
+it first asks for the case name of the optimization.  By default, this is `optfoil,' but
 it will be different if you specified a different name as a command line argument to
 xoptfoil. (It is the prefix in front of the files 
-\textless case name\textgreater\_design\_coordinates.dat and
-\textless case name\textgreater\_design\_polars.dat.)  The prompt looks like this:
+\{prefix\}\_design\_coordinates.dat and
+\{prefix\}\_design\_polars.dat.)  The prompt looks like this:
 
 \begin{verbatim}
 Enter the case name for the optimization (e.g., optfoil, which 
@@ -804,6 +842,8 @@ history), but it loops through all the designs and displays them in sequence. Op
 similar to option 2, except that it is used to monitor the results of an ongoing
 optimization. When this option is selected, the output files from Xoptfoil are checked at
 a regular interval, and the plots are updated automatically when new data is available. 
+Monitoring can be stopped by entering the command ``stop\_monitoring'' (without quotes) on
+a new line in the run\_control file, as described in Section \ref{sec:run_control}.
 Plotting options can be 
 changed by selecting option 4.  Available plotting options include turning on/off various
 plot elements (such as the seed airfoil, the coordinate  plot, and the polar plot), line 
@@ -812,22 +852,22 @@ options menu also allows animation frames to be saved. When this option is enabl
 option 2 is selected from the main menu, each frame of the animation will be saved to a
 PNG image file, which can later be combined together into a movie by a separate
 application such as ffmpeg.  By default, the three plots generated  will look similar to 
-the ones shown in Fig. \ref{fig:design_visualizer_plot}.  However, as mentioned
+the ones shown in Fig. \ref{fig:visualizer_plot}.  However, as mentioned
 previously, the different plot elements can be turned on or off via the plot options menu.
 To quit the design visualizer tool, enter 0 at the main menu.
 
-%\begin{figure}
-%\centering
-%  \subfloat[Airfoils]{
-%    \includegraphics[width=0.49\textwidth]{manual_figs/airfoil_plots.png}}
-%  \subfloat[Aerodynamics]{
-%    \includegraphics[width=0.49\textwidth]{manual_figs/aero_plots.png}}
-%
-%  \subfloat[Optimization history]{
-%    \includegraphics[width=0.49\textwidth]{manual_figs/optimization_history.png}}
-%\caption{Example of plots generated by design\_visualizer.py.}
-%\label{fig:design_visualizer_plot}
-%\end{figure}
+\begin{figure}
+\centering
+  \subfloat[Airfoils]{
+    \includegraphics[width=0.49\textwidth]{User_Guide_figs/visualizer_foils.png}}
+  \subfloat[Optimization history]{
+    \includegraphics[width=0.49\textwidth]{User_Guide_figs/visualizer_progress.png}}
+
+  \subfloat[Aerodynamics]{
+    \includegraphics[width=0.75\textwidth]{User_Guide_figs/visualizer_aero.png}}
+\caption{Example of plots generated by xoptfoil\_visualizer.}
+\label{fig:visualizer_plot}
+\end{figure}
 
 \section{Using xfoil\_only}
 
@@ -835,7 +875,7 @@ Xoptfoil comes with a tool called xfoil\_only, which does exactly what it sounds
 does: it runs Xfoil alone without optimizing. This can be useful for getting an idea of
 how your seed airfoil will perform before optimizing, for example, or for checking the
 performance of the optimized airfoil after the optimization. xfoil\_only uses the same
-input file as Xoptfoil, except that the many of the inputs are ignored. The relevant
+input file as Xoptfoil, except that many of the inputs are ignored. The relevant
 inputs are the seed airfoil inputs (which is the one that will be analyzed), the operating
 points, and the Xfoil settings. Note that if use\_flap is enabled, any flap angles 
 specified in the operating\_conditions namelist will be applied, even if flap\_selection
@@ -854,8 +894,10 @@ to frequently asked questions there.
 
 \section{Example cases}
 
-You can find example cases and full descriptions of why particular inputs were chosen, how
-to run them, and how to examine the outputs in the doc/example\_case directory included in
-the Xoptfoil release.
+Two example cases with full input files and plots of the outputs can be in the
+share/example\_case directory included in the Xoptfoil release. There is also a file in
+share/ called `all\_inputs.txt,' which contains all of the possible inputs with comments.
+It can be used as a template input file if desired; just be aware that many of the inputs
+may not be needed or appropriate for every case.
 
 \end{document}
