@@ -150,12 +150,13 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
              iunit, ioerr, designcounter
   character(100) :: restart_status_file
   character(19) :: restart_status
+  character(14) :: stop_reason
 
-! Delete any stop_monitoring file
+! Delete existing run_control file and rewrite it
 
   iunit = 23
-  open(unit=iunit, file='stop_monitoring', status='old', iostat=stat)
-  if (stat == 0) close(iunit, status='delete')
+  open(unit=iunit, file='run_control', status='replace')
+  close(iunit)
 
 ! Restart status file setup
 
@@ -333,7 +334,7 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
       call particleswarm(optdesign, fmin, stepsg, fevalsg, objective_function, &
                          x0, xmin, xmax, .true., f0_ref, constrained_dvs,      &
                          pso_options, restart_temp, restart_write_freq,        &
-                         designcounter, write_function)
+                         designcounter, stop_reason, write_function)
 
     else if (trim(global_search) == 'genetic_algorithm') then
 
@@ -342,15 +343,16 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
       call geneticalgorithm(optdesign, fmin, stepsg, fevalsg,                  &
                             objective_function, x0, xmin, xmax, .true.,        &
                             f0_ref, constrained_dvs, ga_options, restart_temp, &
-                            restart_write_freq, designcounter, write_function)
+                            restart_write_freq, designcounter, stop_reason,    &
+                            write_function)
 
     end if
 
 !   Update restart status and turn off restarting for local search
 
-    if (trim(search_type) == 'global_and_local') then
-      restart_status = 'local_optimization'
-    end if
+    if ( (stop_reason == "completed") .and.                                    &
+         (trim(search_type) == 'global_and_local') )                           &
+        restart_status = 'local_optimization'
     restart_temp = .false.
 
   end if
@@ -387,10 +389,13 @@ subroutine optimize(search_type, global_search, local_search, constrained_dvs, &
   steps = stepsg + stepsl
   fevals = fevalsg + fevalsl
 
-! Write stop_monitoring file
+! Write stop_monitoring command to run_control file
 
   iunit = 23
-  open(unit=iunit, file='stop_monitoring', status='replace')
+  open(unit=iunit, file='run_control', status='old', position='append',        &
+       iostat=ioerr)
+  if (ioerr /= 0) open(unit=iunit, file='run_control', status='new')
+  write(iunit,'(A)') "stop_monitoring"
   close(iunit)
 
 end subroutine optimize

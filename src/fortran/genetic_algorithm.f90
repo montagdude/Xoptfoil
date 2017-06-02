@@ -81,10 +81,11 @@ module genetic_algorithm
 subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
                             given_f0_ref, f0_ref, constrained_dvs, ga_options, &
                             restart, restart_write_freq, designcounter,        &
-                            converterfunc)
+                            stop_reason, converterfunc)
 
   use optimization_util, only : init_random_seed, initial_designs,             &
-                                design_radius, write_design, bubble_sort 
+                                design_radius, write_design, bubble_sort,      &
+                                read_run_control
 
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
@@ -103,6 +104,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   type (ga_options_type), intent(in) :: ga_options
   integer, intent(in) :: restart_write_freq
   integer, intent(out) :: designcounter
+  character(14), intent(out) :: stop_reason
 
   optional :: converterfunc
   interface
@@ -115,7 +117,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   integer, dimension(:), allocatable :: idxparents
   integer :: nconstrained, i, j, fminloc, var, stat, restartcounter, nparents
   integer :: idxparent1, idxparent2, idxstack1, idxstack2
-  integer :: iunit, ioerr
+  integer :: iunit, ioerr, k, ncommands
   double precision :: mincurr, f0, radius, mutate1, mutate2, objchild1,        &
                       objchild2
   double precision, dimension(ga_options%pop) :: objval
@@ -127,6 +129,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   character(11) :: stepchar
   character(20) :: fminchar, radchar
   character(25) :: relfminchar
+  character(80), dimension(20) :: commands
 
   nconstrained = size(constrained_dvs,1)
 
@@ -375,6 +378,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
       converged = .false.
     else
       converged = .true.
+      stop_reason = "completed"
       if (step == ga_options%maxit) then
         write(*,*) 'Warning: Genetic algorithm forced to exit due to the max'
         write(*,*) '         number of iterations being reached.'
@@ -389,6 +393,17 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
     else
       restartcounter = restartcounter + 1
     end if
+
+!   Check for commands in run_control file
+
+    call read_run_control(commands, ncommands)
+    do k = 1, ncommands
+      if (trim(commands(k)) == "stop") then
+        converged = .true.
+        stop_reason = "stop_requested"
+        write(*,*) 'Cleaning up: stop command encountered in run_control.'
+      end if
+    end do
 
 !$omp end master
 !$omp barrier
@@ -410,6 +425,11 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
 ! Close iteration history file
 
   close(iunit)
+
+! Write restart at end of optimization
+
+  if (restartcounter /= 1)                                                     &
+    call ga_write_restart(step, designcounter, dv, objval, fmin, xopt)
 
 end subroutine geneticalgorithm
 

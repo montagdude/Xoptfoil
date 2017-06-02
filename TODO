@@ -9,6 +9,7 @@ For 1.11
 * Fix date on copyright notices
 * Add AUTHORS file noting contributions from Drela/Youngren/Carmichael
 * Use run_control file to control optimization and visualization
+* Correct iteration count when restarting global + local during local search
 
 Complete:
 * Switch to CMake-based build system

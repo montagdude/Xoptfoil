@@ -59,11 +59,11 @@ module particle_swarm
 subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
                          given_f0_ref, f0_ref, constrained_dvs, pso_options,   &
                          restart, restart_write_freq, designcounter,           &
-                         converterfunc)
+                         stop_reason, converterfunc)
 
   use math_deps,         only : norm_2
   use optimization_util, only : init_random_seed, initial_designs,             &
-                                design_radius, write_design
+                                design_radius, write_design, read_run_control
 
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
@@ -82,6 +82,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   type (pso_options_type), intent(in) :: pso_options
   integer, intent(in) :: restart_write_freq
   integer, intent(out) :: designcounter
+  character(14), intent(out) :: stop_reason
 
   optional :: converterfunc
   interface
@@ -92,7 +93,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   end interface
 
   integer :: nconstrained, i, j, fminloc, var, stat, restartcounter, iunit,    &
-             ioerr
+             ioerr, k, ncommands
   double precision :: c1, c2, whigh, wlow, convrate, maxspeed, wcurr, mincurr, &
                       f0, radius
   double precision, dimension(pso_options%pop) :: objval, minvals, speed
@@ -103,6 +104,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
   character(11) :: stepchar
   character(20) :: fminchar, radchar
   character(25) :: relfminchar
+  character(80), dimension(20) :: commands
 
   nconstrained = size(constrained_dvs,1)
 
@@ -381,6 +383,7 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       converged = .false.
     else
       converged = .true.
+      stop_reason = "completed"
       if (step == pso_options%maxit) then
         write(*,*) 'Warning: PSO optimizer forced to exit due to the max number'
         write(*,*) '         of iterations being reached.'
@@ -397,6 +400,17 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
       restartcounter = restartcounter + 1
     end if
 
+!   Check for commands in run_control file
+
+    call read_run_control(commands, ncommands)
+    do k = 1, ncommands
+      if (trim(commands(k)) == "stop") then
+        converged = .true.
+        stop_reason = "stop_requested"
+        write(*,*) 'Cleaning up: stop command encountered in run_control.'
+      end if
+    end do
+
 !$omp end master
 !$omp barrier
 
@@ -411,6 +425,12 @@ subroutine particleswarm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax,    &
 ! Close iteration history file
 
   close(iunit)
+
+! Write restart at end of optimization
+
+  if (restartcounter /= 1)                                                     &
+    call pso_write_restart(step, designcounter, dv, objval, vel, speed,        &
+                           bestdesigns, minvals, wcurr)
 
 end subroutine particleswarm
 

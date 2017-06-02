@@ -442,4 +442,48 @@ subroutine write_design(filename, filestat, variables, counter)
 
 end subroutine write_design
 
+!=============================================================================80
+!
+! Reads commands from run_control file and clears any unrecognized commands
+!
+!=============================================================================80
+subroutine read_run_control(commands, ncommands)
+
+  character(80), dimension(:), intent(inout) :: commands
+  integer, intent(out) :: ncommands
+
+  character(80) :: buffer
+  integer :: rcunit, ioerr, i
+  
+  commands(:) = ""
+  ncommands = 0
+
+  rcunit = 18
+  open(unit=rcunit, file='run_control', status='old', iostat=ioerr)
+  if (ioerr /= 0) then
+    return
+  else
+    do while (1 .eq. 1)
+      read(rcunit,'(A)',end=500) buffer
+      if ( (trim(buffer) == "stop") .or.                                       &
+           (trim(buffer) == "stop_monitoring") ) then
+        commands(ncommands+1) = buffer
+        ncommands = ncommands + 1
+      else
+        write(*,*) 'Warning: unrecognized command "'//trim(buffer)//           &
+                   '" in run_control.' 
+      end if
+    end do
+  end if
+   
+500 close(rcunit)
+
+  open(unit=rcunit, file='run_control', status='replace')
+  do i = 1, ncommands
+    write(rcunit,'(A)') commands(ncommands)
+  end do
+  close(rcunit) 
+
+end subroutine read_run_control
+
 end module optimization_util

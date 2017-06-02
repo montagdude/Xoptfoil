@@ -23,7 +23,6 @@ from matplotlib import rcParams
 import numpy as np
 from math import log10, floor
 from sys import version_info
-from os import remove
 
 # Default plottiong options
 
@@ -1185,8 +1184,8 @@ def main_menu(seedfoil, designfoils, prefix):
 
     elif (choice == "3"):
       exitchoice = False
-      print("Monitoring optimization progress. To stop, create a file called " +
-            "stop_monitoring.")
+      print('Monitoring optimization progress. To stop, enter the command ' +
+            '"stop_monitoring" in run_control.')
 
       # Turn off matplotlib toolbar and temporarily disable saving images
 
@@ -1243,19 +1242,26 @@ def main_menu(seedfoil, designfoils, prefix):
         steps, fmins, relfmins, rads, ioerror = read_new_optimization_history(
                                                    steps, fmins, relfmins, rads)
         
-        # Check for stop_monitoring file
+        # Check for stop_monitoring in run_control file
 
         try:
-          f = open('stop_monitoring')
+          f = open('run_control')
         except IOError:
           continue
 
-        # If stop_monitoring file was found, delete it and break loop
- 
-        print("stop_monitoring file found. Returning to main menu.")
+        commands = []
+        for line in f:
+          commands += [line.strip()]
+          if line.strip() == "stop_monitoring":
+            print("stop_monitoring command found. Returning to main menu.")
+            monitoring = False
         f.close()
-        remove('stop_monitoring')
-        monitoring = False
+        if len(commands) > 0:
+          f = open('run_control', 'w')
+          for command in commands:
+            if command != "stop_monitoring":
+              f.write(command + '\n') 
+          f.close()
  
       # Change save_animation_frames back to original setting when done
 

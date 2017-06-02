@@ -46,7 +46,8 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
                          f0_ref, ds_options, restart, restart_write_freq,      &
                          indesigncounter, instep, converterfunc)
 
-  use optimization_util, only : bubble_sort, design_radius, write_design
+  use optimization_util, only : bubble_sort, design_radius, write_design,      &
+                                read_run_control
 
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
@@ -79,12 +80,13 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
 
   double precision :: rho, xi, gam, sigma, fr, fe, fc, f0, mincurr, radius
   integer :: i, j, nvars, stat, designcounter, restartcounter, iunit, ioerr,   &
-             prevsteps
+             prevsteps, k, ncommands
   logical :: converged, needshrink, signal_progress, new_history_file
   character(3) :: filestat
   character(11) :: stepchar
   character(20) :: fminchar, radchar
   character(25) :: relfminchar
+  character(80), dimension(20) :: commands
 
 ! Standard Nelder-Mead constants
 
@@ -272,6 +274,16 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
       restartcounter = restartcounter + 1
     end if
 
+!   Check for commands in run_control file
+
+    call read_run_control(commands, ncommands)
+    do k = 1, ncommands
+      if (trim(commands(k)) == "stop") then
+        converged = .true.
+        write(*,*) 'Cleaning up: stop command encountered in run_control.'
+      end if
+    end do
+
 !   Compute the centroid of the best nvals designs
 
     xcen(:) = 0.d0
@@ -392,6 +404,11 @@ subroutine simplexsearch(xopt, fmin, step, fevals, objfunc, x0, given_f0_ref,  &
 ! Close iteration history file
 
   close(iunit)
+
+! Write restart at end of optimization
+
+  if (restartcounter /= 1)                                                     &
+    call simplex_write_restart(step, designcounter, dv, objvals, f0, fevals)
 
 end subroutine simplexsearch
 
