@@ -1,0 +1,5 @@
+Xoptfoil is written and maintained by Daniel Prosser.
+
+Xoptfoil also includes open source code from a couple additional sources:
+-- Xfoil, originally written by Mark Drela and Harold Youngren (http://web.mit.edu/drela/Public/web/xfoil/)
+-- naca456 airfoil generator, originally written by Ralph Carmichael (pdas.com)

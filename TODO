@@ -6,8 +6,6 @@ For 1.11
 --------------------------------------------------------------------------------
 * Package for Windows with needed MinGW libs
 * Fix date on copyright notices
-* Add AUTHORS file noting contributions from Drela/Youngren/Carmichael
-* Update ChangeLog, FAQ, README
 
 Complete:
 * Switch to CMake-based build system
@@ -22,3 +20,5 @@ Complete:
 * Update User Guide
 * Ability to control running optimization with run_control file
 * Correct iteration count when restarting global + local during local search
+* Update ChangeLog, FAQ, README
+* Add AUTHORS file noting contributions from Drela/Youngren/Carmichael
