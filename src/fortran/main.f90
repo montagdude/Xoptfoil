@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2014 -- 2016 Daniel Prosser
+!  Copyright (C) 2017 Daniel Prosser
 
 program main
 
@@ -58,7 +58,7 @@ program main
 
   write(*,*)
   write(*,*) 'This is Xoptfoil: airfoil optimization with Xfoil'
-  write(*,*) 'Copyright 2014 -- 2016 Daniel Prosser'
+  write(*,*) 'Copyright 2017 Daniel Prosser'
 
 ! Read inputs from namelist file
 

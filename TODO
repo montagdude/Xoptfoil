@@ -5,7 +5,6 @@ For 2.0
 For 1.11
 --------------------------------------------------------------------------------
 * Package for Windows with needed MinGW libs
-* Fix date on copyright notices
 
 Complete:
 * Switch to CMake-based build system
@@ -22,3 +21,4 @@ Complete:
 * Correct iteration count when restarting global + local during local search
 * Update ChangeLog, FAQ, README
 * Add AUTHORS file noting contributions from Drela/Youngren/Carmichael
+* Update date on copyright notices
