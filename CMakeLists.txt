@@ -81,4 +81,4 @@ install(FILES "doc/example_case/example_case.pdf"
               DESTINATION ${DATADIR}/example_case)
 file(GLOB AIRFOILS "sample_airfoils/*.dat")
 install(FILES ${AIRFOILS} DESTINATION ${DATADIR})
-install(FILES "inputs.txt" DESTINATION ${DATADIR})
+install(FILES "all_inputs.txt" DESTINATION ${DATADIR})
