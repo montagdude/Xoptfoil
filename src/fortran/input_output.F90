@@ -772,6 +772,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
       trim(optimization_type(i)) /= 'max-lift-slope')                          &
       call my_stop("optimization_type must be 'min-drag', 'max-glide', "//     &
                    "min-sink', 'max-lift', 'max-xtr', or 'max-lift-slope'.")
+    if ((trim(optimization_type(i)) == 'max-lift-slope') .and. (noppoint == 1))&
+      call my_stop("at least two operating points are required for to "//      &
+                   "maximize lift curve slope.")
     if (ncrit_pt(i) <= 0.d0) call my_stop("ncrit_pt must be > 0 or -1.")
   end do
 

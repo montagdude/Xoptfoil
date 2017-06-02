@@ -2,7 +2,16 @@ Version notes
 --------------------------------------------------------------------------------
 Version 1.11.0
 -- Allow min_te_angle to be 0
+-- Add optimization type to maximize lift curve slope
+-- Add ability to specify ncrit per operating point
+-- Add option to specify y hinge location as fraction of local thickness
+-- Improve detection of leading edge and point ordering direction
+-- Add ability to constrain thickness at specified x/c locations
+-- Add ability to control a running optimization with run_control file
+-- Change how command line options work and add --help and --version options
+-- Correct iteration count when restarting a global+local optimization during the local search
 -- Change to CMake-based build system
+-- Package Windows build with shared libraries needed to run in parallel without having to compile
 
 Version 1.10.0
 -- Support automatic generation of more NACA airfoil families: modified 4-digit, 5-digit, 6, and 6A series.

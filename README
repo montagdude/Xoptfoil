@@ -1,7 +1,7 @@
 This is Xoptfoil, an airfoil optimization code using the Xfoil aerodynamics
 engine.
 
-Copyright 2014--2016 Daniel Prosser.
+Copyright 2017 Daniel Prosser.
 
 Xoptfoil uses the GNU Public License Version 3, a copy of which can be found in the license directory.
 
@@ -17,10 +17,8 @@ Code features:
 -- Xfoil engine accurately predicts transition, separation bubbles, and stall at low Reynolds numbers
 -- Includes a graphical tool to monitor the optimization and plot the results
 
-Compiling instructions are included in the User Guide.
+Installing and compiling instructions are included in the User Guide.
 
 Options are stored in the fortran namelist file inputs.txt.  This file sets basic optimization options, operating conditions, constraints, and Xfoil paneling and run settings.
-
-In addition to the optimization code, an tool to run Xfoil alone is include, as well as a python/matplotlib script to visualize optimization progress.
 
 For complete version notes, see ChangeLog.
