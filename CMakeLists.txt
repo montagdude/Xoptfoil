@@ -5,7 +5,7 @@ project(Xoptfoil)
 enable_language(Fortran)
 
 # Some default directories
-set(DATADIR ${CMAKE_INSTALL_PREFIX}/share/xoptfoil
+set(DATADIR ${CMAKE_INSTALL_PREFIX}/share
     CACHE PATH "Directory to install shared data and examples."
 )
 
@@ -69,7 +69,7 @@ add_executable("xfoil_only" $<TARGET_OBJECTS:MYOBJLIB> "src/fortran/xfoil_only.f
 
 # Installation
 install(TARGETS xoptfoil xfoil_only DESTINATION bin)
-install(FILES src/python/xoptfoil_visualizer
+install(FILES src/python/xoptfoil_visualizer.py
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ             GROUP_EXECUTE
                     WORLD_READ             WORLD_EXECUTE
@@ -80,5 +80,5 @@ install(FILES "doc/example_case/example_case.pdf"
               "doc/example_case/inputs_withflap.txt" 
               DESTINATION ${DATADIR}/example_case)
 file(GLOB AIRFOILS "sample_airfoils/*.dat")
-install(FILES ${AIRFOILS} DESTINATION ${DATADIR})
-install(FILES "all_inputs.txt" DESTINATION ${DATADIR})
+install(FILES ${AIRFOILS} DESTINATION ${DATADIR}/sample_airfoils)
+install(FILES "doc/all_inputs.txt" DESTINATION ${DATADIR})

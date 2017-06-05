@@ -1,45 +1,78 @@
 #!/bin/bash
 
-# Check input
-version=$1
-if [ "$version" == "" ]; then
-  echo
-  echo "Usage: ./packager.sh {xoptfoil_version}"
-  echo
-  exit
+if [ $# -ne 1 ]; then
+  echo "Usage: packager.sh xoptfoil_version"
+  exit 1
 fi
 
-# Create directory
-dir="Xoptfoil_${version}"
-cdir="."
-if [ -d "$dir" ]; then
-  rm -rf $dir
-fi
+VERSION=$1
 
-# Copy files
-mkdir $dir
-mkdir $dir/src
-mkdir $dir/bin
-mkdir $dir/doc
-mkdir $dir/doc/example_case
-cp -r $cdir/src/fortran/ $dir/src
-cp -r $cdir/license/ $dir
-cp -r $cdir/sample_airfoils/ $dir
-cp $cdir/bin/inputs.txt $dir/bin
-cp $cdir/bin/Makefile_* $dir/bin
-cp $cdir/bin/windows_cmd_prompt_here.bat $dir/bin
-cp $cdir/bin/design_visualizer.py $dir/bin
-cp -r $cdir/bin/x86-64/ $dir/bin
-cp $cdir/README $dir
-cp $cdir/INSTALL $dir
-cp $cdir/CHANGELOG $dir
-cp $cdir/FAQ $dir
-cp $cdir/doc/User_Guide.pdf $dir/doc
-cp $cdir/doc/example_case/example_case.pdf $dir/doc/example_case
-cp $cdir/doc/example_case/inputs*.txt $dir/doc/example_case
+SRC_RELEASE="xoptfoil_${VERSION}_linux-source"
+WIN_RELEASE="xoptfoil_${VERSION}_windows"
+rm -rf $SRC_RELEASE
+rm -rf $WIN_RELEASE
+rm -rf tmp
+mkdir $SRC_RELEASE
+mkdir $WIN_RELEASE
+mkdir tmp
 
-# Zip it
-zip -r ${dir}.zip $dir
+# Top directory: ASCII docs and build scripts
+COPYDIR=.
+COPYLIST="${COPYDIR}/AUTHORS \
+          ${COPYDIR}/CMakeLists.txt \
+          ${COPYDIR}/COPYING \
+          ${COPYDIR}/ChangeLog \
+          ${COPYDIR}/FAQ \
+          ${COPYDIR}/INSTALL \
+          ${COPYDIR}/README"
+cp $COPYLIST tmp
 
-# Remove $dir once it's been zipped
-rm -rf $dir
+# src directory
+COPYDIR='src/fortran src/python'
+DESTDIR=src
+mkdir tmp/$DESTDIR
+cp -r $COPYDIR tmp/$DESTDIR
+
+# doc directory: User guide and input file template
+COPYDIR=doc
+DESTDIR=doc
+COPYLIST="${COPYDIR}/User_Guide.pdf \
+          ${COPYDIR}/all_inputs.txt"
+mkdir tmp/$DESTDIR
+cp $COPYLIST tmp/$DESTDIR
+
+# doc/example_case directory: example cases
+COPYDIR=doc/example_case
+DESTDIR=doc/example_case
+COPYLIST="${COPYDIR}/example_case.pdf \
+          ${COPYDIR}/inputs.txt \
+          ${COPYDIR}/inputs_withflap.txt"
+mkdir tmp/$DESTDIR
+cp $COPYLIST tmp/$DESTDIR
+
+# sample_airfoils directory: sample airfoils
+COPYDIR=sample_airfoils
+cp -r $COPYDIR tmp
+
+# Copy into release directories and remove tmp directory
+cp -r tmp/* $SRC_RELEASE
+cp -r tmp/* $WIN_RELEASE
+rm -rf tmp
+
+# Build scripts
+cp build_linux.sh $SRC_RELEASE
+cp build_windows.bat $WIN_RELEASE
+
+# Windows executables and DLLs
+COPYLIST='windows/bin/* mingw32_dlls/*'
+DESTDIR=bin
+mkdir $WIN_RELEASE/$DESTDIR
+cp $COPYLIST $WIN_RELEASE/$DESTDIR
+
+# Create tarball/zip
+rm -f $SRC_RELEASE.tar.gz
+rm -f $WIN_RELEASE.zip
+tar -czvf $SRC_RELEASE.tar.gz $SRC_RELEASE
+zip -rv $WIN_RELEASE.zip $WIN_RELEASE
+rm -rf $SRC_RELEASE
+rm -rf $WIN_RELEASE

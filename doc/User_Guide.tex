@@ -36,6 +36,13 @@ the build script using the following command:
 sh build_linux.sh
 \end{verbatim}
 
+\noindent or, as long as you have set executable permissions on the script, you can just
+use:
+
+\begin{verbatim}
+./build_linux.sh
+\end{verbatim}
+
 If all goes well, Xoptfoil and its related tools will be installed in linux/bin under the
 top-level Xoptfoil directory. If desired, it is possible to change this location by
 changing the INSTALLDIR variable in the build script.
@@ -769,7 +776,7 @@ restarting, but the number of operating points cannot.
 
 \section{Using xoptfoil\_visualizer}\label{sec:xoptfoil_visualizer}
 
-A Python script called xoptfoil\_visualizer is provided to plot and animate airfoil
+A Python script called xoptfoil\_visualizer.py is provided to plot and animate airfoil
 designs generated during the optimization process, either while the optimization is going
 on or afterwards.  In order to use this tool, it is
 necessary to have Python with matplotlib and numpy installed. It has been tested with
@@ -781,7 +788,7 @@ up-to-date versions of all the required packages.  Anaconda can be downloaded he
 \url{https://www.continuum.io/downloads}.
 
 When installing Anaconda (or whichever Python distribution is chosen), be sure to check
-the option to add Python to your system path.  That way, Python can be run from the
+the option to add Python to your PATH.  That way, Python can be run from the
 command prompt.  If you are not using Anaconda and the option to modify the system path is
 not offered, you should manually add the appropriate directory with the python executable
 to your path, following a similar method to the one described in Section
@@ -798,11 +805,12 @@ To use xoptfoil\_visualizer, you must first start an optimization with write\_de
 to .true. In the same directory, run xoptfoil\_visualizer using the following command:
 
 \begin{verbatim}
-python xoptfoil_visualizer
+xoptfoil_visualizer.py
 \end{verbatim}
 
-Note that xoptfoil\_visualizer must be present in the directory where you try to run it,
-or it must be in your system path.  xoptfoil\_visualizer is menu based.  When it is run, 
+Note that xoptfoil\_visualizer.py must be present in the directory where you try to run it,
+or it must be in your PATH environment variable as described in Section
+\ref{sec:installing}. xoptfoil\_visualizer is menu based.  When it is run, 
 it first asks for the case name of the optimization.  By default, this is `optfoil,' but
 it will be different if you specified a different name as a command line argument to
 xoptfoil. (It is the prefix in front of the files 
@@ -895,8 +903,8 @@ to frequently asked questions there.
 \section{Example cases}
 
 Two example cases with full input files and plots of the outputs can be in the
-share/example\_case directory included in the Xoptfoil release. There is also a file in
-share/ called `all\_inputs.txt,' which contains all of the possible inputs with comments.
+doc/example\_case directory included in the Xoptfoil release. There is also a file in
+doc/ called `all\_inputs.txt,' which contains all of the possible inputs with comments.
 It can be used as a template input file if desired; just be aware that many of the inputs
 may not be needed or appropriate for every case.
 

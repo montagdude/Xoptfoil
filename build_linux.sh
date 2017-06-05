@@ -2,14 +2,9 @@
 
 INSTALLDIR=$(pwd)/linux
 
-if [ -d build ]; then
-  rm -rf build
-fi
+rm -rf build
 mkdir build
-
-if [ -d linux ]; then
-  rm -rf linux
-fi
+rm -rf linux
 
 cd build
 
