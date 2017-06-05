@@ -7,8 +7,8 @@ fi
 
 VERSION=$1
 
-SRC_RELEASE="xoptfoil_${VERSION}_linux-source"
-WIN_RELEASE="xoptfoil_${VERSION}_windows"
+SRC_RELEASE="Xoptfoil-${VERSION}-linux_source"
+WIN_RELEASE="Xoptfoil-${VERSION}-windows"
 rm -rf $SRC_RELEASE
 rm -rf $WIN_RELEASE
 rm -rf tmp
