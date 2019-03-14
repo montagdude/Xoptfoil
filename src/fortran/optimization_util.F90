@@ -464,7 +464,7 @@ subroutine read_run_control(commands, ncommands)
     return
   else
     do while (1 .eq. 1)
-      read(rcunit,'(A)',end=500) buffer
+      read(rcunit,'(A)',end=501) buffer
       if ( (trim(buffer) == "stop") .or.                                       &
            (trim(buffer) == "stop_monitoring") ) then
         commands(ncommands+1) = buffer
@@ -476,8 +476,9 @@ subroutine read_run_control(commands, ncommands)
     end do
   end if
    
-500 close(rcunit)
-501 return
+500 write(*,*) "Warning: error encountered while reading run_control. Skipping."
+  return
+501 close(rcunit)
 
   open(unit=rcunit, file='run_control', status='replace')
   do i = 1, ncommands
