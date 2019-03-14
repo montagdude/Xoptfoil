@@ -459,7 +459,7 @@ subroutine read_run_control(commands, ncommands)
   ncommands = 0
 
   rcunit = 18
-  open(unit=rcunit, file='run_control', status='old', iostat=ioerr)
+  open(unit=rcunit, file='run_control', status='old', iostat=ioerr, err=501)
   if (ioerr /= 0) then
     return
   else
@@ -477,6 +477,7 @@ subroutine read_run_control(commands, ncommands)
   end if
    
 500 close(rcunit)
+501 return
 
   open(unit=rcunit, file='run_control', status='replace')
   do i = 1, ncommands
