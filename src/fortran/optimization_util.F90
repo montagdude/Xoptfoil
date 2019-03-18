@@ -480,11 +480,13 @@ subroutine read_run_control(commands, ncommands)
   return
 501 close(rcunit)
 
-  open(unit=rcunit, file='run_control', status='replace')
+  open(unit=rcunit, file='run_control', status='replace', err=502)
   do i = 1, ncommands
     write(rcunit,'(A)') commands(ncommands)
   end do
   close(rcunit) 
+
+502 write(*,*) "Warning: error encountered while reading run_control. Skipping."
 
 end subroutine read_run_control
 
