@@ -486,6 +486,8 @@ subroutine read_run_control(commands, ncommands)
   end do
   close(rcunit) 
 
+  return
+
 502 write(*,*) "Warning: error encountered while reading run_control. Skipping."
 
 end subroutine read_run_control
