@@ -1,0 +1,2 @@
+This is not an airfoil file.
+I'm sure of it.

@@ -7,10 +7,11 @@ from PyQt5 import QtWidgets
 from mainwindow import Ui_MainWindow
 from data import Data
 
-class mywindow(QtWidgets.QMainWindow):
+class XoptfoilMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        super(mywindow, self).__init__()
+        super(XoptfoilMainWindow, self).__init__()
         self.data = Data()
+        self.currpath = os.getcwd()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -22,14 +23,26 @@ class mywindow(QtWidgets.QMainWindow):
 
     # Loads seed airfoil from file
     def loadSeed(self):
-        fname, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load seed airfoil", os.getcwd())
-        if not self.data.readSeedAirfoil(fname):
-            msg  = "Unable to read airfoil file {:s}.".format(fname)
-            msg += " Not a valid airfoil file."
-            QtWidgets.QMessageBox.critical(self, "Error", msg)
+        fname, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load seed airfoil",
+                                                         self.currpath)
+        if fname == "":
+            return
+        else:
+            self.currpath = os.path.dirname(fname)
+
+        retval = self.data.readSeedAirfoil(fname)
+        errmsg = None
+        if retval == 1:
+            errmsg  = "Unable to read airfoil file {:s}: I/O error.".format(fname)
+        elif retval == 2:
+            errmsg  = "Unable to read airfoil file {:s}:".format(fname)
+            errmsg += " Not a valid airfoil file."
+        if errmsg is not None:
+            QtWidgets.QMessageBox.critical(self, "Error", errmsg)
+        self.ui.mplwidget.plotAirfoils(self.data.seed_airfoil)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
-    application = mywindow()
+    application = XoptfoilMainWindow()
     application.show()
     sys.exit(app.exec())
