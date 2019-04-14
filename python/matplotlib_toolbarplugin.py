@@ -3,10 +3,11 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from matplotlib import rcParams
 from matplotlibwidget import MatplotlibWidget
+from matplotlib_toolbar import MatplotlibToolbar
 
-class MatplotlibPlugin(QPyDesignerCustomWidgetPlugin):
+class MatplotlibToolbarPlugin(QPyDesignerCustomWidgetPlugin):
     def __init__(self, parent=None):
-        super(MatplotlibPlugin, self).__init__(parent)
+        super(MatplotlibToolbarPlugin, self).__init__(parent)
         self._initialized = False
 
     def initialize(self, editor):
@@ -16,10 +17,10 @@ class MatplotlibPlugin(QPyDesignerCustomWidgetPlugin):
         return self._initialized
 
     def createWidget(self, parent):
-        return MatplotlibWidget(parent)
+        return MatplotlibToolbar(parent, None)
 
     def name(self):
-        return 'MatplotlibWidget'
+        return 'MatplotlibToolbar'
 
     def group(self):
         return 'PyQt'
@@ -38,8 +39,8 @@ class MatplotlibPlugin(QPyDesignerCustomWidgetPlugin):
         return False
 
     def domXml(self):
-        return '<widget class="MatplotlibWidget" name="mplwidget">\n' \
+        return '<widget class="MatplotlibToolbar" name="mpltoolbar">\n' \
                '</widget>\n'
 
     def includeFile(self):
-        return 'matplotlibwidget'
+        return 'matplotlib_toolbar'

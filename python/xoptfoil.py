@@ -17,6 +17,9 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("Xoptfoil")
 
+        # Connect toolbar to canvas
+        self.ui.mpltoolbar.setCanvas(self.ui.mplwidget)
+
         # Signals and slots
         self.ui.action_Load_seed_airfoil.triggered.connect(self.loadSeed)
         self.ui.action_Quit.triggered.connect(self.close)
