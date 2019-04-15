@@ -114,7 +114,14 @@
     <addaction name="action_Quit"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <addaction name="action_Xfoil_paneling"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuSettings"/>
   </widget>
   <action name="action_Quit">
    <property name="text">
@@ -138,6 +145,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="action_Xfoil_paneling">
+   <property name="text">
+    <string>&amp;Xfoil paneling</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>

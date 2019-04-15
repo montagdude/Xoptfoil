@@ -4,7 +4,12 @@ import sys
 import os
 from PyQt5 import QtWidgets
 
-from mainwindow import Ui_MainWindow
+# FIXME: this will have to be set at install time
+installdir = os.path.join(os.getcwd(), '..')
+sys.path.append(os.path.join(installdir, 'ui'))
+
+import mainwindow
+from xfoilpaneling_dialog import XfoilPanelingDialog
 from data import Data
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
@@ -13,7 +18,7 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.data = Data()
         self.currpath = os.getcwd()
 
-        self.ui = Ui_MainWindow()
+        self.ui = mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("Xoptfoil")
 
@@ -23,6 +28,7 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         # Signals and slots
         self.ui.action_Load_seed_airfoil.triggered.connect(self.loadSeed)
         self.ui.action_Quit.triggered.connect(self.close)
+        self.ui.action_Xfoil_paneling.triggered.connect(self.showXfoilPaneling)
 
     # Loads seed airfoil from file
     def loadSeed(self):
@@ -43,6 +49,11 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         if errmsg is not None:
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
         self.ui.mplwidget.plotAirfoils(self.data.seed_airfoil)
+
+    def showXfoilPaneling(self):
+        dialog = XfoilPanelingDialog()
+        retval = dialog.exec()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
