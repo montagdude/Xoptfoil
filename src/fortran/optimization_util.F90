@@ -44,6 +44,7 @@ subroutine init_random_seed()
 
   ! First try if the OS provides a random number generator
 
+  un = 18
   open(newunit=un, file="/dev/urandom", access="stream",                       &
        form="unformatted", action="read", status="old", iostat=istat)
 
