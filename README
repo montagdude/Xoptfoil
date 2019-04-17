@@ -1,7 +1,7 @@
 This is Xoptfoil, an airfoil optimization code using the Xfoil aerodynamics
 engine.
 
-Copyright 2017 Daniel Prosser.
+Copyright 2017-2019 Daniel Prosser.
 
 Xoptfoil uses the GNU Public License Version 3, a copy of which can be found in the license directory.
 

@@ -1,5 +1,10 @@
 Version notes
 --------------------------------------------------------------------------------
+Version 1.11.1
+-- Ensure shape functions go to 0 at leading edge and trailing edge
+-- Undo any scaling and translation when passing coordinates to xfoil or writing them to file to ensure moment reference point is consistent with seed airfoil
+-- If run_control file cannot be read, print a warning and continue on rather than crashing
+
 Version 1.11.0
 -- Allow min_te_angle to be 0
 -- Add optimization type to maximize lift curve slope
@@ -12,7 +17,6 @@ Version 1.11.0
 -- Correct iteration count when restarting a global+local optimization during the local search
 -- Change to CMake-based build system
 -- Package Windows build with shared libraries needed to run in parallel without having to compile
-
 Version 1.10.0
 -- Support automatic generation of more NACA airfoil families: modified 4-digit, 5-digit, 6, and 6A series.
 -- Improvements to design_visualizer.py:
