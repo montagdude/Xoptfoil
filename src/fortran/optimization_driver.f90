@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2017 Daniel Prosser
+!  Copyright (C) 2017-2019 Daniel Prosser
 
 module optimization_driver
 
@@ -456,7 +456,8 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
     dvbbnd2 = dvtbnd2
   end if
 
-! Create top and bottom surfaces by perturbation of seed airfoil
+! Format coordinates in a single loop in derived type. Also remove translation
+! and scaling to ensure Cm_x=0.25 doesn't change.
 
   call create_airfoil(xseedt, zseedt, xseedb, zseedb,                          &
                       optdesign(dvtbnd1:dvtbnd2), optdesign(dvbbnd1:dvbbnd2),  &
@@ -467,12 +468,12 @@ subroutine write_final_design(optdesign, f0, fmin, shapetype)
   final_airfoil%npoint = nptt + nptb - 1
   call allocate_airfoil(final_airfoil)
   do i = 1, nptt
-    final_airfoil%x(i) = xseedt(nptt-i+1)
-    final_airfoil%z(i) = zt_new(nptt-i+1)
+    final_airfoil%x(i) = xseedt(nptt-i+1)/foilscale - xoffset
+    final_airfoil%z(i) = zt_new(nptt-i+1)/foilscale - zoffset
   end do
   do i = 1, nptb - 1
-   final_airfoil%x(i+nptt) = xseedb(i+1)
-   final_airfoil%z(i+nptt) = zb_new(i+1)
+   final_airfoil%x(i+nptt) = xseedb(i+1)/foilscale - xoffset
+   final_airfoil%z(i+nptt) = zb_new(i+1)/foilscale - zoffset
   end do
 
 ! Use Xfoil to analyze final design

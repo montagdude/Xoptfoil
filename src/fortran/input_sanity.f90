@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2017 Daniel Prosser
+!  Copyright (C) 2017-2019 Daniel Prosser
 
 module input_sanity
 
@@ -28,15 +28,13 @@ module input_sanity
 ! minimum allowable pitching moment.
 !
 !=============================================================================80
-subroutine check_seed(xoffset, zoffset, foilscale)
+subroutine check_seed()
 
   use vardef
   use math_deps,          only : interp_vector, curvature, derv1f1, derv1b1
   use xfoil_driver,       only : run_xfoil
   use xfoil_inc,          only : AMAX, CAMBR
   use airfoil_evaluation, only : xfoil_options, xfoil_geom_options
-
-  double precision, intent(in) :: xoffset, zoffset, foilscale
 
   double precision, dimension(:), allocatable :: x_interp, thickness
   double precision, dimension(:), allocatable :: zt_interp, zb_interp

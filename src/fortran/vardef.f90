@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2017 Daniel Prosser
+!  Copyright (C) 2017-2019 Daniel Prosser
 
 module vardef
 
@@ -50,6 +50,7 @@ module vardef
   integer :: nflap_optimize          ! Number of operating points where flap 
                                      !   setting will be optimized
   integer, dimension(max_op_points) :: flap_optimize_points
+  double precision :: xoffset, zoffset, foilscale
 
   type(airfoil_type) :: curr_foil
   double precision :: min_thickness, max_thickness, min_te_angle,              &

@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2017 Daniel Prosser
+!  Copyright (C) 2017-2019 Daniel Prosser
 
 program main
 
@@ -47,7 +47,7 @@ program main
              restart_write_freq 
   double precision, dimension(:), allocatable :: optdesign
   integer, dimension(:), allocatable :: constrained_dvs
-  double precision :: f0, fmin, xoffset, zoffset, foilscale
+  double precision :: f0, fmin
   logical :: restart
 
 ! Set default names and read command line arguments
@@ -116,7 +116,7 @@ program main
 ! Make sure seed airfoil passes constraints, and get scaling factors for
 ! operating points
 
-  call check_seed(xoffset, zoffset, foilscale)
+  call check_seed()
 
 ! Optimize
   
