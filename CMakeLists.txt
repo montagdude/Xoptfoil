@@ -1,6 +1,6 @@
 # Set up project
 cmake_minimum_required(VERSION 2.8.8)
-set(XOPTFOIL_VERSION 1.11.0)
+set(XOPTFOIL_VERSION 1.11.1)
 project(Xoptfoil)
 enable_language(Fortran)
 
