@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2017 Daniel Prosser
+!  Copyright (C) 2017-2019 Daniel Prosser
 
 module input_output
 
@@ -1037,7 +1037,7 @@ end subroutine read_clo
 subroutine print_version()
 
   write(*,'(A)') "Xoptfoil "//trim(PACKAGE_VERSION)
-  write(*,'(A)') "Copyright (C) 2017 Daniel Prosser"
+  write(*,'(A)') "Copyright (C) 2017-2019 Daniel Prosser"
   write(*,'(A)') "License GPLv3+: GNU GPL version 3 or later "//               &
                  "<http://gnu.org/licenses/gpl.html>"
   write(*,'(A)') "This is free software: you are free to change and "//        &
