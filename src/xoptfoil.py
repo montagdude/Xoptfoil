@@ -4,7 +4,8 @@ import sys
 import os
 from PyQt5 import QtWidgets
 
-# FIXME: this will have to be set at install time
+# FIXME: this will have to be set at install time. Also doesn't work if not
+# run in the src directory, so obviously this is only temporary.
 installdir = os.path.join(os.getcwd(), '..')
 sys.path.append(os.path.join(installdir, 'ui'))
 

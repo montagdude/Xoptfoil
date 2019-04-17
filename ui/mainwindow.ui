@@ -120,8 +120,22 @@
     </property>
     <addaction name="action_Xfoil_paneling"/>
    </widget>
+   <widget class="QMenu" name="menuOperating_Points">
+    <property name="title">
+     <string>&amp;Operating Points</string>
+    </property>
+    <addaction name="actionSet_Operating_Points"/>
+   </widget>
+   <widget class="QMenu" name="menuConstraints">
+    <property name="title">
+     <string>&amp;Constraints</string>
+    </property>
+    <addaction name="action_Set_constraints"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuOperating_Points"/>
+   <addaction name="menuConstraints"/>
   </widget>
   <action name="action_Quit">
    <property name="text">
@@ -153,6 +167,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionSet_Operating_Points">
+   <property name="text">
+    <string>&amp;Set operating points</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Set_constraints">
+   <property name="text">
+    <string>&amp;Set constraints</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
  </widget>

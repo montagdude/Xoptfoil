@@ -22,8 +22,17 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
      <item row="1" column="2">
       <widget class="QLabel" name="label_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Bunching parameter</string>
        </property>
@@ -31,6 +40,12 @@
      </item>
      <item row="2" column="3">
       <widget class="QDoubleSpinBox" name="ctrratBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximum">
         <double>99.000000000000000</double>
        </property>
@@ -44,6 +59,12 @@
      </item>
      <item row="3" column="2">
       <widget class="QLabel" name="label_6">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Right top side refinement limit</string>
        </property>
@@ -51,6 +72,12 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>TE/LE panel density ratio</string>
        </property>
@@ -58,6 +85,12 @@
      </item>
      <item row="1" column="3">
       <widget class="QDoubleSpinBox" name="cvparBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximum">
         <double>99.000000000000000</double>
        </property>
@@ -71,6 +104,12 @@
      </item>
      <item row="3" column="3">
       <widget class="QDoubleSpinBox" name="xsref2Box">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximum">
         <double>1.000000000000000</double>
        </property>
@@ -84,6 +123,12 @@
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_7">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Left bottom side refinement limit</string>
        </property>
@@ -91,6 +136,12 @@
      </item>
      <item row="4" column="2">
       <widget class="QLabel" name="label_8">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Right bottom side refinement limit</string>
        </property>
@@ -98,6 +149,12 @@
      </item>
      <item row="4" column="3">
       <widget class="QDoubleSpinBox" name="xpref2Box">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximum">
         <double>1.000000000000000</double>
        </property>
@@ -111,6 +168,12 @@
      </item>
      <item row="1" column="1">
       <widget class="QSpinBox" name="npanBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimum">
         <number>10</number>
        </property>
@@ -124,6 +187,12 @@
      </item>
      <item row="4" column="1">
       <widget class="QDoubleSpinBox" name="xpref1Box">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximum">
         <double>1.000000000000000</double>
        </property>
@@ -137,6 +206,12 @@
      </item>
      <item row="2" column="1">
       <widget class="QDoubleSpinBox" name="cteratBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximum">
         <double>99.000000000000000</double>
        </property>
@@ -150,6 +225,12 @@
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_5">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Left top side refinement limit</string>
        </property>
@@ -157,6 +238,12 @@
      </item>
      <item row="3" column="1">
       <widget class="QDoubleSpinBox" name="xsref1Box">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximum">
         <double>1.000000000000000</double>
        </property>
@@ -170,6 +257,12 @@
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Number of panels</string>
        </property>
@@ -177,6 +270,12 @@
      </item>
      <item row="2" column="2">
       <widget class="QLabel" name="label_4">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Refined area panel density ratio</string>
        </property>
@@ -198,17 +297,17 @@
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
      <property name="spacing">
       <number>6</number>
+     </property>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMinimumSize</enum>
      </property>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::MinimumExpanding</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -220,6 +319,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="okButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>&amp;Ok</string>
        </property>
@@ -236,6 +341,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="cancelButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>&amp;Cancel</string>
        </property>
