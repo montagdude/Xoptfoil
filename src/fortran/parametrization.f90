@@ -13,7 +13,7 @@
 !  You should have received a copy of the GNU General Public License
 !  along with XOPTFOIL.  If not, see <http://www.gnu.org/licenses/>.
 
-!  Copyright (C) 2017 Daniel Prosser
+!  Copyright (C) 2017-2019 Daniel Prosser
 
 module parametrization
 
@@ -129,8 +129,11 @@ subroutine create_shape(x, modes, shapetype, shape_function)
 
   integer :: npt, nmodes, i, j, counter1, counter2
   double precision :: power1, power2, dvscale, st, t1, t2, t1fact, t2fact, pi
+  double precision :: chord, xle, xs
 
   npt = size(x,1)
+  chord = x(npt) - x(1)
+  xle = x(1)
 
   shape_switch: if (trim(shapetype) == 'naca') then
 
@@ -139,7 +142,8 @@ subroutine create_shape(x, modes, shapetype, shape_function)
 !   Create naca shape functions
 
     do j = 1, npt
-      shape_function(1,j) = sqrt(x(j)) - x(j)
+      xs = (x(j)-xle)/chord
+      shape_function(1,j) = sqrt(xs) - xs
     end do
 
     counter1 = 1
@@ -153,7 +157,8 @@ subroutine create_shape(x, modes, shapetype, shape_function)
 
         power1 = dble(counter1)
         do j = 1, npt
-          shape_function(i,j) = x(j)**(power1)*(1.d0 - x(j))
+          xs = (x(j)-xle)/chord
+          shape_function(i,j) = xs**(power1)*(1.d0 - xs)
         end do
         counter2 = 2
 
@@ -164,7 +169,8 @@ subroutine create_shape(x, modes, shapetype, shape_function)
         power1 = 1.d0/dble(counter1 + 2)
         power2 = 1.d0/dble(counter1 + 1)
         do j = 1, npt
-          shape_function(i,j) = x(j)**power1 - x(j)**power2
+          xs = (x(j)-xle)/chord
+          shape_function(i,j) = xs**power1 - xs**power2
         end do
         counter2 = 1
         counter1 = counter1 + 1
@@ -205,8 +211,9 @@ subroutine create_shape(x, modes, shapetype, shape_function)
 !     Create shape function
 
       power1 = log10(0.5d0)/log10(t1)
-      do j = 1, npt
-        shape_function(i,j) = st*sin(pi*x(j)**power1)**t2
+      do j = 2, npt-1
+        xs = (x(j)-xle)/chord
+        shape_function(i,j) = st*sin(pi*xs**power1)**t2
       end do
 
     end do
