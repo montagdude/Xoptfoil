@@ -6,6 +6,7 @@ Version 1.11.1
 -- If run_control file cannot be read, print a warning and continue on rather than crashing
 -- Fix an uninitialized variable
 -- Fix some compiler warnings
+-- Package both 32-bit and 64-bit Windows binaries
 
 Version 1.11.0
 -- Allow min_te_angle to be 0
