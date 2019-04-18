@@ -88,15 +88,16 @@ subroutine check_seed()
     len1 = len2
   end do
 
-! Format coordinates in a single loop in derived type
+! Format coordinates in a single loop in derived type. Also remove translation
+! and scaling to ensure Cm_x=0.25 doesn't change.
 
   do i = 1, nptt
-    curr_foil%x(i) = xseedt(nptt-i+1)
-    curr_foil%z(i) = zseedt(nptt-i+1)
+    curr_foil%x(i) = xseedt(nptt-i+1)/foilscale - xoffset
+    curr_foil%z(i) = zseedt(nptt-i+1)/foilscale - zoffset
   end do
   do i = 1, nptb-1
-    curr_foil%x(i+nptt) = xseedb(i+1)
-    curr_foil%z(i+nptt) = zseedb(i+1)
+    curr_foil%x(i+nptt) = xseedb(i+1)/foilscale - xoffset
+    curr_foil%z(i+nptt) = zseedb(i+1)/foilscale - zoffset
   end do
   
 ! Too blunt or sharp leading edge
