@@ -589,9 +589,9 @@ subroutine read_inputs(input_file, search_type, global_search, local_search,   &
   write(*,*) " max_flap_degrees = ", max_flap_degrees
   write(*,*) " min_camber = ", min_camber
   write(*,*) " max_camber = ", max_camber
-  write(*,*)," naddthickconst = ", naddthickconst
+  write(*,*) " naddthickconst = ", naddthickconst
   do i = 1, naddthickconst
-    write(text,*), i
+    write(text,*) i
     text = adjustl(text)
     write(*,*) " addthick_x("//trim(text)//") = ", addthick_x(i)
     write(*,*) " addthick_min("//trim(text)//") = ", addthick_min(i)
