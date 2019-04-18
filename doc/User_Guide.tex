@@ -12,7 +12,7 @@
 
 \begin{document}
 
-\title{Xoptfoil Version 1.11.0 User Guide}
+\title{Xoptfoil Version 1.11.1 User Guide}
 \date{\today}
 \maketitle
 
@@ -64,11 +64,13 @@ then be installed in /usr/local/bin, which should already be in the PATH.
 
 \subsection{Windows}\label{sec:install_windows}
 
-The Windows release includes precompiled binaries of Xoptfoil and its related tools. These
-should work on 32-bit or 64-bit Windows computers. The release also includes some required
-libraries so that the user does not have to install compilers just to run Xoptfoil. As of
-Xoptfoil 1.11.0, parallel processing is supported in the precompiled versions; it is not
-necessary to compile the code manually to benefit from this feature.
+The Windows release includes precompiled binaries of Xoptfoil and its related tools. There
+are both 64-bit and 32-bit binaries. Both should work on a 64-bit operating system, but
+only the 32-bit binaries will work on a 32-bit operating system.  The release also
+includes some required libraries so that the user does not have to install compilers just
+to run Xoptfoil. As of Xoptfoil 1.11.0, parallel processing is supported in the
+precompiled versions; it is not necessary to compile the code manually to benefit from
+this feature.
 
 Currently, the Windows release does not have an official installer; all that is needed is
 to unzip the release package and place it somewhere convenient. The executables and
@@ -110,7 +112,7 @@ compiling on Windows:
 
 \begin{itemize}
   \item{CMake version 2.8.8 or later, and}
-  \item{MinGW32 including the gcc, g++, and gfortran compilers.}
+  \item{MinGW32 or MinGW64 including the gcc, g++, and gfortran compilers.}
 \end{itemize}
 
 To install CMake, just download and run the installer from the website:
@@ -120,23 +122,12 @@ MinGW is \url{mingw.org}. The installation instructions are at
 \url{http://mingw.org/wiki/Getting_Started}. Follow the instructions under the section
 ``Graphical User Interface Installer'' first. This process will install the MinGW
 installation manager, which is a graphical tool used to download and install the MinGW
-compilers. 
-
-Unfortunately, the compiler version that appears in the installation manager does not
-properly support building parallel applications, so you need to install older versions
-instead. After installing the MinGW32 installation manager, open a Windows command prompt
-and enter the following commands to install the required versions of the compilers:
-
-\begin{verbatim}
-mingw-get install "gcc=4.8.1-4"
-mingw-get install "gcc-c++=4.8.1-4"
-mingw-get install "gcc-fortran=4.8.1-4"
-\end{verbatim}
-
-\noindent Each command may take a few minutes to download and install the compilers. 
-It is also necessary to install mingw32-make and mingw32-pthreads-w32. These last two can
-either be installed from the command line (e.g. `mingw-get install mingw32-make') or with
-the graphical installation manager.
+compilers. In addition to the compilers, you should also install mingw32-make and any
+pthreads packages (on MinGW32, these are called mingw32-pthreads-w32). The precompiled
+binaries have been built with GCC version 6.3.0 on MinGW32 and 5.4.0 on MinGW64, so these
+versions are known to work. MinGW64 can be downloaded at
+\url{https://sourceforge.net/projects/mingw-w64/files/mingw-w64/}. However, if your
+operating system in 64-bit, MinGW32 will also work fine; you do not need to use MinGW64.
 
 At this point, everything you need to compile Xoptfoil should be installed. A build script
 is provided in the top-level Xoptfoil directory. Though you can run it by double-clicking,
