@@ -119,6 +119,7 @@
      <string>&amp;Settings</string>
     </property>
     <addaction name="action_Xfoil_paneling"/>
+    <addaction name="actionPlot_settings"/>
    </widget>
    <widget class="QMenu" name="menuOperating_Points">
     <property name="title">
@@ -183,6 +184,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionPlot_settings">
+   <property name="text">
+    <string>Plot settings</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
  </widget>
