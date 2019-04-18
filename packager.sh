@@ -64,9 +64,14 @@ cp build_linux.sh $SRC_RELEASE
 cp build_windows.bat $WIN_RELEASE
 
 # Windows executables and DLLs
-COPYLIST='windows/bin/* mingw32_dlls/*'
-DESTDIR=bin
-mkdir $WIN_RELEASE/$DESTDIR
+COPYLIST='win32/bin/* mingw32_dlls/*'
+DESTDIR=bin/win32
+mkdir -p $WIN_RELEASE/$DESTDIR
+cp $COPYLIST $WIN_RELEASE/$DESTDIR
+
+COPYLIST='win64/bin/* mingw64_dlls/*'
+DESTDIR=bin/win64
+mkdir -p $WIN_RELEASE/$DESTDIR
 cp $COPYLIST $WIN_RELEASE/$DESTDIR
 
 # Create tarball/zip
