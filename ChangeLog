@@ -1,9 +1,11 @@
 Version notes
 --------------------------------------------------------------------------------
 Version 1.11.1
--- Ensure shape functions go to 0 at leading edge and trailing edge
+-- Ensure shape functions go to 0 at leading edge and trailing edge so that trailing edge thickness is preserved
 -- Undo any scaling and translation when passing coordinates to xfoil or writing them to file to ensure moment reference point is consistent with seed airfoil
 -- If run_control file cannot be read, print a warning and continue on rather than crashing
+-- Fix an uninitialized variable
+-- Fix some compiler warnings
 
 Version 1.11.0
 -- Allow min_te_angle to be 0
