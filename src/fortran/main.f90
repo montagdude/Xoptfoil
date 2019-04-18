@@ -58,7 +58,7 @@ program main
 
   write(*,*)
   write(*,*) 'This is Xoptfoil: airfoil optimization with Xfoil'
-  write(*,*) 'Copyright 2017 Daniel Prosser'
+  write(*,*) 'Copyright 2017-2019 Daniel Prosser'
 
 ! Read inputs from namelist file
 
