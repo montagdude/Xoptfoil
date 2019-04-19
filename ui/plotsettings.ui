@@ -6,25 +6,35 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>217</height>
+    <width>348</width>
+    <height>247</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Plot Settings</string>
+   <string>Plot settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
+     <item row="0" column="0" colspan="2">
+      <widget class="QCheckBox" name="showSeedBox">
+       <property name="text">
+        <string>Show seed airfoil</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Display mode</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="comboBox">
+     <item row="1" column="1">
+      <widget class="QComboBox" name="displayModeBox">
        <item>
         <property name="text">
          <string>Current design</string>
@@ -42,8 +52,8 @@
        </item>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_4">
+     <item row="2" column="0">
+      <widget class="QLabel" name="designNumberLabel">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -52,20 +62,18 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="comboBox_2">
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="designNumberBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
-       <item>
-        <property name="text">
-         <string>1</string>
-        </property>
-       </item>
+       <property name="minimum">
+        <number>1</number>
+       </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QCheckBox" name="checkBox">
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="saveFrameBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -74,8 +82,8 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_2">
+     <item row="4" column="0">
+      <widget class="QLabel" name="frameDirectoryLabel">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -84,15 +92,15 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="lineEdit">
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="frameDirectoryEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QPushButton" name="pushButton">
+     <item row="4" column="2">
+      <widget class="QPushButton" name="browseButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -101,8 +109,8 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_3">
+     <item row="5" column="0">
+      <widget class="QLabel" name="framePrefixLabel">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -111,8 +119,8 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="lineEdit_2">
+     <item row="5" column="1">
+      <widget class="QLineEdit" name="framePrefixEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -128,7 +136,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>50</height>
+       <height>40</height>
       </size>
      </property>
     </spacer>
@@ -149,14 +157,23 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="okButton">
        <property name="text">
         <string>&amp;Ok</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="cancelButton">
        <property name="text">
         <string>&amp;Cancel</string>
        </property>
@@ -166,6 +183,50 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>showSeedBox</tabstop>
+  <tabstop>displayModeBox</tabstop>
+  <tabstop>designNumberBox</tabstop>
+  <tabstop>saveFrameBox</tabstop>
+  <tabstop>frameDirectoryEdit</tabstop>
+  <tabstop>browseButton</tabstop>
+  <tabstop>framePrefixEdit</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>okButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>204</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>123</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>295</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>123</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
