@@ -10,7 +10,9 @@ installdir = os.path.join(os.getcwd(), '..')
 sys.path.append(os.path.join(installdir, 'ui'))
 
 import mainwindow_ui
-from xfoilpaneling_dialog import XfoilPanelingDialog
+from optimizationsettings_dialog import OptimizationSettingsDialog
+from xfoilsettings_dialog import XfoilSettingsDialog
+from xfoilpanelingsettings_dialog import XfoilPanelingSettingsDialog
 from plotsettings_dialog import PlotSettingsDialog
 from data import Data
 
@@ -31,7 +33,9 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.action_Load_seed_airfoil.triggered.connect(self.loadSeed)
         self.ui.action_Quit.triggered.connect(self.close)
 
-        self.ui.action_Xfoil_paneling.triggered.connect(self.showXfoilPaneling)
+        self.ui.actionOptimization_settings.triggered.connect(self.showOptimizationSettings)
+        self.ui.actionXfoil.triggered.connect(self.showXfoilSettings)
+        self.ui.action_Xfoil_paneling.triggered.connect(self.showXfoilPanelingSettings)
         self.ui.actionPlot_settings.triggered.connect(self.showPlotSettings)
 
     # Loads seed airfoil from file
@@ -54,13 +58,25 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
         self.ui.mplwidget.plotAirfoils(self.data.seed_airfoil)
 
-    def showXfoilPaneling(self):
-        dialog = XfoilPanelingDialog()
-        retval = dialog.exec()
+    def showOptimizationSettings(self):
+        dialog = OptimizationSettingsDialog()
+        if dialog.exec():
+            dialog.saveSettings()
+
+    def showXfoilSettings(self):
+        dialog = XfoilSettingsDialog()
+        if dialog.exec():
+            dialog.saveSettings()
+
+    def showXfoilPanelingSettings(self):
+        dialog = XfoilPanelingSettingsDialog()
+        if dialog.exec():
+            dialog.saveSettings()
 
     def showPlotSettings(self):
         dialog = PlotSettingsDialog()
-        retval = dialog.exec()
+        if dialog.exec():
+            dialog.saveSettings()
 
 
 if __name__ == "__main__":

@@ -8,11 +8,13 @@ class PlotSettingsDialog(QDialog):
         super(PlotSettingsDialog, self).__init__()
         self.ui = plotsettings_ui.Ui_Dialog()
         self.ui.setupUi(self)
-        self.ui.frameDirectoryEdit.setText(plotsettings.animation_dir)
 
         # Signals/slots
         self.ui.displayModeBox.currentIndexChanged[str].connect(self.setItemsEnabled)
         self.ui.browseButton.clicked.connect(self.setAnimationDirectory)
+
+        # Populate items
+        self.populate()
 
     # Enable/disable widgets based on display mode
     def setItemsEnabled(self, choice):
@@ -37,6 +39,22 @@ class PlotSettingsDialog(QDialog):
                 widget.setEnabled(True)
 
     def setAnimationDirectory(self):
-        plotsettings.animation_dir = QFileDialog.getExistingDirectory(self,
-                                     "Animation frame directory", plotsettings.animation_dir)
-        self.ui.frameDirectoryEdit.setText(plotsettings.animation_dir)
+        frameDirectory = QFileDialog.getExistingDirectory(self,
+                         "Animation frame directory", plotsettings.frameDirectory)
+        self.ui.frameDirectoryEdit.setText(frameDirectory)
+
+    def populate(self):
+        self.ui.showSeedBox.setChecked(plotsettings.showSeedAirfoil)
+        self.ui.displayModeBox.setCurrentText(plotsettings.displayMode)
+        self.ui.designNumberBox.setValue(plotsettings.designNumber)
+        self.ui.saveFrameBox.setChecked(plotsettings.saveAnimationFrames)
+        self.ui.frameDirectoryEdit.setText(plotsettings.frameDirectory)
+        self.ui.framePrefixEdit.setText(plotsettings.framePrefix)
+
+    def saveSettings(self):
+        plotsettings.showSeedAirfoil = self.ui.showSeedBox.isChecked()
+        plotsettings.displayMode = self.ui.displayModeBox.currentText()
+        plotsettings.designNumber = self.ui.designNumberBox.value()
+        plotsettings.saveAnimationFrames = self.ui.saveFrameBox.isChecked()
+        plotsettings.frameDirectory = self.ui.frameDirectoryEdit.text()
+        plotsettings.framePrefix = self.ui.framePrefixEdit.text()

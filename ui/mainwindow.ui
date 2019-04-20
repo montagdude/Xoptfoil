@@ -118,6 +118,8 @@
     <property name="title">
      <string>&amp;Settings</string>
     </property>
+    <addaction name="actionOptimization_settings"/>
+    <addaction name="actionXfoil"/>
     <addaction name="action_Xfoil_paneling"/>
     <addaction name="actionPlot_settings"/>
    </widget>
@@ -164,10 +166,7 @@
   </action>
   <action name="action_Xfoil_paneling">
    <property name="text">
-    <string>&amp;Xfoil paneling</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+P</string>
+    <string>X&amp;foil paneling</string>
    </property>
   </action>
   <action name="actionSet_Operating_Points">
@@ -188,10 +187,17 @@
   </action>
   <action name="actionPlot_settings">
    <property name="text">
-    <string>&amp;Plot settings</string>
+    <string>&amp;Plot</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+P</string>
+  </action>
+  <action name="actionOptimization_settings">
+   <property name="text">
+    <string>&amp;Optimization</string>
+   </property>
+  </action>
+  <action name="actionXfoil">
+   <property name="text">
+    <string>&amp;Xfoil</string>
    </property>
   </action>
  </widget>
