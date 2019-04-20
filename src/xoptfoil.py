@@ -10,10 +10,8 @@ installdir = os.path.join(os.getcwd(), '..')
 sys.path.append(os.path.join(installdir, 'ui'))
 
 import mainwindow_ui
-from optimizationsettings_dialog import OptimizationSettingsDialog
-from xfoilsettings_dialog import XfoilSettingsDialog
-from xfoilpanelingsettings_dialog import XfoilPanelingSettingsDialog
-from plotsettings_dialog import PlotSettingsDialog
+from settings_dialogs import (OptimizationSettingsDialog, XfoilSettingsDialog,
+                              XfoilPanelingSettingsDialog, PlotSettingsDialog)
 from data import Data
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
