@@ -1,9 +1,12 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog
 import optimizationsettings_ui
+import initializationsettings_ui
+import particleswarmsettings_ui
 import xfoilsettings_ui
 import plotsettings_ui
 import xfoilpanelingsettings_ui
-from settings import xfoilpanelingsettings, plotsettings
+from settings import (optimizationsettings, initializationsettings, particleswarmsettings,
+                      xfoilsettings, xfoilpanelingsettings, plotsettings)
 
 class OptimizationSettingsDialog(QDialog):
     def __init__(self):
@@ -15,10 +18,66 @@ class OptimizationSettingsDialog(QDialog):
         self.populate()
 
     def populate(self):
-        pass
+        self.ui.searchTypeBox.setCurrentText(optimizationsettings.searchType)
+        self.ui.globalSearchBox.setCurrentText(optimizationsettings.globalSearch)
+        self.ui.localSearchBox.setCurrentText(optimizationsettings.localSearch)
+        self.ui.shapeFunctionsBox.setCurrentText(optimizationsettings.shapeFunctions)
+        self.ui.nfunctionsTopBox.setValue(optimizationsettings.nfunctionsTop)
+        self.ui.nfunctionsBotBox.setValue(optimizationsettings.nfunctionsBot)
+        self.ui.initialPerturbBox.setValue(optimizationsettings.initialPerturb)
+        self.ui.minBumpWidthBox.setValue(optimizationsettings.minBumpWidth)
 
     def saveSettings(self):
-        pass
+        optimizationsettings.searchType = self.ui.searchTypeBox.currentText()
+        optimizationsettings.globalSearch = self.ui.globalSearchBox.currentText()
+        optimizationsettings.localSearch = self.ui.localSearchBox.currentText()
+        optimizationsettings.shapeFunctions = self.ui.shapeFunctionsBox.currentText()
+        optimizationsettings.nfunctionsTop = self.ui.nfunctionsTopBox.value()
+        optimizationsettings.nfunctionsBot = self.ui.nfunctionsBotBox.value()
+        optimizationsettings.initialPerturb = self.ui.initialPerturbBox.value()
+        optimizationsettings.minBumpWidth = self.ui.minBumpWidthBox.value()
+
+
+class InitializationSettingsDialog(QDialog):
+    def __init__(self):
+        super(InitializationSettingsDialog, self).__init__()
+        self.ui = initializationsettings_ui.Ui_Dialog()
+        self.ui.setupUi(self)
+
+        # Populate items
+        self.populate()
+
+    def populate(self):
+        self.ui.feasibleInitBox.setChecked(initializationsettings.feasibleInit)
+        self.ui.feasibleLimitBox.setValue(initializationsettings.feasibleLimit)
+        self.ui.maxAttemptsBox.setValue(initializationsettings.maxAttempts)
+
+    def saveSettings(self):
+        initializationsettings.feasibleInit = self.ui.feasibleInitBox.isChecked()
+        initializationsettings.feasibleLimit = self.ui.feasibleLimitBox.value()
+        initializationsettings.maxAttempts = self.ui.maxAttemptsBox.value()
+
+
+class ParticleSwarmSettingsDialog(QDialog):
+    def __init__(self):
+        super(ParticleSwarmSettingsDialog, self).__init__()
+        self.ui = particleswarmsettings_ui.Ui_Dialog()
+        self.ui.setupUi(self)
+
+        # Populate items
+        self.populate()
+
+    def populate(self):
+        self.ui.populationBox.setValue(particleswarmsettings.population)
+        self.ui.maxIterationsBox.setValue(particleswarmsettings.maxIterations)
+        self.ui.toleranceBox.setValue(particleswarmsettings.tolerance)
+        self.ui.convergenceProfileBox.setCurrentText(particleswarmsettings.convergenceProfile)
+
+    def saveSettings(self):
+        particleswarmsettings.population = self.ui.populationBox.value()
+        particleswarmsettings.maxIterations = self.ui.maxIterationsBox.value()
+        particleswarmsettings.tolerance = self.ui.toleranceBox.value()
+        particleswarmsettings.convergenceProfile = self.ui.convergenceProfileBox.currentText()
 
 
 class XfoilSettingsDialog(QDialog):
@@ -31,10 +90,26 @@ class XfoilSettingsDialog(QDialog):
         self.populate()
 
     def populate(self):
-        pass
+        self.ui.viscousBox.setChecked(xfoilsettings.viscous)
+        self.ui.ncritBox.setValue(xfoilsettings.ncrit)
+        self.ui.maxitBox.setValue(xfoilsettings.maxit)
+        self.ui.xtriptBox.setValue(xfoilsettings.xtript)
+        self.ui.xtripbBox.setValue(xfoilsettings.xtripb)
+        self.ui.vaccelBox.setValue(xfoilsettings.vaccel)
+        self.ui.fixUnconvergedBox.setChecked(xfoilsettings.fixUnconverged)
+        self.ui.reinitializeBox.setChecked(xfoilsettings.reinitialize)
+        self.ui.silentBox.setChecked(xfoilsettings.silent)
 
     def saveSettings(self):
-        pass
+        xfoilsettings.viscous = self.ui.viscousBox.isChecked()
+        xfoilsettings.ncrit = self.ui.ncritBox.value()
+        xfoilsettings.maxit = self.ui.maxitBox.value()
+        xfoilsettings.xtript = self.ui.xtriptBox.value()
+        xfoilsettings.xtripb = self.ui.xtripbBox.value()
+        xfoilsettings.vaccel = self.ui.vaccelBox.value()
+        xfoilsettings.fixUnconverged = self.ui.fixUnconvergedBox.isChecked()
+        xfoilsettings.reinitialize = self.ui.reinitializeBox.isChecked()
+        xfoilsettings.silent = self.ui.silentBox.isChecked()
 
 
 class XfoilPanelingSettingsDialog(QDialog):

@@ -10,7 +10,8 @@ installdir = os.path.join(os.getcwd(), '..')
 sys.path.append(os.path.join(installdir, 'ui'))
 
 import mainwindow_ui
-from settings_dialogs import (OptimizationSettingsDialog, XfoilSettingsDialog,
+from settings_dialogs import (OptimizationSettingsDialog, InitializationSettingsDialog,
+                              ParticleSwarmSettingsDialog, XfoilSettingsDialog,
                               XfoilPanelingSettingsDialog, PlotSettingsDialog)
 from data import Data
 
@@ -28,12 +29,14 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.mpltoolbar.setCanvas(self.ui.mplwidget)
 
         # Signals and slots
-        self.ui.action_Load_seed_airfoil.triggered.connect(self.loadSeed)
-        self.ui.action_Quit.triggered.connect(self.close)
+        self.ui.actionLoad_seed_airfoil.triggered.connect(self.loadSeed)
+        self.ui.actionQuit.triggered.connect(self.close)
 
         self.ui.actionOptimization_settings.triggered.connect(self.showOptimizationSettings)
-        self.ui.actionXfoil.triggered.connect(self.showXfoilSettings)
-        self.ui.action_Xfoil_paneling.triggered.connect(self.showXfoilPanelingSettings)
+        self.ui.actionInitialization_settings.triggered.connect(self.showInitializationSettings)
+        self.ui.actionParticleswarm_settings.triggered.connect(self.showParticleSwarmSettings)
+        self.ui.actionXfoil_settings.triggered.connect(self.showXfoilSettings)
+        self.ui.actionXfoil_paneling_settings.triggered.connect(self.showXfoilPanelingSettings)
         self.ui.actionPlot_settings.triggered.connect(self.showPlotSettings)
 
     # Loads seed airfoil from file
@@ -58,6 +61,16 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
 
     def showOptimizationSettings(self):
         dialog = OptimizationSettingsDialog()
+        if dialog.exec():
+            dialog.saveSettings()
+
+    def showInitializationSettings(self):
+        dialog = InitializationSettingsDialog()
+        if dialog.exec():
+            dialog.saveSettings()
+
+    def showParticleSwarmSettings(self):
+        dialog = ParticleSwarmSettingsDialog()
         if dialog.exec():
             dialog.saveSettings()
 

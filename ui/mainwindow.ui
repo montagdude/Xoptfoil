@@ -108,10 +108,10 @@
      <bool>false</bool>
     </property>
     <addaction name="separator"/>
-    <addaction name="action_Load_seed_airfoil"/>
-    <addaction name="action_Generate_NACA_airfoil"/>
+    <addaction name="actionLoad_seed_airfoil"/>
+    <addaction name="actionGenerate_NACA_airfoil"/>
     <addaction name="separator"/>
-    <addaction name="action_Quit"/>
+    <addaction name="actionQuit"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
@@ -119,8 +119,10 @@
      <string>&amp;Settings</string>
     </property>
     <addaction name="actionOptimization_settings"/>
-    <addaction name="actionXfoil"/>
-    <addaction name="action_Xfoil_paneling"/>
+    <addaction name="actionInitialization_settings"/>
+    <addaction name="actionParticleswarm_settings"/>
+    <addaction name="actionXfoil_settings"/>
+    <addaction name="actionXfoil_paneling_settings"/>
     <addaction name="actionPlot_settings"/>
    </widget>
    <widget class="QMenu" name="menuOperating_Points">
@@ -133,14 +135,14 @@
     <property name="title">
      <string>&amp;Constraints</string>
     </property>
-    <addaction name="action_Set_constraints"/>
+    <addaction name="actionSet_constraints"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
    <addaction name="menuOperating_Points"/>
    <addaction name="menuConstraints"/>
   </widget>
-  <action name="action_Quit">
+  <action name="actionQuit">
    <property name="text">
     <string>&amp;Quit</string>
    </property>
@@ -148,7 +150,7 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="action_Load_seed_airfoil">
+  <action name="actionLoad_seed_airfoil">
    <property name="text">
     <string>&amp;Load seed airfoil</string>
    </property>
@@ -156,7 +158,7 @@
     <string>Ctrl+L</string>
    </property>
   </action>
-  <action name="action_Generate_NACA_airfoil">
+  <action name="actionGenerate_NACA_airfoil">
    <property name="text">
     <string>&amp;Generate NACA seed airfoil</string>
    </property>
@@ -164,7 +166,7 @@
     <string>Ctrl+G</string>
    </property>
   </action>
-  <action name="action_Xfoil_paneling">
+  <action name="actionXfoil_paneling_settings">
    <property name="text">
     <string>X&amp;foil paneling</string>
    </property>
@@ -177,7 +179,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="action_Set_constraints">
+  <action name="actionSet_constraints">
    <property name="text">
     <string>&amp;Set constraints</string>
    </property>
@@ -187,7 +189,7 @@
   </action>
   <action name="actionPlot_settings">
    <property name="text">
-    <string>&amp;Plot</string>
+    <string>P&amp;lot</string>
    </property>
   </action>
   <action name="actionOptimization_settings">
@@ -195,9 +197,19 @@
     <string>&amp;Optimization</string>
    </property>
   </action>
-  <action name="actionXfoil">
+  <action name="actionXfoil_settings">
    <property name="text">
     <string>&amp;Xfoil</string>
+   </property>
+  </action>
+  <action name="actionInitialization_settings">
+   <property name="text">
+    <string>&amp;Initialization</string>
+   </property>
+  </action>
+  <action name="actionParticleswarm_settings">
+   <property name="text">
+    <string>&amp;Particle swarm</string>
    </property>
   </action>
  </widget>
