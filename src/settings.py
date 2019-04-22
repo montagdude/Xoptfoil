@@ -27,6 +27,21 @@ class ParticleSwarmSettings():
         self.convergenceProfile = "Exhaustive"
 
 
+class GeneticAlgorithmSettings():
+    def __init__(self):
+        self.population = 80
+        self.maxIterations = 700
+        self.tolerance = 1e-04
+        self.parentsSelection = "Tournament"
+        self.parentFraction = 0.5
+        self.selectionPressure = 8.0
+        self.tournamentFraction = 0.025
+        self.crossoverFactor = 0.5
+        self.mutantProbability = 0.4
+        self.mutationRate = 0.01
+        self.mutationFactor = 0.2
+
+
 class XfoilSettings():
     def __init__(self):
         self.viscous = True
@@ -66,6 +81,7 @@ class PlotSettings():
 optimizationsettings = OptimizationSettings()
 initializationsettings = InitializationSettings()
 particleswarmsettings = ParticleSwarmSettings()
+geneticalgorithmsettings = GeneticAlgorithmSettings()
 xfoilsettings = XfoilSettings()
 xfoilpanelingsettings = XfoilPanelingSettings()
 plotsettings = PlotSettings()

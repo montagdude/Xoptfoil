@@ -121,6 +121,7 @@
     <addaction name="actionOptimization_settings"/>
     <addaction name="actionInitialization_settings"/>
     <addaction name="actionParticleswarm_settings"/>
+    <addaction name="actionGenetic_algorithm_settings"/>
     <addaction name="actionXfoil_settings"/>
     <addaction name="actionXfoil_paneling_settings"/>
     <addaction name="actionPlot_settings"/>
@@ -210,6 +211,11 @@
   <action name="actionParticleswarm_settings">
    <property name="text">
     <string>&amp;Particle swarm</string>
+   </property>
+  </action>
+  <action name="actionGenetic_algorithm_settings">
+   <property name="text">
+    <string>&amp;Genetic algorithm</string>
    </property>
   </action>
  </widget>

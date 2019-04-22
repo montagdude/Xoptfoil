@@ -1,12 +1,15 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog
+from PyQt5.QtGui import QDoubleValidator
 import optimizationsettings_ui
 import initializationsettings_ui
 import particleswarmsettings_ui
+import geneticalgorithmsettings_ui
 import xfoilsettings_ui
 import plotsettings_ui
 import xfoilpanelingsettings_ui
 from settings import (optimizationsettings, initializationsettings, particleswarmsettings,
-                      xfoilsettings, xfoilpanelingsettings, plotsettings)
+                      geneticalgorithmsettings, xfoilsettings, xfoilpanelingsettings,
+                      plotsettings)
 
 class OptimizationSettingsDialog(QDialog):
     def __init__(self):
@@ -64,20 +67,72 @@ class ParticleSwarmSettingsDialog(QDialog):
         self.ui = particleswarmsettings_ui.Ui_Dialog()
         self.ui.setupUi(self)
 
+        # Double validator for tolerance line edit
+        dbl_validator = QDoubleValidator(bottom=0.)
+        self.ui.toleranceEdit.setValidator(dbl_validator)
+
         # Populate items
         self.populate()
 
     def populate(self):
         self.ui.populationBox.setValue(particleswarmsettings.population)
         self.ui.maxIterationsBox.setValue(particleswarmsettings.maxIterations)
-        self.ui.toleranceBox.setValue(particleswarmsettings.tolerance)
+        self.ui.toleranceEdit.setText("{:.4e}".format(particleswarmsettings.tolerance))
         self.ui.convergenceProfileBox.setCurrentText(particleswarmsettings.convergenceProfile)
 
     def saveSettings(self):
         particleswarmsettings.population = self.ui.populationBox.value()
         particleswarmsettings.maxIterations = self.ui.maxIterationsBox.value()
-        particleswarmsettings.tolerance = self.ui.toleranceBox.value()
+        # FIXME: display error message
+        try:
+            particleswarmsettings.tolerance = float(self.ui.toleranceEdit.text())
+        except ValueError:
+            pass
         particleswarmsettings.convergenceProfile = self.ui.convergenceProfileBox.currentText()
+
+
+class GeneticAlgorithmSettingsDialog(QDialog):
+    def __init__(self):
+        super(GeneticAlgorithmSettingsDialog, self).__init__()
+        self.ui = geneticalgorithmsettings_ui.Ui_Dialog()
+        self.ui.setupUi(self)
+
+        # Double validator for tolerance line edit
+        dbl_validator = QDoubleValidator(bottom=0.)
+        self.ui.toleranceEdit.setValidator(dbl_validator)
+
+        # Populate items
+        self.populate()
+
+    def populate(self):
+        self.ui.populationBox.setValue(geneticalgorithmsettings.population)
+        self.ui.maxIterationsBox.setValue(geneticalgorithmsettings.maxIterations)
+        self.ui.toleranceEdit.setText("{:.4e}".format(geneticalgorithmsettings.tolerance))
+        self.ui.parentsSelectionBox.setCurrentText(geneticalgorithmsettings.parentsSelection)
+        self.ui.parentFractionBox.setValue(geneticalgorithmsettings.parentFraction)
+        self.ui.selectionPressureBox.setValue(geneticalgorithmsettings.selectionPressure)
+        self.ui.tournamentFractionBox.setValue(geneticalgorithmsettings.tournamentFraction)
+        self.ui.crossoverFactorBox.setValue(geneticalgorithmsettings.crossoverFactor)
+        self.ui.mutantProbabilityBox.setValue(geneticalgorithmsettings.mutantProbability)
+        self.ui.mutationRateBox.setValue(geneticalgorithmsettings.mutationRate)
+        self.ui.mutationFactorBox.setValue(geneticalgorithmsettings.mutationFactor)
+
+    def saveSettings(self):
+        geneticalgorithmsettings.population = self.ui.populationBox.value()
+        geneticalgorithmsettings.maxIterations = self.ui.maxIterationsBox.value()
+        # FIXME: display message on error
+        try:
+            geneticalgorithmsettings.tolerance = float(self.ui.toleranceEdit.text())
+        except ValueError:
+            pass
+        geneticalgorithmsettings.parentsSelection = self.ui.parentsSelectionBox.currentText()
+        geneticalgorithmsettings.parentFraction = self.ui.parentFractionBox.value()
+        geneticalgorithmsettings.selectionPressure = self.ui.selectionPressureBox.value()
+        geneticalgorithmsettings.tournamentFraction = self.ui.tournamentFractionBox.value()
+        geneticalgorithmsettings.crossoverFactor = self.ui.crossoverFactorBox.value()
+        geneticalgorithmsettings.mutantProbability = self.ui.mutantProbabilityBox.value()
+        geneticalgorithmsettings.mutationRate = self.ui.mutationRateBox.value()
+        geneticalgorithmsettings.mutationFactor = self.ui.mutationFactorBox.value()
 
 
 class XfoilSettingsDialog(QDialog):
