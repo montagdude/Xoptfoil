@@ -3,6 +3,7 @@ from airfoil import Airfoil
 class Data:
     def __init__(self):
         self.seed_airfoil = Airfoil()
+        self.current_airfoil = None
 
     def readSeedAirfoil(self, fname):
         """Reads seed airfoil from file.
@@ -15,3 +16,5 @@ class Data:
             2 on format error
         """
         return self.seed_airfoil.readFromFile(fname)
+
+data = Data()

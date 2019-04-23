@@ -14,12 +14,11 @@ from settings_dialogs import (OptimizationSettingsDialog, InitializationSettings
                               ParticleSwarmSettingsDialog, GeneticAlgorithmSettingsDialog,
                               XfoilSettingsDialog, XfoilPanelingSettingsDialog,
                               PlotSettingsDialog)
-from data import Data
+from data import data
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(XoptfoilMainWindow, self).__init__()
-        self.data = Data()
         self._currpath = os.getcwd()
 
         self.ui = mainwindow_ui.Ui_MainWindow()
@@ -51,7 +50,7 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         else:
             self._currpath = os.path.dirname(fname)
 
-        retval = self.data.readSeedAirfoil(fname)
+        retval = data.readSeedAirfoil(fname)
         errmsg = None
         if retval == 1:
             errmsg  = "Unable to read airfoil file {:s}: I/O error.".format(fname)
@@ -60,7 +59,7 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
             errmsg += " Not a valid airfoil file."
         if errmsg is not None:
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
-        self.ui.mplwidget.plotAirfoils(self.data.seed_airfoil)
+        self.ui.mplwidget.plotAirfoils()
 
     def showOptimizationSettings(self):
         dialog = OptimizationSettingsDialog()
@@ -96,6 +95,12 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         dialog = PlotSettingsDialog()
         if dialog.exec():
             dialog.saveSettings()
+            # FIXME: do this judiciously and plot the thing that is actually selected
+            if len(data.seed_airfoil.x) > 0:
+                self.ui.mplwidget.plotAirfoils()
+            else:
+                self.ui.mplwidget.setupAxes()
+                self.ui.mplwidget.draw()
 
 
 if __name__ == "__main__":

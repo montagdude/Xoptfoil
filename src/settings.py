@@ -75,6 +75,10 @@ class PlotSettings():
         self.saveAnimationFrames = False
         self.frameDirectory = os.getcwd()
         self.framePrefix = "optfoil"
+        self.bgColor = '#000000'
+        self.fgColor = '#ffffff'
+        self.seedColor = '#4b97ff'
+        self.currentColor = '#ff2424'
 
 
 # Instantiations

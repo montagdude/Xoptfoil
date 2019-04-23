@@ -42,7 +42,27 @@
         </item>
         <item>
          <property name="text">
-          <string>Polars</string>
+          <string>Cl vs alpha</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cl vs Cd</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Cm vs alpha</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Transition locations</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Flap deflections</string>
          </property>
         </item>
         <item>

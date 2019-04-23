@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog
-from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtWidgets import QDialog, QFileDialog, QColorDialog
+from PyQt5.QtGui import QDoubleValidator, QColor
+
 import optimizationsettings_ui
 import initializationsettings_ui
 import particleswarmsettings_ui
@@ -206,6 +207,10 @@ class PlotSettingsDialog(QDialog):
         # Signals/slots
         self.ui.displayModeBox.currentIndexChanged[str].connect(self.setItemsEnabled)
         self.ui.browseButton.clicked.connect(self.setAnimationDirectory)
+        self.ui.bgColorButton.clicked.connect(self.setBgColor)
+        self.ui.fgColorButton.clicked.connect(self.setFgColor)
+        self.ui.seedColorButton.clicked.connect(self.setSeedColor)
+        self.ui.currentColorButton.clicked.connect(self.setCurrentColor)
 
         # Populate items
         self.populate()
@@ -236,6 +241,19 @@ class PlotSettingsDialog(QDialog):
         frameDirectory = QFileDialog.getExistingDirectory(self,
                          "Animation frame directory", plotsettings.frameDirectory)
         self.ui.frameDirectoryEdit.setText(frameDirectory)
+
+    def setBgColor(self):
+        plotsettings.bgColor = QColorDialog.getColor(QColor(plotsettings.bgColor)).name()
+
+    def setFgColor(self):
+        plotsettings.fgColor = QColorDialog.getColor(QColor(plotsettings.fgColor)).name()
+
+    def setSeedColor(self):
+        plotsettings.seedColor = QColorDialog.getColor(QColor(plotsettings.seedColor)).name()
+
+    def setCurrentColor(self):
+        plotsettings.currentColor = QColorDialog.getColor(
+                                    QColor(plotsettings.currentColor)).name()
 
     def populate(self):
         self.ui.showSeedBox.setChecked(plotsettings.showSeedAirfoil)
