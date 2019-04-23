@@ -212,6 +212,16 @@ class PlotSettingsDialog(QDialog):
         self.ui.seedColorButton.clicked.connect(self.setSeedColor)
         self.ui.currentColorButton.clicked.connect(self.setCurrentColor)
 
+        # Button colors
+        self.ui.bgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                            plotsettings.bgColor))
+        self.ui.fgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                            plotsettings.fgColor))
+        self.ui.seedColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                              plotsettings.seedColor))
+        self.ui.currentColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                                  plotsettings.currentColor))
+
         # Populate items
         self.populate()
 
@@ -244,16 +254,24 @@ class PlotSettingsDialog(QDialog):
 
     def setBgColor(self):
         plotsettings.bgColor = QColorDialog.getColor(QColor(plotsettings.bgColor)).name()
+        self.ui.bgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                            plotsettings.bgColor))
 
     def setFgColor(self):
         plotsettings.fgColor = QColorDialog.getColor(QColor(plotsettings.fgColor)).name()
+        self.ui.fgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                            plotsettings.fgColor))
 
     def setSeedColor(self):
         plotsettings.seedColor = QColorDialog.getColor(QColor(plotsettings.seedColor)).name()
+        self.ui.seedColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                              plotsettings.seedColor))
 
     def setCurrentColor(self):
         plotsettings.currentColor = QColorDialog.getColor(
                                     QColor(plotsettings.currentColor)).name()
+        self.ui.currentColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                                 plotsettings.currentColor))
 
     def populate(self):
         self.ui.showSeedBox.setChecked(plotsettings.showSeedAirfoil)
