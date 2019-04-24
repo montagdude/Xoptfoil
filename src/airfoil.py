@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import libxfoil_wrap as lxf
 
 class Airfoil:
     def __init__(self):
@@ -69,3 +70,17 @@ class Airfoil:
             return 2
         f.close()
         return 0
+
+    def generate4Digit(self, camber, xcamber, thickness, npointside):
+        x, y, _ = lxf.naca_4_digit(camber, xcamber, thickness, npointside)
+        self.x = np.array(x)
+        self.y = np.array(y)
+
+    def generate5Digit(self, designation, npointside):
+        x, y, _, stat = lxf.naca_5_digit(designation, npointside)
+        if stat != 0:
+            return False
+        else:
+            self.x = np.array(x)
+            self.y = np.array(y)
+            return True

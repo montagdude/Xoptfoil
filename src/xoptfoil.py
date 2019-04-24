@@ -10,6 +10,7 @@ installdir = os.path.join(os.getcwd(), '..')
 sys.path.append(os.path.join(installdir, 'ui'))
 
 import mainwindow_ui
+from nacagenerator_dialog import NacaGeneratorDialog
 from settings_dialogs import (OptimizationSettingsDialog, InitializationSettingsDialog,
                               ParticleSwarmSettingsDialog, GeneticAlgorithmSettingsDialog,
                               SimplexSettingsDialog, XfoilSettingsDialog,
@@ -25,11 +26,15 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("Xoptfoil")
 
+        # NACA generator dialog. Make this persistent so settings are kept across uses.
+        self.naca_dialog = NacaGeneratorDialog()
+
         # Connect toolbar to canvas
         self.ui.mpltoolbar.setCanvas(self.ui.mplwidget)
 
         # Signals and slots
         self.ui.actionLoad_seed_airfoil.triggered.connect(self.loadSeed)
+        self.ui.actionGenerate_NACA_airfoil.triggered.connect(self.generateNACA)
         self.ui.actionQuit.triggered.connect(self.close)
 
         self.ui.actionOptimization_settings.triggered.connect(self.showOptimizationSettings)
@@ -61,6 +66,20 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         if errmsg is not None:
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
         self.ui.mplwidget.plotAirfoils()
+
+    # Generates a NACA seed airfoil
+    def generateNACA(self):
+        if self.naca_dialog.exec():
+            if self.naca_dialog.airfoilType() == "4 digit":
+                retval = data.generate4DigitAirfoil(self.naca_dialog.camber(),
+                                                    self.naca_dialog.xcamber(),
+                                                    self.naca_dialog.thickness())
+            elif self.naca_dialog.airfoilType() == "5 digit":
+                retval = data.generate5DigitAirfoil(self.naca_dialog.designation())
+            if retval:
+                self.ui.mplwidget.plotAirfoils()
+            else:
+                QtWidgets.QMessageBox.critical(self, "Error", "Unsupported 5-digit designation.")
 
     def showOptimizationSettings(self):
         dialog = OptimizationSettingsDialog()
