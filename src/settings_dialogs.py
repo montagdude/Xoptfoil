@@ -212,15 +212,21 @@ class PlotSettingsDialog(QDialog):
         self.ui.seedColorButton.clicked.connect(self.setSeedColor)
         self.ui.currentColorButton.clicked.connect(self.setCurrentColor)
 
+        # Colors
+        self.bgColor = plotsettings.bgColor
+        self.fgColor = plotsettings.fgColor
+        self.seedColor = plotsettings.seedColor
+        self.currentColor = plotsettings.currentColor
+
         # Button colors
         self.ui.bgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                            plotsettings.bgColor))
+                                            self.bgColor))
         self.ui.fgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                            plotsettings.fgColor))
+                                            self.fgColor))
         self.ui.seedColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                              plotsettings.seedColor))
+                                              self.seedColor))
         self.ui.currentColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                                  plotsettings.currentColor))
+                                                  self.currentColor))
 
         # Populate items
         self.populate()
@@ -253,25 +259,24 @@ class PlotSettingsDialog(QDialog):
         self.ui.frameDirectoryEdit.setText(frameDirectory)
 
     def setBgColor(self):
-        plotsettings.bgColor = QColorDialog.getColor(QColor(plotsettings.bgColor)).name()
+        self.bgColor = QColorDialog.getColor(QColor(plotsettings.bgColor)).name()
         self.ui.bgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                            plotsettings.bgColor))
+                                            self.bgColor))
 
     def setFgColor(self):
-        plotsettings.fgColor = QColorDialog.getColor(QColor(plotsettings.fgColor)).name()
+        self.fgColor = QColorDialog.getColor(QColor(plotsettings.fgColor)).name()
         self.ui.fgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                            plotsettings.fgColor))
+                                            self.fgColor))
 
     def setSeedColor(self):
-        plotsettings.seedColor = QColorDialog.getColor(QColor(plotsettings.seedColor)).name()
+        self.seedColor = QColorDialog.getColor(QColor(plotsettings.seedColor)).name()
         self.ui.seedColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                              plotsettings.seedColor))
+                                              self.seedColor))
 
     def setCurrentColor(self):
-        plotsettings.currentColor = QColorDialog.getColor(
-                                    QColor(plotsettings.currentColor)).name()
+        self.currentColor = QColorDialog.getColor(QColor(plotsettings.currentColor)).name()
         self.ui.currentColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                                 plotsettings.currentColor))
+                                                 self.currentColor))
 
     def populate(self):
         self.ui.showSeedBox.setChecked(plotsettings.showSeedAirfoil)
@@ -288,3 +293,7 @@ class PlotSettingsDialog(QDialog):
         plotsettings.saveAnimationFrames = self.ui.saveFrameBox.isChecked()
         plotsettings.frameDirectory = self.ui.frameDirectoryEdit.text()
         plotsettings.framePrefix = self.ui.framePrefixEdit.text()
+        plotsettings.bgColor = self.bgColor
+        plotsettings.fgColor = self.fgColor
+        plotsettings.seedColor = self.seedColor
+        plotsettings.currentColor = self.currentColor
