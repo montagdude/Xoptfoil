@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog, QColorDialog
+from PyQt5.QtWidgets import QDialog, QFileDialog, QColorDialog, QMessageBox
 from PyQt5.QtGui import QDoubleValidator, QColor
 
 import optimizationsettings_ui
@@ -82,14 +82,26 @@ class ParticleSwarmSettingsDialog(QDialog):
         self.ui.toleranceEdit.setText("{:.4e}".format(particleswarmsettings.tolerance))
         self.ui.convergenceProfileBox.setCurrentText(particleswarmsettings.convergenceProfile)
 
+    def accept(self):
+        if self.validateSettings():
+            self.setResult(QDialog.Accepted)
+            self.hide()
+        else:
+            self.setResult(QDialog.Rejected)
+
+    def validateSettings(self):
+        try:
+            check = float(self.ui.toleranceEdit.text())
+        except ValueError:
+            QMessageBox.critical(self, "Error", "Cannot convert {:s} to float."\
+                                 .format(self.ui.toleranceEdit.text()))
+            return False
+        return True
+
     def saveSettings(self):
         particleswarmsettings.population = self.ui.populationBox.value()
         particleswarmsettings.maxIterations = self.ui.maxIterationsBox.value()
-        # FIXME: display error message
-        try:
-            particleswarmsettings.tolerance = float(self.ui.toleranceEdit.text())
-        except ValueError:
-            pass
+        particleswarmsettings.tolerance = float(self.ui.toleranceEdit.text())
         particleswarmsettings.convergenceProfile = self.ui.convergenceProfileBox.currentText()
 
 
@@ -119,14 +131,26 @@ class GeneticAlgorithmSettingsDialog(QDialog):
         self.ui.mutationRateBox.setValue(geneticalgorithmsettings.mutationRate)
         self.ui.mutationFactorBox.setValue(geneticalgorithmsettings.mutationFactor)
 
+    def accept(self):
+        if self.validateSettings():
+            self.setResult(QDialog.Accepted)
+            self.hide()
+        else:
+            self.setResult(QDialog.Rejected)
+
+    def validateSettings(self):
+        try:
+            check = float(self.ui.toleranceEdit.text())
+        except ValueError:
+            QMessageBox.critical(self, "Error", "Cannot convert {:s} to float."\
+                                 .format(self.ui.toleranceEdit.text()))
+            return False
+        return True
+
     def saveSettings(self):
         geneticalgorithmsettings.population = self.ui.populationBox.value()
         geneticalgorithmsettings.maxIterations = self.ui.maxIterationsBox.value()
-        # FIXME: display message on error
-        try:
-            geneticalgorithmsettings.tolerance = float(self.ui.toleranceEdit.text())
-        except ValueError:
-            pass
+        geneticalgorithmsettings.tolerance = float(self.ui.toleranceEdit.text())
         geneticalgorithmsettings.parentsSelection = self.ui.parentsSelectionBox.currentText()
         geneticalgorithmsettings.parentFraction = self.ui.parentFractionBox.value()
         geneticalgorithmsettings.selectionPressure = self.ui.selectionPressureBox.value()
@@ -154,13 +178,25 @@ class SimplexSettingsDialog(QDialog):
         self.ui.maxIterationsBox.setValue(simplexsettings.maxIterations)
         self.ui.toleranceEdit.setText("{:.4e}".format(simplexsettings.tolerance))
 
+    def accept(self):
+        if self.validateSettings():
+            self.setResult(QDialog.Accepted)
+            self.hide()
+        else:
+            self.setResult(QDialog.Rejected)
+
+    def validateSettings(self):
+        try:
+            check = float(self.ui.toleranceEdit.text())
+        except ValueError:
+            QMessageBox.critical(self, "Error", "Cannot convert {:s} to float."\
+                                 .format(self.ui.toleranceEdit.text()))
+            return False
+        return True
+
     def saveSettings(self):
         simplexsettings.maxIterations = self.ui.maxIterationsBox.value()
-        # FIXME: display error message
-        try:
-            simplexsettings.tolerance = float(self.ui.toleranceEdit.text())
-        except ValueError:
-            pass
+        simplexsettings.tolerance = float(self.ui.toleranceEdit.text())
 
 
 class XfoilSettingsDialog(QDialog):
