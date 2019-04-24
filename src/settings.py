@@ -42,6 +42,12 @@ class GeneticAlgorithmSettings():
         self.mutationFactor = 0.2
 
 
+class SimplexSettings():
+    def __init__(self):
+        self.maxIterations = 1000
+        self.tolerance = 1e-06
+
+
 class XfoilSettings():
     def __init__(self):
         self.viscous = True
@@ -86,6 +92,7 @@ optimizationsettings = OptimizationSettings()
 initializationsettings = InitializationSettings()
 particleswarmsettings = ParticleSwarmSettings()
 geneticalgorithmsettings = GeneticAlgorithmSettings()
+simplexsettings = SimplexSettings()
 xfoilsettings = XfoilSettings()
 xfoilpanelingsettings = XfoilPanelingSettings()
 plotsettings = PlotSettings()

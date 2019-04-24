@@ -5,12 +5,13 @@ import optimizationsettings_ui
 import initializationsettings_ui
 import particleswarmsettings_ui
 import geneticalgorithmsettings_ui
+import simplexsettings_ui
 import xfoilsettings_ui
 import plotsettings_ui
 import xfoilpanelingsettings_ui
 from settings import (optimizationsettings, initializationsettings, particleswarmsettings,
-                      geneticalgorithmsettings, xfoilsettings, xfoilpanelingsettings,
-                      plotsettings)
+                      geneticalgorithmsettings, simplexsettings, xfoilsettings,
+                      xfoilpanelingsettings, plotsettings)
 
 class OptimizationSettingsDialog(QDialog):
     def __init__(self):
@@ -134,6 +135,32 @@ class GeneticAlgorithmSettingsDialog(QDialog):
         geneticalgorithmsettings.mutantProbability = self.ui.mutantProbabilityBox.value()
         geneticalgorithmsettings.mutationRate = self.ui.mutationRateBox.value()
         geneticalgorithmsettings.mutationFactor = self.ui.mutationFactorBox.value()
+
+
+class SimplexSettingsDialog(QDialog):
+    def __init__(self):
+        super(SimplexSettingsDialog, self).__init__()
+        self.ui = simplexsettings_ui.Ui_Dialog()
+        self.ui.setupUi(self)
+
+        # Double validator for tolerance line edit
+        dbl_validator = QDoubleValidator(bottom=0.)
+        self.ui.toleranceEdit.setValidator(dbl_validator)
+
+        # Populate items
+        self.populate()
+
+    def populate(self):
+        self.ui.maxIterationsBox.setValue(simplexsettings.maxIterations)
+        self.ui.toleranceEdit.setText("{:.4e}".format(simplexsettings.tolerance))
+
+    def saveSettings(self):
+        simplexsettings.maxIterations = self.ui.maxIterationsBox.value()
+        # FIXME: display error message
+        try:
+            simplexsettings.tolerance = float(self.ui.toleranceEdit.text())
+        except ValueError:
+            pass
 
 
 class XfoilSettingsDialog(QDialog):

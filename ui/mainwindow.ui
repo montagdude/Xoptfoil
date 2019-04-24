@@ -142,6 +142,7 @@
     <addaction name="actionInitialization_settings"/>
     <addaction name="actionParticleswarm_settings"/>
     <addaction name="actionGenetic_algorithm_settings"/>
+    <addaction name="actionSimplex_settings"/>
     <addaction name="actionXfoil_settings"/>
     <addaction name="actionXfoil_paneling_settings"/>
     <addaction name="actionPlot_settings"/>
@@ -236,6 +237,11 @@
   <action name="actionGenetic_algorithm_settings">
    <property name="text">
     <string>&amp;Genetic algorithm</string>
+   </property>
+  </action>
+  <action name="actionSimplex_settings">
+   <property name="text">
+    <string>&amp;Simplex search</string>
    </property>
   </action>
  </widget>

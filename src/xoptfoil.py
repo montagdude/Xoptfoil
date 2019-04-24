@@ -12,8 +12,8 @@ sys.path.append(os.path.join(installdir, 'ui'))
 import mainwindow_ui
 from settings_dialogs import (OptimizationSettingsDialog, InitializationSettingsDialog,
                               ParticleSwarmSettingsDialog, GeneticAlgorithmSettingsDialog,
-                              XfoilSettingsDialog, XfoilPanelingSettingsDialog,
-                              PlotSettingsDialog)
+                              SimplexSettingsDialog, XfoilSettingsDialog,
+                              XfoilPanelingSettingsDialog, PlotSettingsDialog)
 from data import data
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
@@ -37,6 +37,7 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.actionParticleswarm_settings.triggered.connect(self.showParticleSwarmSettings)
         self.ui.actionGenetic_algorithm_settings.triggered.connect(
                 self.showGeneticAlgorithmSettings)
+        self.ui.actionSimplex_settings.triggered.connect(self.showSimplexSettings)
         self.ui.actionXfoil_settings.triggered.connect(self.showXfoilSettings)
         self.ui.actionXfoil_paneling_settings.triggered.connect(self.showXfoilPanelingSettings)
         self.ui.actionPlot_settings.triggered.connect(self.showPlotSettings)
@@ -78,6 +79,11 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
 
     def showGeneticAlgorithmSettings(self):
         dialog = GeneticAlgorithmSettingsDialog()
+        if dialog.exec():
+            dialog.saveSettings()
+
+    def showSimplexSettings(self):
+        dialog = SimplexSettingsDialog()
         if dialog.exec():
             dialog.saveSettings()
 
