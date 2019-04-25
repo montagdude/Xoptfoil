@@ -322,24 +322,32 @@ class PlotSettingsDialog(QDialog):
         self.ui.frameDirectoryEdit.setText(frameDirectory)
 
     def setBgColor(self):
-        self.bgColor = QColorDialog.getColor(QColor(plotsettings.bgColor)).name()
-        self.ui.bgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                            self.bgColor))
+        newcolor = QColorDialog.getColor(QColor(plotsettings.bgColor))
+        if newcolor.isValid():
+            self.bgColor = newcolor.name()
+            self.ui.bgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                                self.bgColor))
 
     def setFgColor(self):
-        self.fgColor = QColorDialog.getColor(QColor(plotsettings.fgColor)).name()
-        self.ui.fgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                            self.fgColor))
+        newcolor = QColorDialog.getColor(QColor(plotsettings.fgColor))
+        if newcolor.isValid():
+            self.fgColor = newcolor.name()
+            self.ui.fgColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                                self.fgColor))
 
     def setSeedColor(self):
-        self.seedColor = QColorDialog.getColor(QColor(plotsettings.seedColor)).name()
-        self.ui.seedColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                              self.seedColor))
+        newcolor = QColorDialog.getColor(QColor(plotsettings.seedColor))
+        if newcolor.isValid():
+            self.seedColor = newcolor.name()
+            self.ui.seedColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                                  self.seedColor))
 
     def setCurrentColor(self):
-        self.currentColor = QColorDialog.getColor(QColor(plotsettings.currentColor)).name()
-        self.ui.currentColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
-                                                 self.currentColor))
+        newcolor = QColorDialog.getColor(QColor(plotsettings.currentColor))
+        if newcolor.isValid():
+            self.currentColor = newcolor.name()
+            self.ui.currentColorButton.setStyleSheet("background-color:{:s}; border:0px;".format(
+                                                     self.currentColor))
 
     def populate(self):
         self.ui.showSeedBox.setChecked(plotsettings.showSeedAirfoil)
