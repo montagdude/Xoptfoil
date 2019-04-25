@@ -356,7 +356,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>&amp;Ok</string>
+        <string>&amp;OK</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
