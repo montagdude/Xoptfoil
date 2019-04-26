@@ -15,6 +15,7 @@ from settings_dialogs import (OptimizationSettingsDialog, InitializationSettings
                               ParticleSwarmSettingsDialog, GeneticAlgorithmSettingsDialog,
                               SimplexSettingsDialog, XfoilSettingsDialog,
                               XfoilPanelingSettingsDialog, PlotSettingsDialog)
+from operatingpoints_dialog import OperatingPointsDialog
 from data import data
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
@@ -46,6 +47,8 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.actionXfoil_settings.triggered.connect(self.showXfoilSettings)
         self.ui.actionXfoil_paneling_settings.triggered.connect(self.showXfoilPanelingSettings)
         self.ui.actionPlot_settings.triggered.connect(self.showPlotSettings)
+
+        self.ui.actionSet_Operating_Points.triggered.connect(self.setOperatingPoints)
 
     # Loads seed airfoil from file
     def loadSeed(self):
@@ -126,6 +129,11 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
             else:
                 self.ui.mplwidget.setupAxes()
                 self.ui.mplwidget.draw()
+
+    def setOperatingPoints(self):
+        dialog = OperatingPointsDialog()
+        if dialog.exec():
+            dialog.saveOperatingPoints()
 
 
 if __name__ == "__main__":

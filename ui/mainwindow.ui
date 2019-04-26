@@ -198,7 +198,7 @@
     <string>&amp;Set operating points</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Ctrl+Shift+O</string>
    </property>
   </action>
   <action name="actionSet_constraints">
