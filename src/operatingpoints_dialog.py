@@ -102,7 +102,7 @@ class OperatingPointsDialog(QDialog):
         dialog.setWindowTitle("New operating point")
         if dialog.exec():
             newpoint = dialog.operatingPoint()
-            self.points.addPoint(newpoint)
+            self.points.addPoint(deepcopy(newpoint))
             self.addRow(newpoint)
             self.ui.editButton.setEnabled(True)
             self.ui.deleteButton.setEnabled(True)
@@ -120,7 +120,7 @@ class OperatingPointsDialog(QDialog):
             items = self.itemsFromOperatingPoint(editedpoint) 
             for i in range(len(items)):
                 self.ui.pointsTable.setItem(row, i, items[i])
-            self.points.setPoint(i, editedpoint)
+            self.points.setPoint(i, deepcopy(editedpoint))
 
     def deletePoint(self):
         row = self.ui.pointsTable.currentRow()
