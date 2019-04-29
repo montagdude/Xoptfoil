@@ -50,6 +50,7 @@ class OperatingPointsDialog(QDialog):
     # Gets row items from operating point
     def itemsFromOperatingPoint(self, operatingpoint):
         items = []
+        items.append(QTableWidgetItem(operatingpoint.optimizationGoal))
         if operatingpoint.specCondition == "Cl":
             text = "Cl = {:.4f}".format(operatingpoint.condition)
         else:

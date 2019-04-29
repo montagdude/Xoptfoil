@@ -59,6 +59,7 @@ class OperatingPointDialog(QDialog):
 
     # Sets data in the form from a given operating point
     def fromOperatingPoint(self, point):
+        self.ui.optimizationGoalBox.setCurrentText(point.optimizationGoal)
         self.ui.specConditionBox.setCurrentText(point.specCondition)
         self.ui.conditionBox.setValue(point.condition)
         self.ui.reynoldsEdit.setText("{:.4e}".format(point.reynolds))
@@ -82,6 +83,7 @@ class OperatingPointDialog(QDialog):
     # Returns data in the form of an operating point
     def operatingPoint(self):
         point = OperatingPoint()
+        point.optimizationGoal = self.ui.optimizationGoalBox.currentText()
         point.specCondition = self.ui.specConditionBox.currentText()
         point.condition = self.ui.conditionBox.value()
         point.reynolds = float(self.ui.reynoldsEdit.text())
@@ -118,4 +120,18 @@ class OperatingPointDialog(QDialog):
             QMessageBox.critical(self, "Error", "Cannot convet {:s} to float"\
                                  .format(self.ui.reynoldsEdit.text()))
             return False
+        
+        # Check for bad combinations of operating conditions and optimization goals
+        specCondition = self.ui.specConditionBox.currentText()
+        condition = self.ui.conditionBox.value()
+        optimizationGoal = self.ui.optimizationGoalBox.currentText()
+        if (specCondition == "Cl") and (optimizationGoal == "Maximize lift"):
+            QMessageBox.critical(self, "Error", "Cannot maximize lift when Cl is specified.")
+            return False
+        elif (condition <= 0.0) and (specCondition == "Cl"):
+            if (optimizationGoal == "Maximize lift") or \
+               (optimizationGoal == "Maximize glide slope"):
+                   QMessageBox.critical(self, "Error", "Cl must be greather 0 to use the "
+                                        + "{:s} optimization goal.".format(optimizationGoal))
+                   return False
         return True

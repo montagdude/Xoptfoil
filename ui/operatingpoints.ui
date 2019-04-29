@@ -110,6 +110,11 @@
      </attribute>
      <column>
       <property name="text">
+       <string>Optimization goal</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
        <string>Condition</string>
       </property>
      </column>

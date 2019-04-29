@@ -1,5 +1,6 @@
 class OperatingPoint():
     def __init__(self):
+        self.optimizationGoal = "Minimize drag"
         self.specCondition = "Cl"
         self.condition = 0.0
         self.reynolds = 1e+05
