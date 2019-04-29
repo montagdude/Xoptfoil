@@ -16,6 +16,7 @@ from settings_dialogs import (OptimizationSettingsDialog, InitializationSettings
                               SimplexSettingsDialog, XfoilSettingsDialog,
                               XfoilPanelingSettingsDialog, PlotSettingsDialog)
 from operatingpoints_dialog import OperatingPointsDialog
+from constraints_dialog import ConstraintsDialog
 from data import data
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
@@ -49,6 +50,8 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.actionPlot_settings.triggered.connect(self.showPlotSettings)
 
         self.ui.actionSet_Operating_Points.triggered.connect(self.setOperatingPoints)
+
+        self.ui.actionSet_constraints.triggered.connect(self.setConstraints)
 
     # Loads seed airfoil from file
     def loadSeed(self):
@@ -134,6 +137,11 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         dialog = OperatingPointsDialog()
         if dialog.exec():
             dialog.saveOperatingPoints()
+
+    def setConstraints(self):
+        dialog = ConstraintsDialog()
+        if dialog.exec():
+            dialog.saveConstraints()
 
 
 if __name__ == "__main__":
