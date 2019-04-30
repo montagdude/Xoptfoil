@@ -121,7 +121,7 @@ class OperatingPointsDialog(QDialog):
             items = self.itemsFromOperatingPoint(editedpoint) 
             for i in range(len(items)):
                 self.ui.pointsTable.setItem(row, i, items[i])
-            self.points.setPoint(i, deepcopy(editedpoint))
+            self.points.setPoint(row, deepcopy(editedpoint))
 
     def deletePoint(self):
         row = self.ui.pointsTable.currentRow()
