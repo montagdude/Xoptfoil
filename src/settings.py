@@ -1,4 +1,27 @@
 import os
+import xml.etree.ElementTree as ET
+import xml.dom.minidom as minidom
+
+def writePrettyXML(elem, f, indentlevel=0, indent='  '):
+    '''Writes an XML element to file with nice indentation. xml.dom.minidom is used to do the
+       writing, because etree.ElementTree dumps it all out on a single line without indentation.
+
+    Inputs:
+        elem: an ElementTree XML element
+        f: an open file object for writing
+        indentlevel: how many tab levels the entire element should be indented
+        indent: indent character(s)
+
+    Reference:
+    https://stackoverflow.com/questions/17402323/use-xml-etree-elementtree-to-print-nicely-formatted-xml-files
+    '''
+    ugly = ET.tostring(elem)
+    pretty = minidom.parseString(ugly).toprettyxml(indent=indent)
+    prettylist = pretty.split('\n')
+    for line in prettylist:
+        # Skip XML header and blank lines
+        if not line.startswith("<?xml version") and len(line) > 0:
+            f.write(indentlevel*indent + line + "\n")
 
 class OptimizationSettings():
     def __init__(self):
@@ -12,6 +35,21 @@ class OptimizationSettings():
         self.minBumpWidth = 0.1
         self.autosaveFrequency = 100
         self.autosaveBasename = "optfoil"
+
+    # Writes settings to open xml file
+    def writeXML(self, f, indentlevel=0, indent='  '):
+        root = ET.Element("OptimizationSettings")
+        ET.SubElement(root, "searchType").text = self.searchType
+        ET.SubElement(root, "globalSearch").text = self.globalSearch
+        ET.SubElement(root, "localSearch").text = self.localSearch
+        ET.SubElement(root, "shapeFunctions").text = self.shapeFunctions
+        ET.SubElement(root, "nfunctionsTop").text = "{:d}".format(self.nfunctionsTop)
+        ET.SubElement(root, "nfunctionsBot").text = "{:d}".format(self.nfunctionsBot)
+        ET.SubElement(root, "initialPerturb").text = "{:.4f}".format(self.initialPerturb)
+        ET.SubElement(root, "minBumpWidth").text = "{:.4f}".format(self.minBumpWidth)
+        ET.SubElement(root, "autosaveFrequency").text = "{:d}".format(self.autosaveFrequency)
+        ET.SubElement(root, "autosaveBasename").text = self.autosaveBasename
+        writePrettyXML(root, f, indentlevel, indent)
 
 
 class InitializationSettings():
