@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QFileDialog, QColorDialog, QMessageBox
-from PyQt5.QtGui import QDoubleValidator, QColor
+from PyQt5.QtGui import QRegExpValidator, QDoubleValidator, QColor
+from PyQt5.QtCore import QRegExp
 
 import optimizationsettings_ui
 import initializationsettings_ui
@@ -19,6 +20,11 @@ class OptimizationSettingsDialog(QDialog):
         self.ui = optimizationsettings_ui.Ui_Dialog()
         self.ui.setupUi(self)
 
+        # RegExp validator for basename line edit (any number of alphanumeric characters)
+        regexp = QRegExp("^[a-zA-Z0-9]*")
+        regexp_validator = QRegExpValidator(regexp)
+        self.ui.basenameEdit.setValidator(regexp_validator)
+
         # Populate items
         self.populate()
 
@@ -31,6 +37,8 @@ class OptimizationSettingsDialog(QDialog):
         self.ui.nfunctionsBotBox.setValue(optimizationsettings.nfunctionsBot)
         self.ui.initialPerturbBox.setValue(optimizationsettings.initialPerturb)
         self.ui.minBumpWidthBox.setValue(optimizationsettings.minBumpWidth)
+        self.ui.autosaveBox.setValue(optimizationsettings.autosaveFrequency)
+        self.ui.basenameEdit.setText(optimizationsettings.autosaveBasename)
 
     def saveSettings(self):
         optimizationsettings.searchType = self.ui.searchTypeBox.currentText()
@@ -41,6 +49,8 @@ class OptimizationSettingsDialog(QDialog):
         optimizationsettings.nfunctionsBot = self.ui.nfunctionsBotBox.value()
         optimizationsettings.initialPerturb = self.ui.initialPerturbBox.value()
         optimizationsettings.minBumpWidth = self.ui.minBumpWidthBox.value()
+        optimizationsettings.autosaveFrequency = self.ui.autosaveBox.value()
+        optimizationsettings.autosaveBasename = self.ui.basenameEdit.text()
 
 
 class InitializationSettingsDialog(QDialog):

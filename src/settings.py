@@ -10,6 +10,8 @@ class OptimizationSettings():
         self.nfunctionsBot = 4
         self.initialPerturb = 0.025
         self.minBumpWidth = 0.1
+        self.autosaveFrequency = 100
+        self.autosaveBasename = "optfoil"
 
 
 class InitializationSettings():
