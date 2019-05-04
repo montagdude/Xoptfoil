@@ -40,17 +40,17 @@ class MatplotlibWidget(Canvas):
         return QSize(10, 10)
 
     def setupAxes(self):
-        self.figure.set_facecolor(plotsettings.bgColor)
+        self.figure.set_facecolor(plotsettings.value("bgColor"))
         self.ax.clear()
-        self.ax.set_facecolor(plotsettings.bgColor)
-        self.ax.spines['top'].set_color(plotsettings.fgColor)
-        self.ax.spines['bottom'].set_color(plotsettings.fgColor)
-        self.ax.spines['left'].set_color(plotsettings.fgColor)
-        self.ax.spines['right'].set_color(plotsettings.fgColor)
-        self.ax.xaxis.label.set_color(plotsettings.fgColor)
-        self.ax.yaxis.label.set_color(plotsettings.fgColor)
-        self.ax.tick_params(axis='x', colors=plotsettings.fgColor)
-        self.ax.tick_params(axis='y', colors=plotsettings.fgColor)
+        self.ax.set_facecolor(plotsettings.value("bgColor"))
+        self.ax.spines['top'].set_color(plotsettings.value("fgColor"))
+        self.ax.spines['bottom'].set_color(plotsettings.value("fgColor"))
+        self.ax.spines['left'].set_color(plotsettings.value("fgColor"))
+        self.ax.spines['right'].set_color(plotsettings.value("fgColor"))
+        self.ax.xaxis.label.set_color(plotsettings.value("fgColor"))
+        self.ax.yaxis.label.set_color(plotsettings.value("fgColor"))
+        self.ax.tick_params(axis='x', colors=plotsettings.value("fgColor"))
+        self.ax.tick_params(axis='y', colors=plotsettings.value("fgColor"))
 
     def plotAirfoils(self):
         """Plots seed airfoil and, optionally, new design
@@ -58,13 +58,14 @@ class MatplotlibWidget(Canvas):
         self.setupAxes()
         self.ax.set_xlabel("x")
         self.ax.set_ylabel("y")
-        self.ax.plot(data.seed_airfoil.x, data.seed_airfoil.y, color=plotsettings.seedColor,
-                     label='Seed airfoil')
+        self.ax.plot(data.seed_airfoil.x, data.seed_airfoil.y, 
+                     color=plotsettings.value("seedColor"), label='Seed airfoil')
         if data.current_airfoil is not None:
             self.ax.plot(data.current_airfoil.x, data.current_airfoil.y,
-                         color=plotsettings.currentColor, label='Current design')
+                         color=plotsettings.value("currentColor"), label='Current design')
         self.ax.set_aspect('equal', 'datalim')
-        leg = self.ax.legend(facecolor=plotsettings.bgColor, edgecolor=plotsettings.fgColor)
+        leg = self.ax.legend(facecolor=plotsettings.value("bgColor"),
+                             edgecolor=plotsettings.value("fgColor"))
         for text in leg.get_texts():
-            text.set_color(plotsettings.fgColor)
+            text.set_color(plotsettings.value("fgColor"))
         self.draw()
