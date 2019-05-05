@@ -18,6 +18,7 @@ from settings_dialogs import (OptimizationSettingsDialog, InitializationSettings
 from operatingpoints_dialog import OperatingPointsDialog
 from constraints_dialog import ConstraintsDialog
 from data import data
+import methods
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -35,6 +36,7 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.mpltoolbar.setCanvas(self.ui.mplwidget)
 
         # Signals and slots
+        self.ui.actionSave_settings.triggered.connect(self.saveSettings)
         self.ui.actionLoad_seed_airfoil.triggered.connect(self.loadSeed)
         self.ui.actionGenerate_NACA_airfoil.triggered.connect(self.generateNACA)
         self.ui.actionQuit.triggered.connect(self.close)
@@ -52,6 +54,19 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.actionSet_Operating_Points.triggered.connect(self.setOperatingPoints)
 
         self.ui.actionSet_constraints.triggered.connect(self.setConstraints)
+
+    # Saves settings to XML file
+    def saveSettings(self):
+        fname, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save settings", self._currpath,
+                                                         "XML files (*.xml)")
+        if fname == "":
+            return
+        else:
+            self._currpath = os.path.dirname(fname)
+
+        if not methods.save_settings(fname):
+            QtWidgets.QMessageBox.critical(self, "Error",
+                                           "Could not open {:s} for writing.".format(fname))
 
     # Loads seed airfoil from file
     def loadSeed(self):

@@ -1,28 +1,5 @@
 import os
 import xml.etree.ElementTree as ET
-import xml.dom.minidom as minidom
-
-def writePrettyXML(elem, f, indentlevel=0, indent='  '):
-    '''Writes an XML element to file with nice indentation. xml.dom.minidom is used to do the
-       writing, because etree.ElementTree dumps it all out on a single line without indentation.
-
-    Inputs:
-        elem: an ElementTree XML element
-        f: an open file object for writing
-        indentlevel: how many tab levels the entire element should be indented
-        indent: indent character(s)
-
-    Reference:
-    https://stackoverflow.com/questions/17402323/use-xml-etree-elementtree-to-print-nicely-formatted-xml-files
-    '''
-    ugly = ET.tostring(elem)
-    pretty = minidom.parseString(ugly).toprettyxml(indent=indent)
-    prettylist = pretty.split('\n')
-    for line in prettylist:
-        # Skip blank lines
-        if not line.startswith("<?xml version") and len(line) > 0:
-            f.write(indentlevel*indent + line + "\n")
-
 
 class Setting():
     def __init__(self, name=None, value=None, default=None, writeformat=None, datatype=None):
