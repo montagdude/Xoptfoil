@@ -30,6 +30,16 @@ def write_pretty_xml(elem, f, indentlevel=0, indent='  ', header=True):
             f.write(indentlevel*indent + line + "\n")
 
 def save_settings(fname):
+    '''Saves settings, operating points, and constraints to XML file
+
+    Inputs:
+        fname: name or path of xml file to save
+    '''
+
+    # Ensure filename ends in .xml
+    if not fname.endswith(".xml"):
+        fname += ".xml"
+
     root = ET.Element("XoptfoilCaseSettings")
     settingselem = ET.SubElement(root, "Settings")
     settingselem.append(optimizationsettings.asXML("OptimizationSettings"))
