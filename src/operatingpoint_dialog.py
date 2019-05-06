@@ -59,50 +59,50 @@ class OperatingPointDialog(QDialog):
 
     # Sets data in the form from a given operating point
     def fromOperatingPoint(self, point):
-        self.ui.optimizationGoalBox.setCurrentText(point.optimizationGoal)
-        self.ui.specConditionBox.setCurrentText(point.specCondition)
-        self.ui.conditionBox.setValue(point.condition)
-        self.ui.reynoldsEdit.setText("{:.4e}".format(point.reynolds))
-        self.ui.machBox.setValue(point.mach)
-        self.ui.flapBehaviorBox.setCurrentText(point.flapBehavior)
-        self.ui.flapDeflectionBox.setValue(point.flapDeflection)
-        self.ui.ncritBehaviorBox.setCurrentText(point.ncritBehavior)
-        if point.ncritBehavior == "Use Xfoil settings":
-            self.ui.ncritBox.setValue(xfoilsettings.ncrit)
+        self.ui.optimizationGoalBox.setCurrentText(point.value("optimizationGoal"))
+        self.ui.specConditionBox.setCurrentText(point.value("specCondition"))
+        self.ui.conditionBox.setValue(point.value("condition"))
+        self.ui.reynoldsEdit.setText("{:.4e}".format(point.value("reynolds")))
+        self.ui.machBox.setValue(point.value("mach"))
+        self.ui.flapBehaviorBox.setCurrentText(point.value("flapBehavior"))
+        self.ui.flapDeflectionBox.setValue(point.value("flapDeflection"))
+        self.ui.ncritBehaviorBox.setCurrentText(point.value("ncritBehavior"))
+        if point.value("ncritBehavior") == "Use Xfoil settings":
+            self.ui.ncritBox.setValue(xfoilsettings.value("ncrit"))
         else:
-            self.ui.ncritBox.setValue(point.ncrit)
-        self.ui.tripBehaviorBox.setCurrentText(point.tripBehavior)
-        if point.tripBehavior == "Use Xfoil settings":
-            self.ui.xtriptBox.setValue(xfoilsettings.xtript)
-            self.ui.xtripbBox.setValue(xfoilsettings.xtripb)
+            self.ui.ncritBox.setValue(point.value("ncrit"))
+        self.ui.tripBehaviorBox.setCurrentText(point.value("tripBehavior"))
+        if point.value("tripBehavior") == "Use Xfoil settings":
+            self.ui.xtriptBox.setValue(xfoilsettings.value("xtript"))
+            self.ui.xtripbBox.setValue(xfoilsettings.value("xtripb"))
         else:
-            self.ui.xtriptBox.setValue(point.xtript)
-            self.ui.xtripbBox.setValue(point.xtripb)
-        self.ui.weightingBox.setValue(point.weighting)
+            self.ui.xtriptBox.setValue(point.value("xtript"))
+            self.ui.xtripbBox.setValue(point.value("xtripb"))
+        self.ui.weightingBox.setValue(point.value("weighting"))
 
     # Returns data in the form of an operating point
     def operatingPoint(self):
         point = OperatingPoint()
-        point.optimizationGoal = self.ui.optimizationGoalBox.currentText()
-        point.specCondition = self.ui.specConditionBox.currentText()
-        point.condition = self.ui.conditionBox.value()
-        point.reynolds = float(self.ui.reynoldsEdit.text())
-        point.mach = self.ui.machBox.value()
-        point.flapBehavior = self.ui.flapBehaviorBox.currentText()
-        point.flapDeflection = self.ui.flapDeflectionBox.value()
-        point.ncritBehavior = self.ui.ncritBehaviorBox.currentText()
-        if point.ncritBehavior == "Use Xfoil settings":
-            point.ncrit = xfoilsettings.ncrit
+        point.setting("optimizationGoal").value = self.ui.optimizationGoalBox.currentText()
+        point.setting("specCondition").value = self.ui.specConditionBox.currentText()
+        point.setting("condition").value = self.ui.conditionBox.value()
+        point.setting("reynolds").value = float(self.ui.reynoldsEdit.text())
+        point.setting("mach").value = self.ui.machBox.value()
+        point.setting("flapBehavior").value = self.ui.flapBehaviorBox.currentText()
+        point.setting("flapDeflection").value = self.ui.flapDeflectionBox.value()
+        point.setting("ncritBehavior").value = self.ui.ncritBehaviorBox.currentText()
+        if point.value("ncritBehavior") == "Use Xfoil settings":
+            point.setting("ncrit").value = xfoilsettings.value("ncrit")
         else:
-            point.ncrit = self.ui.ncritBox.value()
-        point.tripBehavior = self.ui.tripBehaviorBox.currentText()
-        if point.tripBehavior == "Use Xfoil settings":
-            point.xtript = xfoilsettings.xtript
-            point.xtripb = xfoilsettings.xtripb
+            point.setting("ncrit").value = self.ui.ncritBox.value()
+        point.setting("tripBehavior").value = self.ui.tripBehaviorBox.currentText()
+        if point.value("tripBehavior") == "Use Xfoil settings":
+            point.setting("xtript").value = xfoilsettings.value("xtript")
+            point.setting("xtripb").value = xfoilsettings.value("xtripb")
         else:
-            point.xtript = self.ui.xtriptBox.value()
-            point.xtripb = self.ui.xtripbBox.value()
-        point.weighting = self.ui.weightingBox.value()
+            point.setting("xtript").value = self.ui.xtriptBox.value()
+            point.setting("xtripb").value = self.ui.xtripbBox.value()
+        point.setting("weighting").value = self.ui.weightingBox.value()
 
         return point
 

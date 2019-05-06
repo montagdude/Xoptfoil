@@ -9,9 +9,9 @@ class FlapHingePointDialog(QDialog):
         self.ui.setupUi(self)
 
     def populate(self, operatingpoints):
-        self.ui.xflapBox.setValue(operatingpoints.xflap)
-        self.ui.yflapBox.setValue(operatingpoints.yflap)
-        self.ui.yflapSpecBox.setCurrentText(operatingpoints.yflapSpecification)
+        self.ui.xflapBox.setValue(operatingpoints.value("xflap"))
+        self.ui.yflapBox.setValue(operatingpoints.value("yflap"))
+        self.ui.yflapSpecBox.setCurrentText(operatingpoints.value("yflapSpecification"))
 
     def xflap(self):
         return self.ui.xflapBox.value()

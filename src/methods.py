@@ -4,6 +4,7 @@ import xml.dom.minidom as minidom
 from settings import (optimizationsettings, initializationsettings, particleswarmsettings,
                       geneticalgorithmsettings, simplexsettings, xfoilsettings,
                       xfoilpanelingsettings, plotsettings)
+from operatingpoints import operatingpoints
 
 def write_pretty_xml(elem, f, indentlevel=0, indent='  ', header=True):
     '''Writes an XML element to file with nice indentation. xml.dom.minidom is used to do the
@@ -29,18 +30,17 @@ def write_pretty_xml(elem, f, indentlevel=0, indent='  ', header=True):
             f.write(indentlevel*indent + line + "\n")
 
 def save_settings(fname):
-    #from settings import (optimizationsettings, initializationsettings, particleswarmsettings,
-    #                      geneticalgorithmsettings, simplexsettings, xfoilsettings,
-    #                      xfoilpanelingsettings, plotsettings)
-    root = ET.Element("Settings")
-    root.append(optimizationsettings.asXML("OptimizationSettings"))
-    root.append(initializationsettings.asXML("InitializationSettings"))
-    root.append(particleswarmsettings.asXML("ParticleswarmSettings"))
-    root.append(geneticalgorithmsettings.asXML("GeneticAlgorithmSettings"))
-    root.append(simplexsettings.asXML("SimplexSettings"))
-    root.append(xfoilsettings.asXML("XfoilSettings"))
-    root.append(xfoilpanelingsettings.asXML("XfoilPanelingSettings"))
-    root.append(plotsettings.asXML("PlotSettings"))
+    root = ET.Element("XoptfoilCaseSettings")
+    settingselem = ET.SubElement(root, "Settings")
+    settingselem.append(optimizationsettings.asXML("OptimizationSettings"))
+    settingselem.append(initializationsettings.asXML("InitializationSettings"))
+    settingselem.append(particleswarmsettings.asXML("ParticleswarmSettings"))
+    settingselem.append(geneticalgorithmsettings.asXML("GeneticAlgorithmSettings"))
+    settingselem.append(simplexsettings.asXML("SimplexSettings"))
+    settingselem.append(xfoilsettings.asXML("XfoilSettings"))
+    settingselem.append(xfoilpanelingsettings.asXML("XfoilPanelingSettings"))
+    settingselem.append(plotsettings.asXML("PlotSettings"))
+    root.append(operatingpoints.asXML("OperatingPoints"))
 
     try:
         f = open(fname, "w")

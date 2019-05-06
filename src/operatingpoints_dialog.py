@@ -16,9 +16,10 @@ class OperatingPointsDialog(QDialog):
 
         # Temporary storage of operating points
         self.points = OperatingPoints()
-        self.points.xflap = deepcopy(operatingpoints.xflap)
-        self.points.yflap = deepcopy(operatingpoints.yflap)
-        self.points.yflapSpecification = deepcopy(operatingpoints.yflapSpecification)
+        self.points.setting("xflap").value = deepcopy(operatingpoints.value("xflap"))
+        self.points.setting("yflap").value = deepcopy(operatingpoints.value("yflap"))
+        self.points.setting("yflapSpecification").value = \
+                    deepcopy(operatingpoints.value("yflapSpecification"))
         for i in range(operatingpoints.numPoints()):
             self.points.addPoint(deepcopy(operatingpoints.point(i)))
 
@@ -50,33 +51,33 @@ class OperatingPointsDialog(QDialog):
     # Gets row items from operating point
     def itemsFromOperatingPoint(self, operatingpoint):
         items = []
-        items.append(QTableWidgetItem(operatingpoint.optimizationGoal))
-        if operatingpoint.specCondition == "Cl":
-            text = "Cl = {:.4f}".format(operatingpoint.condition)
+        items.append(QTableWidgetItem(operatingpoint.value("optimizationGoal")))
+        if operatingpoint.value("specCondition") == "Cl":
+            text = "Cl = {:.4f}".format(operatingpoint.value("condition"))
         else:
-            text = "AoA = {:.4f}".format(operatingpoint.condition)
+            text = "AoA = {:.4f}".format(operatingpoint.value("condition"))
         items.append(QTableWidgetItem(text))
-        items.append(QTableWidgetItem("{:.4e}".format(operatingpoint.reynolds)))
-        items.append(QTableWidgetItem("{:.4f}".format(operatingpoint.mach)))
-        items.append(QTableWidgetItem("{:.4f}".format(operatingpoint.weighting)))
-        if operatingpoint.flapBehavior == "No deflection":
+        items.append(QTableWidgetItem("{:.4e}".format(operatingpoint.value("reynolds"))))
+        items.append(QTableWidgetItem("{:.4f}".format(operatingpoint.value("mach"))))
+        items.append(QTableWidgetItem("{:.4f}".format(operatingpoint.value("weighting"))))
+        if operatingpoint.value("flapBehavior") == "No deflection":
             text = "None"
-        elif operatingpoint.flapBehavior == "Specified deflection":
-            text = "{:.4f}".format(operatingpoint.flapDeflection)
-        elif operatingpoint.flapBehavior == "Optimized deflection":
+        elif operatingpoint.value("flapBehavior") == "Specified deflection":
+            text = "{:.4f}".format(operatingpoint.value("flapDeflection"))
+        elif operatingpoint.value("flapBehavior") == "Optimized deflection":
             text = "Optimized"
         items.append(QTableWidgetItem(text))
-        if operatingpoint.ncritBehavior == "Use Xfoil settings":
-            text = "{:.4f}".format(xfoilsettings.ncrit)
+        if operatingpoint.value("ncritBehavior") == "Use Xfoil settings":
+            text = "{:.4f}".format(xfoilsettings.value("ncrit"))
         else:
-            text = "{:.4f}".format(operatingpoint.ncrit)
+            text = "{:.4f}".format(operatingpoint.value("ncrit"))
         items.append(QTableWidgetItem(text))
-        if operatingpoint.tripBehavior == "Use Xfoil settings":
-            textt = "{:.4f}".format(xfoilsettings.xtript)
-            textb = "{:.4f}".format(xfoilsettings.xtripb)
+        if operatingpoint.value("tripBehavior") == "Use Xfoil settings":
+            textt = "{:.4f}".format(xfoilsettings.value("xtript"))
+            textb = "{:.4f}".format(xfoilsettings.value("xtripb"))
         else:
-            textt = "{:.4f}".format(operatingpoint.xtript)
-            textb = "{:.4f}".format(operatingpoint.xtripb)
+            textt = "{:.4f}".format(operatingpoint.value("xtript"))
+            textb = "{:.4f}".format(operatingpoint.value("xtripb"))
         items.append(QTableWidgetItem(textt))
         items.append(QTableWidgetItem(textb))
 
@@ -137,15 +138,16 @@ class OperatingPointsDialog(QDialog):
         dialog = FlapHingePointDialog()
         dialog.populate(self.points)
         if dialog.exec():
-            self.points.xflap = dialog.xflap()
-            self.points.yflap = dialog.yflap()
-            self.points.yflapSpecification = dialog.yflapSpecification()
+            self.points.setting("xflap").value = dialog.xflap()
+            self.points.setting("yflap").value = dialog.yflap()
+            self.points.setting("yflapSpecification").value = dialog.yflapSpecification()
 
     # Saves operating points
     def saveOperatingPoints(self):
-        operatingpoints.xflap = deepcopy(self.points.xflap)
-        operatingpoints.yflap = deepcopy(self.points.yflap)
-        operatingpoints.yflapSpecification = deepcopy(self.points.yflapSpecification)
+        operatingpoints.setting("xflap").value = deepcopy(self.points.value("xflap"))
+        operatingpoints.setting("yflap").value = deepcopy(self.points.value("yflap"))
+        operatingpoints.setting("yflapSpecification").value = \
+                        deepcopy(self.points.value("yflapSpecification"))
         operatingpoints.deleteAllPoints()
         for i in range(self.points.numPoints()):
             operatingpoints.addPoint(deepcopy(self.points.point(i)))
