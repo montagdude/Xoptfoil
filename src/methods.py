@@ -5,6 +5,7 @@ from settings import (optimizationsettings, initializationsettings, particleswar
                       geneticalgorithmsettings, simplexsettings, xfoilsettings,
                       xfoilpanelingsettings, plotsettings)
 from operatingpoints import operatingpoints
+from constraints import constraints
 
 def write_pretty_xml(elem, f, indentlevel=0, indent='  ', header=True):
     '''Writes an XML element to file with nice indentation. xml.dom.minidom is used to do the
@@ -51,6 +52,7 @@ def save_settings(fname):
     settingselem.append(xfoilpanelingsettings.asXML("XfoilPanelingSettings"))
     settingselem.append(plotsettings.asXML("PlotSettings"))
     root.append(operatingpoints.asXML("OperatingPoints"))
+    root.append(constraints.asXML("Constraints"))
 
     try:
         f = open(fname, "w")

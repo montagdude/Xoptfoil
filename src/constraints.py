@@ -1,19 +1,35 @@
 import sys
+import xml.etree.ElementTree as ET
 
-class Constraints():
+from settings import Settings, Setting
+
+class Constraints(Settings):
     def __init__(self):
-        self.minThickness = 0.06
-        self.maxThickness = 100.0
-        self.minCamber = -0.1
-        self.maxCamber = 0.1
-        self.minTEAngle = 3.0
-        self.checkCurvature = True
-        self.maxReverseTop = 0
-        self.maxReverseBot = 1
-        self.curveThreshold = 0.075
-        self.symmetrical = False
-        self.minFlapAngle = -20.
-        self.maxFlapAngle = 20.
+        Settings.__init__(self)
+        self.addSetting(Setting(name="minThickness", default=0.06, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="maxThickness", default=100.0, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="minCamber", default=-0.1, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="maxCamber", default=0.1, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="minTEAngle", default=3.0, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="checkCurvature", default=True, writeformat="{}",
+                                datatype=bool))
+        self.addSetting(Setting(name="maxReverseTop", default=0, writeformat="{:d}",
+                                datatype=int))
+        self.addSetting(Setting(name="maxReverseBot", default=1, writeformat="{:d}",
+                                datatype=int))
+        self.addSetting(Setting(name="curveThreshold", default=0.075, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="symmetrical", default=False, writeformat="{}",
+                                datatype=bool))
+        self.addSetting(Setting(name="minFlapAngle", default=-20.0, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="maxFlapAngle", default=20.0, writeformat="{:.4f}",
+                                datatype=float))
         self.momentConstraintType = []
         self.minMoment = []
         self.cpConstraintType = []
@@ -68,5 +84,40 @@ class Constraints():
         self.addThickX = []
         self.addThickMin = []
         self.addThickMax = []
+
+    def asXML(self, elemname):
+        elem = Settings.asXML(self, elemname)
+
+        # Moment constraints
+        nmoment = self.numMomentConstraints()
+        ET.SubElement(elem, "numMomentConstraints").text = "{:d}".format(nmoment)
+        for i in range(nmoment):
+            subelem = ET.Element("MomentConstraint")
+            ET.SubElement(subelem, "momentConstraintType").text = self.momentConstraintType[i]
+            if self.momentConstraintType[i] == "Specify":
+                ET.SubElement(subelem, "minMoment").text = "{:.4f}".format(self.minMoment[i])
+            elem.append(subelem)
+
+        # Cp constraints
+        ncp = self.numCpConstraints()
+        ET.SubElement(elem, "numCpConstraints").text = "{:d}".format(ncp)
+        for i in range(ncp):
+            subelem = ET.Element("CpConstraint")
+            ET.SubElement(subelem, "cpConstraintType").text = self.cpConstraintType[i]
+            if self.cpConstraintType[i] == "Specify":
+                ET.SubElement(subelem, "minCp").text = "{:.4f}".format(self.minCp[i])
+            elem.append(subelem)
+
+        # Additional thickness constraints
+        nthick = self.numThicknessConstraints()
+        ET.SubElement(elem, "numThicknessConstraints").text = "{:d}".format(nthick)
+        for i in range(nthick):
+            subelem = ET.Element("ThicknessConstraint")
+            ET.SubElement(subelem, "xThickness").text = "{:.4f}".format(self.addThickX[i])
+            ET.SubElement(subelem, "minThickness").text = "{:.4f}".format(self.addThickMin[i])
+            ET.SubElement(subelem, "maxThickness").text = "{:.4f}".format(self.addThickMax[i])
+            elem.append(subelem)
+
+        return elem
 
 constraints = Constraints()

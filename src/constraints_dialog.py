@@ -42,18 +42,18 @@ class ConstraintsDialog(QDialog):
 
     # Populates items
     def populate(self):
-        self.ui.minThicknessBox.setValue(constraints.minThickness*100.)
-        self.ui.maxThicknessBox.setValue(constraints.maxThickness*100.)
-        self.ui.minCamberBox.setValue(constraints.minCamber*100.)
-        self.ui.maxCamberBox.setValue(constraints.maxCamber*100.)
-        self.ui.minTEAngleBox.setValue(constraints.minTEAngle)
-        self.ui.checkCurvatureBox.setChecked(constraints.checkCurvature)
-        self.ui.maxReverseTopBox.setValue(constraints.maxReverseTop)
-        self.ui.maxReverseBottomBox.setValue(constraints.maxReverseBot)
-        self.ui.curveThresholdBox.setValue(constraints.curveThreshold)
-        self.ui.symmetricalBox.setChecked(constraints.symmetrical)
-        self.ui.minFlapAngleBox.setValue(constraints.minFlapAngle)
-        self.ui.maxFlapAngleBox.setValue(constraints.maxFlapAngle)
+        self.ui.minThicknessBox.setValue(constraints.value("minThickness")*100.)
+        self.ui.maxThicknessBox.setValue(constraints.value("maxThickness")*100.)
+        self.ui.minCamberBox.setValue(constraints.value("minCamber")*100.)
+        self.ui.maxCamberBox.setValue(constraints.value("maxCamber")*100.)
+        self.ui.minTEAngleBox.setValue(constraints.value("minTEAngle"))
+        self.ui.checkCurvatureBox.setChecked(constraints.value("checkCurvature"))
+        self.ui.maxReverseTopBox.setValue(constraints.value("maxReverseTop"))
+        self.ui.maxReverseBottomBox.setValue(constraints.value("maxReverseBot"))
+        self.ui.curveThresholdBox.setValue(constraints.value("curveThreshold"))
+        self.ui.symmetricalBox.setChecked(constraints.value("symmetrical"))
+        self.ui.minFlapAngleBox.setValue(constraints.value("minFlapAngle"))
+        self.ui.maxFlapAngleBox.setValue(constraints.value("maxFlapAngle"))
 
         # Min moment boxes. Make consistent with number of operating points, then set values.
         numpoints = operatingpoints.numPoints()
@@ -218,18 +218,18 @@ class ConstraintsDialog(QDialog):
             self.ui.deleteButton.setEnabled(False)
 
     def saveConstraints(self):
-        constraints.minThickness = self.ui.minThicknessBox.value()/100.
-        constraints.maxThickness = self.ui.maxThicknessBox.value()/100.
-        constraints.minCamber = self.ui.minCamberBox.value()/100.
-        constraints.maxCamber = self.ui.maxCamberBox.value()/100.
-        constraints.minTEAngle = self.ui.minTEAngleBox.value()
-        constraints.checkCurvature = self.ui.checkCurvatureBox.isChecked()
-        constraints.maxReverseTop = self.ui.maxReverseTopBox.value()
-        constraints.maxReverseBot = self.ui.maxReverseBottomBox.value()
-        constraints.curveThreshold = self.ui.curveThresholdBox.value()
-        constraints.symmetrical = self.ui.symmetricalBox.isChecked()
-        constraints.minFlapAngle = self.ui.minFlapAngleBox.value()
-        constraints.maxFlapAngle = self.ui.maxFlapAngleBox.value()
+        constraints.setting("minThickness").value = self.ui.minThicknessBox.value()/100.
+        constraints.setting("maxThickness").value= self.ui.maxThicknessBox.value()/100.
+        constraints.setting("minCamber").value = self.ui.minCamberBox.value()/100.
+        constraints.setting("maxCamber").value = self.ui.maxCamberBox.value()/100.
+        constraints.setting("minTEAngle").value = self.ui.minTEAngleBox.value()
+        constraints.setting("checkCurvature").value = self.ui.checkCurvatureBox.isChecked()
+        constraints.setting("maxReverseTop").value = self.ui.maxReverseTopBox.value()
+        constraints.setting("maxReverseBot").value = self.ui.maxReverseBottomBox.value()
+        constraints.setting("curveThreshold").value = self.ui.curveThresholdBox.value()
+        constraints.setting("symmetrical").value = self.ui.symmetricalBox.isChecked()
+        constraints.setting("minFlapAngle").value = self.ui.minFlapAngleBox.value()
+        constraints.setting("maxFlapAngle").value = self.ui.maxFlapAngleBox.value()
 
         # Moment constraints
         constraints.clearMomentConstraints()
