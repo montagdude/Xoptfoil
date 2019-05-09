@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
+import sys
 
 from settings import (optimizationsettings, initializationsettings, particleswarmsettings,
                       geneticalgorithmsettings, simplexsettings, xfoilsettings,
@@ -32,7 +33,7 @@ def write_pretty_xml(elem, f, indentlevel=0, indent='  ', header=True):
             f.write(indentlevel*indent + line + "\n")
 
 def save_settings(fname):
-    '''Saves settings, operating points, and constraints to XML file
+    '''Saves settings, operating points, constraints, and seed airfoil source to XML file
 
     Inputs:
         fname: name or path of xml file to save
@@ -66,3 +67,58 @@ def save_settings(fname):
     f.close()
 
     return True
+
+def read_settings(fname):
+    '''Reads settings, operating points, constraints, and seed airfoil source from XML file
+
+    Inputs:
+        fname: name or path of xml file
+
+    Returns:
+        0 on success, 1 if file not found, 2 if I/O error, 3 if parse error
+        msg: success/error message
+    '''
+
+    # Open file and catch errors
+    msg = "Success"
+    try:
+        tree = ET.parse(fname)
+    except FileNotFoundError:
+        msg = "Error parsing {:s}: file not found.".format(fname)
+        sys.stderr.write(msg+"\n")
+        return 1, msg
+    except IOError:
+        msg = "Error parsing {:s}: I/O error.".format(fname)
+        sys.stderr.write(msg+"\n")
+        return 2, msg
+    except ET.ParseError as e:
+        msg = "Error parsing {:s}: {:s}.".format(fname, e.msg)
+        sys.stderr.write(msg+"\n")
+        return 3, msg
+
+    # Read settings
+    root = tree.getroot()
+    for child in root:
+        if child.tag == "Settings":
+            for grandchild in child:
+                if grandchild.tag == "OptimizationSettings":
+                    optimizationsettings.fromXML(grandchild)
+                elif grandchild.tag == "InitializationSettings":
+                    initializationsettings.fromXML(grandchild)
+                elif grandchild.tag == "ParticleswarmSettings":
+                    particleswarmsettings.fromXML(grandchild)
+                elif grandchild.tag == "GeneticAlgorithmSettings":
+                    geneticalgorithmsettings.fromXML(grandchild)
+                elif grandchild.tag == "SimplexSettings":
+                    simplexsettings.fromXML(grandchild)
+                elif grandchild.tag == "XfoilSettings":
+                    xfoilsettings.fromXML(grandchild)
+                elif grandchild.tag == "XfoilPanelingSettings":
+                    xfoilpanelingsettings.fromXML(grandchild)
+                elif grandchild.tag == "PlotSettings":
+                    plotsettings.fromXML(grandchild)
+                else:
+                    sys.stderr.write("Warning: unrecognized element {:s}.\n"\
+                                     .format(grandchild.tag))
+
+    return 0, msg

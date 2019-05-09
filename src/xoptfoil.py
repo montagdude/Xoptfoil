@@ -36,6 +36,7 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.mpltoolbar.setCanvas(self.ui.mplwidget)
 
         # Signals and slots
+        self.ui.actionLoad_saved_settings.triggered.connect(self.loadSettings)
         self.ui.actionSave_settings.triggered.connect(self.saveSettings)
         self.ui.actionLoad_seed_airfoil.triggered.connect(self.loadSeed)
         self.ui.actionGenerate_NACA_airfoil.triggered.connect(self.generateNACA)
@@ -54,6 +55,23 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         self.ui.actionSet_Operating_Points.triggered.connect(self.setOperatingPoints)
 
         self.ui.actionSet_constraints.triggered.connect(self.setConstraints)
+
+    # Loads saved settings from XML file
+    def loadSettings(self):
+        fname, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load saved settings",
+                                                         self._currpath, "XML files (*.xml)")
+        if fname == "":
+            return
+        else:
+            self._currpath = os.path.dirname(fname)
+
+        ret, errmsg = methods.read_settings(fname)
+        if ret != 0:
+            QtWidgets.QMessageBox.critical(self, "Error", errmsg)
+        else:
+            # Because plot settings may have changed
+            self.ui.mplwidget.setupAxes()
+            self.ui.mplwidget.draw()
 
     # Saves settings to XML file
     def saveSettings(self):

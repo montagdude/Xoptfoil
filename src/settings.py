@@ -1,5 +1,6 @@
 import os
 import xml.etree.ElementTree as ET
+import sys
 
 class Setting():
     def __init__(self, name=None, value=None, default=None, writeformat=None, datatype=None):
@@ -49,6 +50,16 @@ class Settings():
             ET.SubElement(elem, setting.name).text = text
         return elem
 
+    def fromXML(self, elem):
+        for child in elem:
+            for setting in self.settings:
+                if child.tag == setting.name:
+                    try:
+                        setting.value = setting.datatype(child.text)
+                    except ValueError:
+                        sys.stderr.write("Failed to read {:s}:{:s}: wrong data type.\n"\
+                                         .format(elem.tag, setting.name))
+
 
 class OptimizationSettings(Settings):
     def __init__(self):
@@ -72,7 +83,7 @@ class OptimizationSettings(Settings):
         self.addSetting(Setting(name="autosaveFrequency", default=100, writeformat="{:d}",
                                 datatype=int))
         self.addSetting(Setting(name="autosaveBasename", default="optfoil", writeformat="{:s}",
-                                datatype=int))
+                                datatype=str))
 
 
 class InitializationSettings(Settings):
