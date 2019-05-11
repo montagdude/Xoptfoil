@@ -120,5 +120,7 @@ def read_settings(fname):
                 else:
                     sys.stderr.write("Warning: unrecognized element {:s}.\n"\
                                      .format(grandchild.tag))
+        elif child.tag == "OperatingPoints":
+            operatingpoints.fromXML(child)
 
     return 0, msg

@@ -67,11 +67,19 @@ class OperatingPoints(Settings):
 
     def asXML(self, elemname):
         elem = Settings.asXML(self, elemname)
-        ET.SubElement(elem, "numPoints").text = "{:d}".format(self.numPoints())
         for point in self.points:
             elem.append(point.asXML("OperatingPoint"))
 
         return elem
+
+    def fromXML(self, elem):
+        Settings.fromXML(self, elem)
+        self.deleteAllPoints()
+        for child in elem:
+            if child.tag == "OperatingPoint":
+                point = OperatingPoint()
+                point.fromXML(child)
+                self.addPoint(point)
 
 
 operatingpoints = OperatingPoints()
