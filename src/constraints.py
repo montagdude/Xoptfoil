@@ -90,7 +90,6 @@ class Constraints(Settings):
 
         # Moment constraints
         nmoment = self.numMomentConstraints()
-        ET.SubElement(elem, "numMomentConstraints").text = "{:d}".format(nmoment)
         for i in range(nmoment):
             subelem = ET.Element("MomentConstraint")
             ET.SubElement(subelem, "momentConstraintType").text = self.momentConstraintType[i]
@@ -100,7 +99,6 @@ class Constraints(Settings):
 
         # Cp constraints
         ncp = self.numCpConstraints()
-        ET.SubElement(elem, "numCpConstraints").text = "{:d}".format(ncp)
         for i in range(ncp):
             subelem = ET.Element("CpConstraint")
             ET.SubElement(subelem, "cpConstraintType").text = self.cpConstraintType[i]
@@ -110,7 +108,6 @@ class Constraints(Settings):
 
         # Additional thickness constraints
         nthick = self.numThicknessConstraints()
-        ET.SubElement(elem, "numThicknessConstraints").text = "{:d}".format(nthick)
         for i in range(nthick):
             subelem = ET.Element("ThicknessConstraint")
             ET.SubElement(subelem, "xThickness").text = "{:.4f}".format(self.addThickX[i])
@@ -119,5 +116,50 @@ class Constraints(Settings):
             elem.append(subelem)
 
         return elem
+
+    def fromXML(self, elem):
+        Settings.fromXML(self, elem)
+        self.clearMomentConstraints()
+        self.clearCpConstraints()
+        self.clearThicknessConstraints()
+
+        for child in elem:
+            # Read moment constraints
+            if child.tag == "MomentConstraint":
+                for grandchild in child:
+                    min_moment = None
+                    if grandchild.tag == "momentConstraintType":
+                        constraint_type = grandchild.text
+                    elif grandchild.tag == "minMoment":
+                        min_moment = float(grandchild.text)
+                self.addMomentConstraint(constraint_type, min_moment)
+
+            # Read Cp constraints
+            elif child.tag == "CpConstraint":
+                for grandchild in child:
+                    min_cp = None
+                    if grandchild.tag == "cpConstraintType":
+                        constraint_type = grandchild.text
+                    elif grandchild.tag == "minCp":
+                        min_cp = float(grandchild.text)
+                self.addCpConstraint(constraint_type, min_cp)
+
+            # Read thickness constraints
+            elif child.tag == "ThicknessConstraint":
+                for grandchild in child:
+                    if grandchild.tag == "xThickness":
+                        x = float(grandchild.text)
+                    elif grandchild.tag == "minThickness":
+                        minthick = float(grandchild.text)
+                    elif grandchild.tag == "maxThickness":
+                        maxthick = float(grandchild.text)
+                # Do some basic validation and add it
+                if x < 0. or x > 1.:
+                    sys.stderr.write("Warning: xThickness must be >= 0 and <= 1. Skipping.\n")
+                elif minthick >= maxthick:
+                    sys.stderr.write("Warning: minThickness must be < maxThickness. Skipping.\n")
+                else:
+                    self.addThicknessConstraint(x, minthick, maxthick)
+
 
 constraints = Constraints()

@@ -122,5 +122,7 @@ def read_settings(fname):
                                      .format(grandchild.tag))
         elif child.tag == "OperatingPoints":
             operatingpoints.fromXML(child)
+        elif child.tag == "Constraints":
+            constraints.fromXML(child)
 
     return 0, msg
