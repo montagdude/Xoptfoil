@@ -75,7 +75,8 @@ def read_settings(fname):
         fname: name or path of xml file
 
     Returns:
-        0 on success, 1 if file not found, 2 if I/O error, 3 if parse error
+        0 on success, 1 if file not found, 2 if I/O error, 3 if parse error, 4 or failure
+            to load seed airfoil
         msg: success/error message
     '''
 
@@ -124,5 +125,10 @@ def read_settings(fname):
             operatingpoints.fromXML(child)
         elif child.tag == "Constraints":
             constraints.fromXML(child)
+        elif child.tag == "SeedAirfoil":
+            check, msg = data.seed_airfoil.fromXML(child)
+            if not check:
+                sys.stderr.write(msg+"\n")
+                return 4, msg
 
     return 0, msg

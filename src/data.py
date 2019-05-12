@@ -27,8 +27,7 @@ class Data:
         Returns
             True
         """
-        npointside = 100
-        self.seed_airfoil.generate4Digit(camber, xcamber, thickness, npointside)
+        self.seed_airfoil.generate4Digit(camber, xcamber, thickness)
         return True
 
     def generate5DigitAirfoil(self, designation):
@@ -40,7 +39,6 @@ class Data:
             True on success
             False on failure
         """
-        npointside = 100
-        return self.seed_airfoil.generate5Digit(designation, npointside)
+        return self.seed_airfoil.generate5Digit(designation)
 
 data = Data()

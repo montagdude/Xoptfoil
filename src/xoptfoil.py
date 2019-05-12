@@ -69,9 +69,12 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         if ret != 0:
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
         else:
-            # Because plot settings may have changed
-            self.ui.mplwidget.setupAxes()
-            self.ui.mplwidget.draw()
+            # Airfoil and/or plot settings may have changed
+            if data.seed_airfoil.numPoints() > 0:
+                self.ui.mplwidget.plotAirfoils()
+            else:
+                self.ui.mplwidget.setupAxes()
+                self.ui.mplwidget.draw()
 
     # Saves settings to XML file
     def saveSettings(self):

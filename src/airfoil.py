@@ -4,12 +4,17 @@ import xml.etree.ElementTree as ET
 import libxfoil_wrap as lxf
 
 class Airfoil:
+
+    npointside = 100
+
     def __init__(self):
-        self.x = []
-        self.y = []
+        self.x = np.zeros((0))
+        self.y = np.zeros((0))
         self.source_data = {"source": None, "camber": None, "xcamber": None,
                             "thickness": None, "designation": None, "file": None}
 
+    def numPoints(self):
+        return self.x.shape[0]
 
     def readFromFile(self, fname):
         """Reads airfoil from file.
@@ -26,7 +31,7 @@ class Airfoil:
         try:
             f = open(fname)
         except IOError:
-            sys.stderr.write("Unable to read {:s}\n.".format(fname))
+            sys.stderr.write("Unable to read {:s}.\n".format(fname))
             return 1
 
         # Determine if file has a label
@@ -78,8 +83,8 @@ class Airfoil:
         self.source_data["file"] = fname
         return 0
 
-    def generate4Digit(self, camber, xcamber, thickness, npointside):
-        x, y, _ = lxf.naca_4_digit(camber, xcamber, thickness, npointside)
+    def generate4Digit(self, camber, xcamber, thickness):
+        x, y, _ = lxf.naca_4_digit(camber, xcamber, thickness, Airfoil.npointside)
         self.x = np.array(x)
         self.y = np.array(y)
         self.source_data["source"] = "4-digit"
@@ -87,8 +92,8 @@ class Airfoil:
         self.source_data["xcamber"] = xcamber
         self.source_data["thickness"] = thickness
 
-    def generate5Digit(self, designation, npointside):
-        x, y, _, stat = lxf.naca_5_digit(designation, npointside)
+    def generate5Digit(self, designation):
+        x, y, _, stat = lxf.naca_5_digit(designation, Airfoil.npointside)
         if stat != 0:
             return False
         else:
@@ -99,6 +104,14 @@ class Airfoil:
             return True
 
     def sourceAsXML(self, elemname):
+        '''Saves airfoil source data in XML format
+        
+        Inputs:
+            elemname: name of XML element to write
+        Returns:
+            elem: XML element
+        '''
+
         elem = ET.Element(elemname)
 
         if self.source_data["source"] is None:
@@ -115,3 +128,51 @@ class Airfoil:
             ET.SubElement(elem, "file").text = self.source_data["file"]
 
         return elem
+
+    def fromXML(self, elem):
+        '''Generates airfoil from source data in XML
+        
+        Inputs:
+            elem: XML element containing airfoil source data
+        Returns:
+            retval: True on success, False on error
+            errmsg: Description of error
+        '''
+
+        retval = True
+        errmsg = "Success"
+        source_data = {"source": None, "camber": None, "xcamber": None,
+                       "thickness": None, "designation": None, "file": None}
+
+        for child in elem:
+            if child.tag == "source":
+                source_data["source"] = child.text
+            elif child.tag == "camber":
+                source_data["camber"] = float(child.text)
+            elif child.tag == "xCamber":
+                source_data["xcamber"] = float(child.text)
+            elif child.tag == "thickness":
+                source_data["thickness"] = float(child.text)
+            elif child.tag == "designation":
+                source_data["designation"] = child.text
+            elif child.tag == "file":
+                source_data["file"] = child.text
+
+        # Attempt to load airfoil
+        if source_data["source"] == "4-digit":
+            self.generate4Digit(source_data["camber"], source_data["xcamber"],
+                                source_data["thickness"])
+        elif source_data["source"] == "5-digit":
+            retval = self.generate5Digit(source_data["designation"])
+            if not retval:
+                errmsg = "Invalid 5-digit seed airfoil designation."
+        elif source_data["source"] == "file":
+            check = self.readFromFile(source_data["file"])
+            if check == 1:
+                retval = False
+                errmsg = "Failed to open {:s}.".format(source_data["file"])
+            elif check == 2:
+                retval = False
+                errmsg = "Format error in airfoil file {:s}.".format(source_data["file"])
+
+        return retval, errmsg
