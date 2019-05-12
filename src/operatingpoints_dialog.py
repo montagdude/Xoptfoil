@@ -41,13 +41,6 @@ class OperatingPointsDialog(QDialog):
         for i in range(self.points.numPoints()):
             self.addRow(self.points.point(i))
 
-    def reject(self):
-        ret = QMessageBox.question(self, "Confirm close", "Any changes will be lost. " +
-                                   "Are you sure you want to close this dialog?")
-        if ret == QMessageBox.Yes:
-            self.hide()
-            self.setResult(QDialog.Rejected)
-
     # Gets row items from operating point
     def itemsFromOperatingPoint(self, operatingpoint):
         items = []
