@@ -76,6 +76,10 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
                 self.ui.mplwidget.setupAxes()
                 self.ui.mplwidget.draw()
 
+            # Enable optimization if possible
+            if methods.can_optimize():
+                self.setOptimizationEnabled(True)
+
     # Saves settings to XML file
     def saveSettings(self):
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save settings", self._currpath,
@@ -109,6 +113,10 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
         self.ui.mplwidget.plotAirfoils()
 
+        # Enable optimization if possible
+        if methods.can_optimize():
+            self.setOptimizationEnabled(True)
+
     # Generates a NACA seed airfoil
     def generateNACA(self):
         if self.naca_dialog.exec():
@@ -122,6 +130,10 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
                 self.ui.mplwidget.plotAirfoils()
             else:
                 QtWidgets.QMessageBox.critical(self, "Error", "Unsupported 5-digit designation.")
+
+            # Enable optimization if possible
+            if methods.can_optimize():
+                self.setOptimizationEnabled(True)
 
     def showOptimizationSettings(self):
         dialog = OptimizationSettingsDialog()
@@ -174,10 +186,18 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         if dialog.exec():
             dialog.saveOperatingPoints()
 
+            # Enable optimization if possible
+            if methods.can_optimize():
+                self.setOptimizationEnabled(True)
+
     def setConstraints(self):
         dialog = ConstraintsDialog()
         if dialog.exec():
             dialog.saveConstraints()
+
+    def setOptimizationEnabled(self, enabled):
+        self.ui.optimizeButton.setEnabled(enabled)
+        self.ui.actionOptimize.setEnabled(enabled)
 
 
 if __name__ == "__main__":

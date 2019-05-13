@@ -80,21 +80,30 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="optimizeButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Optimize</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="stopButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Stop optimization</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pauseButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Pause optimization</string>
         </property>
@@ -103,7 +112,7 @@
       <item>
        <widget class="QProgressBar" name="progressBar">
         <property name="value">
-         <number>24</number>
+         <number>0</number>
         </property>
        </widget>
       </item>
@@ -160,10 +169,19 @@
     </property>
     <addaction name="actionSet_constraints"/>
    </widget>
+   <widget class="QMenu" name="menuO_ptimization">
+    <property name="title">
+     <string>O&amp;ptimization</string>
+    </property>
+    <addaction name="actionOptimize"/>
+    <addaction name="actionPause"/>
+    <addaction name="actionStop"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
    <addaction name="menuOperating_Points"/>
    <addaction name="menuConstraints"/>
+   <addaction name="menuO_ptimization"/>
   </widget>
   <action name="actionQuit">
    <property name="text">
@@ -261,6 +279,30 @@
     <string>Ctrl+O</string>
    </property>
   </action>
+  <action name="actionOptimize">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Optimize</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Pause</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Stop</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -276,5 +318,54 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>optimizeButton</sender>
+   <signal>clicked()</signal>
+   <receiver>actionOptimize</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>52</x>
+     <y>578</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stopButton</sender>
+   <signal>clicked()</signal>
+   <receiver>actionStop</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>159</x>
+     <y>578</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pauseButton</sender>
+   <signal>clicked()</signal>
+   <receiver>actionPause</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>578</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

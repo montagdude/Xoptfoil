@@ -132,3 +132,16 @@ def read_settings(fname):
                 return 4, msg
 
     return 0, msg
+
+def can_optimize():
+    '''Checks whether data is in place to allow optimization to start
+    
+    Outputs: True if optimization can proceed, False if not
+    '''
+
+    if operatingpoints.numPoints() == 0:
+        return False
+    if data.seed_airfoil.numPoints() < 3:
+        return False
+    return True
+
