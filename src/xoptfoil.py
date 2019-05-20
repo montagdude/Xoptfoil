@@ -56,6 +56,10 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
 
         self.ui.actionSet_constraints.triggered.connect(self.setConstraints)
 
+        self.ui.actionOptimize.triggered.connect(self.optimize)
+        self.ui.actionPause.triggered.connect(self.pause)
+        self.ui.actionStop.triggered.connect(self.stop)
+
     # Loads saved settings from XML file
     def loadSettings(self):
         fname, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load saved settings",
@@ -102,14 +106,8 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         else:
             self._currpath = os.path.dirname(fname)
 
-        retval = data.readSeedAirfoil(fname)
-        errmsg = None
-        if retval == 1:
-            errmsg  = "Unable to read airfoil file {:s}: I/O error.".format(fname)
-        elif retval == 2:
-            errmsg  = "Unable to read airfoil file {:s}:".format(fname)
-            errmsg += " Not a valid airfoil file."
-        if errmsg is not None:
+        retval, errmsg = data.readSeedAirfoil(fname)
+        if not retval:
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
         self.ui.mplwidget.plotAirfoils()
 
@@ -120,10 +118,10 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
     # Generates a NACA seed airfoil
     def generateNACA(self):
         if self.naca_dialog.exec():
+            retval = True
             if self.naca_dialog.airfoilType() == "4 digit":
-                retval = data.generate4DigitAirfoil(self.naca_dialog.camber(),
-                                                    self.naca_dialog.xcamber(),
-                                                    self.naca_dialog.thickness())
+                data.generate4DigitAirfoil(self.naca_dialog.camber(), self.naca_dialog.xcamber(),
+                                           self.naca_dialog.thickness())
             elif self.naca_dialog.airfoilType() == "5 digit":
                 retval = data.generate5DigitAirfoil(self.naca_dialog.designation())
             if retval:
@@ -198,6 +196,39 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
     def setOptimizationEnabled(self, enabled):
         self.ui.optimizeButton.setEnabled(enabled)
         self.ui.actionOptimize.setEnabled(enabled)
+
+    def optimize(self):
+        # Enable/disable actions
+        self.ui.pauseButton.setEnabled(True)
+        self.ui.actionPause.setEnabled(True)
+        self.ui.stopButton.setEnabled(True)
+        self.ui.actionStop.setEnabled(True)
+        self.setOptimizationEnabled(False)
+
+        # Find LE and transform seed airfoil
+        retval, errmsg = data.processSeedAirfoil()
+        if not retval:
+            QtWidgets.QMessageBox.critical(self, "Error", errmsg)
+            return
+
+        # Update plot to reflect seed airfoil transformation
+        self.ui.mplwidget.plotAirfoils()
+
+    def pause(self):
+        # Enable/disable actions
+        self.ui.pauseButton.setEnabled(False)
+        self.ui.actionPause.setEnabled(False)
+        self.ui.stopButton.setEnabled(True)
+        self.ui.actionStop.setEnabled(True)
+        self.setOptimizationEnabled(True)
+
+    def stop(self):
+        # Enable/disable actions
+        self.ui.pauseButton.setEnabled(False)
+        self.ui.actionPause.setEnabled(False)
+        self.ui.stopButton.setEnabled(False)
+        self.ui.actionStop.setEnabled(False)
+        self.setOptimizationEnabled(True)
 
 
 if __name__ == "__main__":

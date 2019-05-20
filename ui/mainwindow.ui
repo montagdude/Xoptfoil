@@ -87,15 +87,11 @@
         <property name="text">
          <string>Optimize</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="stopButton">
-        <property name="enabled">
+        <property name="checkable">
          <bool>false</bool>
         </property>
-        <property name="text">
-         <string>Stop optimization</string>
+        <property name="flat">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -106,6 +102,16 @@
         </property>
         <property name="text">
          <string>Pause optimization</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="stopButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Stop optimization</string>
         </property>
        </widget>
       </item>
@@ -183,6 +189,7 @@
    <addaction name="menuConstraints"/>
    <addaction name="menuO_ptimization"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionQuit">
    <property name="text">
     <string>&amp;Quit</string>

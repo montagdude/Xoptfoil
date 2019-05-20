@@ -55,14 +55,22 @@ class MatplotlibWidget(Canvas):
     def plotAirfoils(self):
         """Plots seed airfoil and, optionally, new design
         """
+
+        # Undo airfoil transformations for plotting
+        xseed = data.seed_airfoil.x/data.foilscale - data.xoffset
+        yseed = data.seed_airfoil.y/data.foilscale - data.yoffset
+        if data.current_airfoil is not None:
+            xcurr = data.current_airfoil.x/data.foilscale - data.xoffset
+            ycurr = data.current_airfoil.y/data.foilscale - data.yoffset
+
+        # Plot
         self.setupAxes()
         self.ax.set_xlabel("x")
         self.ax.set_ylabel("y")
-        self.ax.plot(data.seed_airfoil.x, data.seed_airfoil.y, 
-                     color=plotsettings.value("seedColor"), label='Seed airfoil')
+        self.ax.plot(xseed, yseed, color=plotsettings.value("seedColor"), label='Seed airfoil')
         if data.current_airfoil is not None:
-            self.ax.plot(data.current_airfoil.x, data.current_airfoil.y,
-                         color=plotsettings.value("currentColor"), label='Current design')
+            self.ax.plot(xcurr, ycurr, color=plotsettings.value("currentColor"),
+                         label='Current design')
         self.ax.set_aspect('equal', 'datalim')
         leg = self.ax.legend(facecolor=plotsettings.value("bgColor"),
                              edgecolor=plotsettings.value("fgColor"))

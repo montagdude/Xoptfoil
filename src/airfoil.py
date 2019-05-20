@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import xml.etree.ElementTree as ET
 import libxfoil_wrap as lxf
+from libxfoil import xfoil_data_group
 
 class Airfoil:
 
@@ -10,8 +11,12 @@ class Airfoil:
     def __init__(self):
         self.x = np.zeros((0))
         self.y = np.zeros((0))
+        self.xdg = xfoil_data_group()
+        lxf.xfoil_init(self.xdg)
         self.source_data = {"source": None, "camber": None, "xcamber": None,
                             "thickness": None, "designation": None, "file": None}
+        self.xle = None
+        self.yle = None
 
     def numPoints(self):
         return self.x.shape[0]
@@ -22,17 +27,18 @@ class Airfoil:
         Inputs
             fname: file name or path
         Returns
-            0 on success
-            1 on file IO error
-            2 on format error
+            retval: True on success, False on error
+            errmsg: message describing the error
         """
         
+        errmsg = "Success"
         print("Reading airfoil file {:s}".format(fname))
         try:
             f = open(fname)
         except IOError:
-            sys.stderr.write("Unable to read {:s}.\n".format(fname))
-            return 1
+            errmsg = "Unable to read {:s}.".format(fname)
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
 
         # Determine if file has a label
         labeled = False
@@ -60,28 +66,31 @@ class Airfoil:
                 splitline = line.split()
                 if len(splitline) < 2:
                     f.close()
-                    sys.stderr.write("Not enough data in line.\n")
-                    return 2
+                    errmsg = "Not enough data in line."
+                    sys.stderr.write(errmsg+"\n")
+                    return False, errmsg
                 try:
                     x.append(float(splitline[0]))
                     y.append(float(splitline[1]))
                 except ValueError:
                     f.close()
-                    sys.stderr.write("Unable to convert to float.\n")
-                    return 2
+                    errmsg = "Unable to convert to float."
+                    sys.stderr.write(errmsg+"\n")
+                    return False, errmsg
             linenum += 1
         if len(x) > 1:
             self.x = np.array(x)
             self.y = np.array(y)
         else:
             f.close()
-            sys.stderr.write("Less than 2 vertices in coordinates file.\n")
-            return 2
+            errmsg = "Less than 2 vertices in coordinates file."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
         f.close()
 
         self.source_data["source"] = "file"
         self.source_data["file"] = fname
-        return 0
+        return True, errmsg
 
     def generate4Digit(self, camber, xcamber, thickness):
         x, y, _ = lxf.naca_4_digit(camber, xcamber, thickness, Airfoil.npointside)
@@ -176,3 +185,83 @@ class Airfoil:
                 errmsg = "Format error in airfoil file {:s}.".format(source_data["file"])
 
         return retval, errmsg
+
+    def smoothPaneling(self, xfoilpanelingsettings):
+        '''Smooths airfoil using libxfoil routine
+        
+        Inputs:
+            xfoilpanelingsettings: what the name implies
+        
+        Returns:
+            retval: True on success, False on error
+            errmsg: Error message text
+        '''
+
+        errmsg = "Success"
+        if self.numPoints() < 3:
+            errmsg = "Cannot smooth paneling. Airfoil must have at least 3 points."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+
+        lxf.xfoil_set_buffer_airfoil(self.xdg, self.x, self.y, self.numPoints())
+        lxf.xfoil_set_paneling(self.xdg, xfoilpanelingsettings.toXfoilGeomOpts())
+        if lxf.xfoil_smooth_paneling(self.xdg) != 0:
+            errmsg = "Error in xfoil_smooth_paneling. Please report this issue."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+
+        x, y, stat = lxf.xfoil_get_current_airfoil(self.xdg, xfoilpanelingsettings.value("npan"))
+        if stat != 0:
+            errmsg = "Error in xfoil_get_current_airfoil. Please report this issue."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+        self.x = np.array(x)
+        self.y = np.array(y)
+
+        return True, errmsg
+
+    def findLE(self):
+        '''Finds leading edge
+        
+        Returns:
+            retval: True on success, False on error
+            errmsg: message describing the error
+        '''
+        errmsg = "Success"
+        if self.numPoints() < 3:
+            errmsg = "Airfoil must have at least 3 points."
+            return False, errmsg
+        s, xs, ys = lxf.xfoil_spline_coordinates(self.x, self.y, self.numPoints())
+        _, self.xle, self.yle = lxf.xfoil_lefind(self.x, self.y, s, xs, ys, self.numPoints())
+
+        return True, errmsg
+
+    def chord(self):
+        '''Computes chord. findLE must be called first.
+
+        Returns:
+            chord: airfoil chord
+            stat: True on success, False on error
+            errmsg: message describing the error
+        '''
+        errmsg = "Success"
+        if self.numPoints() < 2:
+            errmsg = "Airfoil must have at least 2 points."
+            return 0., False, errmsg
+        if self.xle is None or self.yle is None:
+            errmsg = "findLE must be called first."
+            return 0., False, errmsg
+
+        return np.amax(self.x) - self.xle, True, errmsg
+
+    def translate(self, dx, dy):
+        '''Translates airfoil'''
+        self.x += dx
+        self.y += dy
+        self.xle += dx
+        self.yle += dy
+
+    def scale(self, xscale, yscale):
+        '''Scales airfoil by factors in x and y'''
+        self.x *= xscale
+        self.y *= yscale

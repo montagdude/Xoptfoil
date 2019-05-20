@@ -144,4 +144,3 @@ def can_optimize():
     if data.seed_airfoil.numPoints() < 3:
         return False
     return True
-

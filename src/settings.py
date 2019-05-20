@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 import sys
+from libxfoil import xfoil_geom_options_type
 
 class Setting():
     def __init__(self, name=None, value=None, default=None, writeformat=None, datatype=None):
@@ -181,6 +182,19 @@ class XfoilPanelingSettings(Settings):
                                 datatype=float))
         self.addSetting(Setting(name="xpref2", default=1.0, writeformat="{:.4f}",
                                 datatype=float))
+
+    def toXfoilGeomOpts(self):
+        geom_opts = xfoil_geom_options_type()
+        geom_opts.npan = self.value("npan")
+        geom_opts.cvpar = self.value("cvpar")
+        geom_opts.cterat = self.value("cterat")
+        geom_opts.ctrrat = self.value("ctrrat")
+        geom_opts.xsref1 = self.value("xsref1")
+        geom_opts.xsref2 = self.value("xsref2")
+        geom_opts.xpref1 = self.value("xpref1")
+        geom_opts.xpref2 = self.value("xpref2")
+
+        return geom_opts
 
 
 class PlotSettings(Settings):
