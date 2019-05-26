@@ -78,12 +78,12 @@ class Airfoil:
                     sys.stderr.write(errmsg+"\n")
                     return False, errmsg
             linenum += 1
-        if len(x) > 1:
+        if len(x) > 2:
             self.x = np.array(x)
             self.y = np.array(y)
         else:
             f.close()
-            errmsg = "Less than 2 vertices in coordinates file."
+            errmsg = "Less than 3 vertices in coordinates file."
             sys.stderr.write(errmsg+"\n")
             return False, errmsg
         f.close()
@@ -111,6 +111,94 @@ class Airfoil:
             self.source_data["source"] = "5-digit"
             self.source_data["designation"] = designation
             return True
+
+    def smoothPaneling(self, xfoilpanelingsettings):
+        '''Smooths airfoil using libxfoil routine
+        
+        Inputs:
+            xfoilpanelingsettings: what the name implies
+        
+        Returns:
+            retval: True on success, False on error
+            errmsg: Error message text
+        '''
+
+        errmsg = "Success"
+        if self.numPoints() < 3:
+            errmsg = "Cannot smooth paneling. Airfoil must have at least 3 points."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+
+        lxf.xfoil_set_buffer_airfoil(self.xdg, self.x, self.y, self.numPoints())
+        lxf.xfoil_set_paneling(self.xdg, xfoilpanelingsettings.toXfoilGeomOpts())
+        if lxf.xfoil_smooth_paneling(self.xdg) != 0:
+            errmsg = "Error in xfoil_smooth_paneling. Please report this issue."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+
+        x, y, stat = lxf.xfoil_get_current_airfoil(self.xdg, xfoilpanelingsettings.value("npan"))
+        if stat != 0:
+            errmsg = "Error in xfoil_get_current_airfoil. Please report this issue."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+        self.x = np.array(x)
+        self.y = np.array(y)
+
+        return True, errmsg
+
+    def findLE(self):
+        '''Finds leading edge
+        
+        Returns:
+            retval: True on success, False on error
+            errmsg: message describing the error
+        '''
+        retval = True
+        errmsg = "Success"
+        if self.numPoints() < 3:
+            errmsg = "Airfoil must have at least 3 points."
+            return False, errmsg
+        s, xs, ys = lxf.xfoil_spline_coordinates(self.x, self.y, self.numPoints())
+        _, self.xle, self.yle = lxf.xfoil_lefind(self.x, self.y, s, xs, ys, self.numPoints())
+
+        return retval, errmsg
+
+    def chord(self):
+        '''Computes chord. findLE must be called first.
+
+        Returns:
+            chord: airfoil chord
+            stat: True on success, False on error
+            errmsg: message describing the error
+        '''
+        errmsg = "Success"
+        if self.numPoints() < 2:
+            errmsg = "Airfoil must have at least 2 points."
+            return 0., False, errmsg
+        if self.xle is None or self.yle is None:
+            errmsg = "findLE must be called first."
+            return 0., False, errmsg
+
+        return np.amax(self.x) - self.xle, True, errmsg
+
+    def translate(self, dx, dy):
+        '''Translates airfoil'''
+        self.x += dx
+        self.y += dy
+        self.xle += dx
+        self.yle += dy
+
+    def scale(self, xscale, yscale):
+        '''Scales airfoil by factors in x and y'''
+        self.x *= xscale
+        self.y *= yscale
+
+
+class SeedAirfoil(Airfoil):
+    def __init__(self):
+        super(SeedAirfoil, self).__init__()
+        self.leidx = None
+        self.addpoint_loc = None
 
     def sourceAsXML(self, elemname):
         '''Saves airfoil source data in XML format
@@ -186,82 +274,54 @@ class Airfoil:
 
         return retval, errmsg
 
-    def smoothPaneling(self, xfoilpanelingsettings):
-        '''Smooths airfoil using libxfoil routine
-        
-        Inputs:
-            xfoilpanelingsettings: what the name implies
-        
-        Returns:
-            retval: True on success, False on error
-            errmsg: Error message text
-        '''
-
-        errmsg = "Success"
-        if self.numPoints() < 3:
-            errmsg = "Cannot smooth paneling. Airfoil must have at least 3 points."
-            sys.stderr.write(errmsg+"\n")
-            return False, errmsg
-
-        lxf.xfoil_set_buffer_airfoil(self.xdg, self.x, self.y, self.numPoints())
-        lxf.xfoil_set_paneling(self.xdg, xfoilpanelingsettings.toXfoilGeomOpts())
-        if lxf.xfoil_smooth_paneling(self.xdg) != 0:
-            errmsg = "Error in xfoil_smooth_paneling. Please report this issue."
-            sys.stderr.write(errmsg+"\n")
-            return False, errmsg
-
-        x, y, stat = lxf.xfoil_get_current_airfoil(self.xdg, xfoilpanelingsettings.value("npan"))
-        if stat != 0:
-            errmsg = "Error in xfoil_get_current_airfoil. Please report this issue."
-            sys.stderr.write(errmsg+"\n")
-            return False, errmsg
-        self.x = np.array(x)
-        self.y = np.array(y)
-
-        return True, errmsg
 
     def findLE(self):
-        '''Finds leading edge
+        '''Finds leading edge as well as point location and where to split
         
         Returns:
             retval: True on success, False on error
             errmsg: message describing the error
         '''
-        errmsg = "Success"
-        if self.numPoints() < 3:
-            errmsg = "Airfoil must have at least 3 points."
-            return False, errmsg
-        s, xs, ys = lxf.xfoil_spline_coordinates(self.x, self.y, self.numPoints())
-        _, self.xle, self.yle = lxf.xfoil_lefind(self.x, self.y, s, xs, ys, self.numPoints())
+        retval, errmsg = Airfoil.findLE(self)
+        if not retval:
+            return retval, errmsg
 
-        return True, errmsg
+        # Determine leading edge index and where to add a point
+        npt = self.numPoints()
+        r1 = np.zeros((2))
+        r2 = np.zeros((2))
+        for i in range(npt-1):
+            r1 = np.array([self.xle-self.x[i], self.yle-self.y[i]])
+            dist1 = np.linalg.norm(r1)
+            if dist1 != 0.:
+                r1 /= dist1
+            r2 = np.array([self.xle-self.x[i+1], self.yle-self.y[i+1]])
+            dist2 = np.linalg.norm(r2)
+            if dist2 != 0.:
+                r2 /= dist2
+            dot = np.dot(r1, r2)
 
-    def chord(self):
-        '''Computes chord. findLE must be called first.
+            # Leading edge is between i and i+1 if any of these conditions occur
+            if dist1 < 1e-12:
+                self.leidx = i
+                self.addpoint_loc = 0
+                break
+            elif dist2 < 1e-12:
+                self.leidx = i
+                self.addpoint_loc = 1
+                break
+            elif dot <= 0.:
+                if dist1 < dist2:
+                    self.leidx = i
+                    self.addpoint_loc = 1
+                else:
+                    self.leidx = i+1
+                    self.addpoint_loc = -1
+                break
 
-        Returns:
-            chord: airfoil chord
-            stat: True on success, False on error
-            errmsg: message describing the error
-        '''
-        errmsg = "Success"
-        if self.numPoints() < 2:
-            errmsg = "Airfoil must have at least 2 points."
-            return 0., False, errmsg
-        if self.xle is None or self.yle is None:
-            errmsg = "findLE must be called first."
-            return 0., False, errmsg
+        # This shouldn't happen, but just in case...
+        if self.leidx is None:
+            retval = False
+            errmsg = "Failed to determine leading edge point index. Please report this issue."
 
-        return np.amax(self.x) - self.xle, True, errmsg
-
-    def translate(self, dx, dy):
-        '''Translates airfoil'''
-        self.x += dx
-        self.y += dy
-        self.xle += dx
-        self.yle += dy
-
-    def scale(self, xscale, yscale):
-        '''Scales airfoil by factors in x and y'''
-        self.x *= xscale
-        self.y *= yscale
+        return retval, errmsg

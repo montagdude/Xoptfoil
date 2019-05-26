@@ -1,9 +1,9 @@
-from airfoil import Airfoil
+from airfoil import SeedAirfoil
 from settings import xfoilpanelingsettings
 
 class Data:
     def __init__(self):
-        self.seed_airfoil = Airfoil()
+        self.seed_airfoil = SeedAirfoil()
         self.current_airfoil = None
         self.xoffset = 0.
         self.yoffset = 0.
@@ -49,7 +49,7 @@ class Data:
         return True, errmsg
 
     def processSeedAirfoil(self):
-        '''Smoots, finds leading edge, and transforms seed airfoil
+        '''Smooths, finds leading edge, and transforms seed airfoil
         
         Returns:
             retval: True on success, False if error
@@ -75,7 +75,6 @@ class Data:
             return False, errmsg
         self.seed_airfoil.translate(self.xoffset, self.yoffset)
         self.seed_airfoil.scale(self.foilscale, self.foilscale)
-        print(np.amax(self.seed_airfoil.x))
 
         return True, errmsg
 
