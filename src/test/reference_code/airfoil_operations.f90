@@ -375,6 +375,7 @@ subroutine transform_airfoil(foil, xoffset, zoffset, foilscale)
   double precision, intent(out) :: xoffset, zoffset, foilscale
 
   integer :: npoints, i
+  double precision :: xte
 
   npoints = foil%npoint
 
@@ -389,9 +390,12 @@ subroutine transform_airfoil(foil, xoffset, zoffset, foilscale)
   foil%xle = 0.d0
   foil%zle = 0.d0
 
-! Scale airfoil so that it has a length of 1
+! Scale airfoil so that it has a length of 1. Note this has been changed
+! from Xoptfoil 1.x, which scales chord based on max x. Here, it is scaled
+! based on average TE x-location instead.
 
-  foilscale = 1.d0 / maxval(foil%x)
+  xte = 0.5d0*(foil%x(1) + foil%x(npoints))
+  foilscale = 1.d0 / xte
   do i = 1, npoints
     foil%x(i) = foil%x(i)*foilscale
     foil%z(i) = foil%z(i)*foilscale

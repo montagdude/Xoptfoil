@@ -180,8 +180,9 @@ class Airfoil:
         if self.xle is None or self.yle is None:
             errmsg = "findLE must be called first."
             return 0., False, errmsg
+        xte = 0.5*(self.x[0] + self.x[self.numPoints()-1])
 
-        return np.amax(self.x) - self.xle, True, errmsg
+        return xte - self.xle, True, errmsg
 
     def translate(self, dx, dy):
         '''Translates airfoil'''
