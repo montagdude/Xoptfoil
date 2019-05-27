@@ -69,7 +69,7 @@ class Constraints(Settings):
             self.minCp.append(0.0)
 
     def clearCpConstraints(self):
-        self.cpConstrainteType = []
+        self.cpConstraintType = []
         self.minCp = []
 
     def numThicknessConstraints(self):
