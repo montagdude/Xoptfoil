@@ -55,11 +55,14 @@ class Settings():
         for child in elem:
             for setting in self.settings:
                 if child.tag == setting.name:
-                    try:
-                        setting.value = setting.datatype(child.text)
-                    except ValueError:
-                        sys.stderr.write("Failed to read {:s}:{:s}: wrong data type.\n"\
-                                         .format(elem.tag, setting.name))
+                    if setting.datatype == bool:
+                        setting.value = child.text == "True"
+                    else:
+                        try:
+                            setting.value = setting.datatype(child.text)
+                        except ValueError:
+                            sys.stderr.write("Failed to read {:s}:{:s}: wrong data type.\n"\
+                                             .format(elem.tag, setting.name))
 
 
 class OptimizationSettings(Settings):
