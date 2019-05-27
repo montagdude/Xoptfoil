@@ -88,6 +88,8 @@ class Airfoil:
             return False, errmsg
         f.close()
 
+        # FIXME: make sure ordering is counterclockwise
+
         self.source_data["source"] = "file"
         self.source_data["file"] = fname
         return True, errmsg
@@ -199,6 +201,10 @@ class SeedAirfoil(Airfoil):
         super(SeedAirfoil, self).__init__()
         self.leidx = None
         self.addpoint_loc = None
+        self.xt = np.zeros((0))
+        self.yt = np.zeros((0))
+        self.xb = np.zeros((0))
+        self.yb = np.zeros((0))
 
     def sourceAsXML(self, elemname):
         '''Saves airfoil source data in XML format
@@ -325,3 +331,47 @@ class SeedAirfoil(Airfoil):
             errmsg = "Failed to determine leading edge point index. Please report this issue."
 
         return retval, errmsg
+
+    def split(self, symmetrical=False):
+        '''Splits between upper and lower half'''
+
+        # Determine number of points on upper and lower halves
+        if self.addpoint_loc == 0:
+            pointst = self.leidx+1
+            pointsb = self.numPoints() - (self.leidx+1) + 1
+            boundst = self.leidx-1
+            boundsb = self.leidx+1
+        elif self.addpoint_loc == -1:
+            pointst = self.leidx+1
+            pointsb = self.numPoints() - (self.leidx+1) + 2
+            boundst = self.leidx-1
+            boundsb = self.leidx
+        else:
+            pointst = self.leidx+2
+            pointsb = self.numPoints() - (self.leidx+1) + 1
+            boundst = self.leidx
+            boundsb = self.leidx+1
+        if symmetrical:
+            pointsb = pointst
+
+        # Split
+        self.xt = np.zeros((pointst))
+        self.yt = np.zeros((pointst))
+        self.xt[0] = self.xle
+        self.yt[0] = self.yle
+        for i in range(pointst-1):
+            self.xt[i+1] = self.x[boundst-i]
+            self.yt[i+1] = self.y[boundst-i]
+
+        self.xb = np.zeros((pointsb))
+        self.yb = np.zeros((pointsb))
+        self.xb[0] = self.xle
+        self.yb[0] = self.yle
+        if not symmetrical:
+            for i in range(pointsb-1):
+                self.xb[i+1] = self.x[boundsb+i]
+                self.yb[i+1] = self.y[boundsb+i]
+        else:
+            for i in range(pointsb-1):
+                self.xb[i+1] = self.xt[i+1]
+                self.yb[i+1] = -self.yt[i+1]

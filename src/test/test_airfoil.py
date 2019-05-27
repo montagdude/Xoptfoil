@@ -4,6 +4,7 @@ import os
 import sys
 import unittest
 import subprocess
+import numpy as np
 
 cwd = os.getcwd()
 sys.path.append(os.path.join(cwd, '..'))
@@ -46,16 +47,19 @@ class TestAirfoil(unittest.TestCase):
         self.assertEqual(retval, True)
         self.assertEqual(airfoil.x.shape[0], 67)
 
-    def testFindLE(self):
-        mydata = data.Data()
-
+    def runReference(self, airfoil_file):
         # Run Fortran reference code and read expected results
         truth_file = "data/le_truthdata.dat"
         if os.path.isfile(truth_file):
             os.remove(truth_file)
         os.chdir("reference_code")
-        subprocess.run(["./test_airfoil"])
+        subprocess.run(["./test_airfoil", airfoil_file])
         os.chdir("..")
+
+    def checkFindLE(self, airfoil_file):
+        mydata = data.Data()
+
+        truth_file = "data/le_truthdata.dat"
         try:
             f = open(truth_file)
         except IOError:
@@ -70,7 +74,7 @@ class TestAirfoil(unittest.TestCase):
         f.close()
 
         # Read and process seed airfoil
-        retval, errmsg = mydata.readSeedAirfoil("data/mh45_labeled.dat")
+        retval, errmsg = mydata.readSeedAirfoil(airfoil_file)
         if not retval:
             self.fail(errmsg)
         retval, errmsg = mydata.processSeedAirfoil()
@@ -87,6 +91,67 @@ class TestAirfoil(unittest.TestCase):
         self.assertAlmostEqual(mydata.xoffset, xoffset)
         self.assertAlmostEqual(mydata.yoffset, yoffset)
         self.assertAlmostEqual(mydata.foilscale, foilscale)
+
+    def testFindLE(self):
+        '''Tests LE and split location for a few airfoils'''
+        self.runReference(os.path.join(os.getcwd(), "data/ag18_plain.dat"))
+        self.checkFindLE(os.path.join(os.getcwd(), "data/ag18_plain.dat"))
+        self.runReference(os.path.join(os.getcwd(), "data/mh45_labeled.dat"))
+        self.checkFindLE(os.path.join(os.getcwd(), "data/mh45_labeled.dat"))
+        self.runReference(os.path.join(os.getcwd(), "data/naca_flyingwing.dat"))
+        self.checkFindLE(os.path.join(os.getcwd(), "data/naca_flyingwing.dat"))
+
+    def checkSplitAirfoil(self, airfoil_file):
+        mydata = data.Data()
+
+        truth_file = "data/splitfoil_truthdata.dat"
+        try:
+            f = open(truth_file)
+        except IOError:
+            self.fail("Cannot open {:s}.".format(truth_file))
+
+        # Read top surface
+        pointst = int(f.readline())
+        xt = np.zeros((pointst))
+        yt = np.zeros((pointst))
+        for i in range(pointst):
+            splitline = f.readline().split()
+            xt[i] = float(splitline[0])
+            yt[i] = float(splitline[1])
+
+        # Read bottom surface
+        pointsb = int(f.readline())
+        xb = np.zeros((pointsb))
+        yb = np.zeros((pointsb))
+        for i in range(pointsb):
+            splitline = f.readline().split()
+            xb[i] = float(splitline[0])
+            yb[i] = float(splitline[1])
+        f.close()
+
+        # Read and process seed airfoil
+        retval, errmsg = mydata.readSeedAirfoil(airfoil_file)
+        if not retval:
+            self.fail(errmsg)
+        retval, errmsg = mydata.processSeedAirfoil()
+        if not retval:
+            self.fail(errmsg)
+
+        # Split seed airfoil and compare
+        mydata.seed_airfoil.split(symmetrical=False)
+        np.testing.assert_almost_equal(mydata.seed_airfoil.xt, xt)
+        np.testing.assert_almost_equal(mydata.seed_airfoil.yt, yt)
+        np.testing.assert_almost_equal(mydata.seed_airfoil.xb, xb)
+        np.testing.assert_almost_equal(mydata.seed_airfoil.yb, yb)
+
+    def testSplitAirfoil(self):
+        '''Tests splitting a few airfoils into upper and lower surfaces'''
+        self.runReference(os.path.join(os.getcwd(), "data/ag18_plain.dat"))
+        self.checkSplitAirfoil(os.path.join(os.getcwd(), "data/ag18_plain.dat"))
+        self.runReference(os.path.join(os.getcwd(), "data/mh45_labeled.dat"))
+        self.checkSplitAirfoil(os.path.join(os.getcwd(), "data/mh45_labeled.dat"))
+        self.runReference(os.path.join(os.getcwd(), "data/naca_flyingwing.dat"))
+        self.checkSplitAirfoil(os.path.join(os.getcwd(), "data/naca_flyingwing.dat"))
 
 
 if __name__ == "__main__":

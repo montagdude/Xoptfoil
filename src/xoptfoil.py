@@ -17,6 +17,7 @@ from settings_dialogs import (OptimizationSettingsDialog, InitializationSettings
                               XfoilPanelingSettingsDialog, PlotSettingsDialog)
 from operatingpoints_dialog import OperatingPointsDialog
 from constraints_dialog import ConstraintsDialog
+from constraints import constraints
 from data import data
 import methods
 
@@ -213,6 +214,9 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
 
         # Update plot to reflect seed airfoil transformation
         self.ui.mplwidget.plotAirfoils()
+
+        # Split seed airfoil
+        data.seed_airfoil.split(constraints.value("symmetrical"))
 
     def pause(self):
         # Enable/disable actions
