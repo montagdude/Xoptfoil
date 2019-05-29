@@ -27,8 +27,10 @@ class ShapeFunction:
             t1 = self.domain[0] + 0.001
         if t1 >= self.domain[1]:
             t1 = self.domain[1] - 0.001
-        if t2 <= 0.:
-            t2 = 0.001
+        if t1 - 0.5*t2 < self.domain[0]:
+            t2 = 2.*(t1 - self.domain[0])
+        if t1 + 0.5*t2 > self.domain[1]:
+            t2 = 2.*(self.domain[1] - t1)
 
         # Create shape function
         power1 = log10(0.5)/log10(t1)
