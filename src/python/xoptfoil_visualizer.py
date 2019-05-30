@@ -225,7 +225,7 @@ def read_airfoil_polars(filename, zonetitle):
 
 ################################################################################
 # Reads optimization history
-def read_optimization_history(step):
+def read_optimization_history(histfilename, step):
 
   ioerror = 0
   fmin = 0.
@@ -235,7 +235,7 @@ def read_optimization_history(step):
   # Try to open the file
 
   try:
-    f = open('optimization_history.dat') 
+    f = open(histfilename) 
   except IOError:
     ioerror = 1
     return fmin, relfmin, rad, ioerror
@@ -907,7 +907,7 @@ def read_new_optimization_history(steps=None, fmins=None, relfmins=None,
   
     # Read data from optimization history file
   
-    fmin, relfmin, rad, ioerror = read_optimization_history(nextstep)
+    fmin, relfmin, rad, ioerror = read_optimization_history(histfilename, nextstep)
     if (ioerror == 1):
       print("optimization_history.dat not available yet.")
       reading = False
@@ -1291,6 +1291,7 @@ if __name__ == "__main__":
 
   coordfilename = prefix + '_design_coordinates.dat'
   polarfilename = prefix + '_design_polars.dat'
+  histfilename  = prefix + '_optimization_history.dat'
 
   # Read airfoil coordinates and polars
 

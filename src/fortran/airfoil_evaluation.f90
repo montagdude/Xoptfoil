@@ -994,7 +994,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
                                                    moment, xtrt, xtrb
   double precision, dimension(:), allocatable :: fmin, relfmin, rad
   character(150), dimension(:), allocatable :: zoneinfo
-  character(100) :: restfile, foilfile, polarfile, text
+  character(100) :: restfile, foilfile, polarfile, histfile, text
   character(11) :: stepchar
   character(20) :: fminchar, radchar
   character(25) :: relfminchar
@@ -1105,7 +1105,8 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 
 ! Open history file
 
-  open(unit=histunit, file='optimization_history.dat', status='old',           &
+  histfile = trim(output_prefix)//'_optimization_history.dat'
+  open(unit=histunit, file=histfile, status='old',           &
        iostat=ioerr)
   if (ioerr /= 0) then
     write_function_restart_cleanup = 3
@@ -1128,7 +1129,7 @@ function write_function_restart_cleanup(restart_status, global_search,         &
 
 ! Re-write history file without the unused iterations
 
-  open(unit=histunit, file='optimization_history.dat', status='replace')
+  open(unit=histunit, file=histfile, status='replace')
   write(histunit,'(A)') "Iteration  Objective function  "//&
                         "% Improvement over seed  Design radius"
   do i = 1, step

@@ -86,6 +86,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   use optimization_util, only : init_random_seed, initial_designs,             &
                                 design_radius, write_design, bubble_sort,      &
                                 read_run_control
+  use vardef, only : output_prefix
 
   double precision, dimension(:), intent(inout) :: xopt
   double precision, intent(out) :: fmin
@@ -130,6 +131,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   character(20) :: fminchar, radchar
   character(25) :: relfminchar
   character(80), dimension(20) :: commands
+  character(100) :: histfile
 
   nconstrained = size(constrained_dvs,1)
 
@@ -197,13 +199,13 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
   end if
 
 ! Open file for writing iteration history
-
+  histfile = trim(output_prefix)//'_optimization_history.dat'
   iunit = 17
   new_history_file = .false.
   if (step == 0) then
     new_history_file = .true.
   else
-    open(unit=iunit, file='optimization_history.dat', status='old',            &
+    open(unit=iunit, file=histfile, status='old',            &
          position='append', iostat=ioerr)
     if (ioerr /= 0) then
       write(*,*) 
@@ -214,7 +216,7 @@ subroutine geneticalgorithm(xopt, fmin, step, fevals, objfunc, x0, xmin, xmax, &
     end if
   end if
   if (new_history_file) then
-    open(unit=iunit, file='optimization_history.dat', status='replace')
+    open(unit=iunit, file=histfile, status='replace')
     if (ga_options%relative_fmin_report) then
       write(iunit,'(A)') "Iteration  Objective function  "//&
                          "% Improvement over seed  Design radius"
