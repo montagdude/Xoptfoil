@@ -37,6 +37,10 @@ class OptimizationSettingsDialog(QDialog):
         self.ui.nfunctionsBotBox.setValue(optimizationsettings.value("nfunctionsBot"))
         self.ui.initialPerturbBox.setValue(optimizationsettings.value("initialPerturb"))
         self.ui.minBumpWidthBox.setValue(optimizationsettings.value("minBumpWidth"))
+        self.ui.ulLimitBox.setValue(optimizationsettings.value("topLeftLimit"))
+        self.ui.urLimitBox.setValue(optimizationsettings.value("topRightLimit"))
+        self.ui.llLimitBox.setValue(optimizationsettings.value("bottomLeftLimit"))
+        self.ui.lrLimitBox.setValue(optimizationsettings.value("bottomRightLimit"))
         self.ui.autosaveBox.setValue(optimizationsettings.value("autosaveFrequency"))
         self.ui.basenameEdit.setText(optimizationsettings.value("autosaveBasename"))
 
@@ -50,8 +54,36 @@ class OptimizationSettingsDialog(QDialog):
         optimizationsettings.setting("nfunctionsBot").value = self.ui.nfunctionsBotBox.value()
         optimizationsettings.setting("initialPerturb").value = self.ui.initialPerturbBox.value()
         optimizationsettings.setting("minBumpWidth").value = self.ui.minBumpWidthBox.value()
+        optimizationsettings.setting("topLeftLimit").value = self.ui.ulLimitBox.value()
+        optimizationsettings.setting("topRightLimit").value = self.ui.urLimitBox.value()
+        optimizationsettings.setting("bottomLeftLimit").value = self.ui.llLimitBox.value()
+        optimizationsettings.setting("bottomRightLimit").value = self.ui.lrLimitBox.value()
         optimizationsettings.setting("autosaveFrequency").value = self.ui.autosaveBox.value()
         optimizationsettings.setting("autosaveBasename").value = self.ui.basenameEdit.text()
+
+    def accept(self):
+        if self.validateSettings():
+            self.setResult(QDialog.Accepted)
+            self.hide()
+        else:
+            self.setResult(QDialog.Rejected)
+
+    def validateSettings(self):
+        ulLimit = self.ui.ulLimitBox.value()
+        urLimit = self.ui.urLimitBox.value()
+        llLimit = self.ui.llLimitBox.value()
+        lrLimit = self.ui.lrLimitBox.value()
+        if urLimit - ulLimit <= 0.:
+            msg = "Upper left optimization limit must be less " \
+                + "than upper right optimization limit."
+            QMessageBox.critical(self, "Error", msg)
+            return False
+        if lrLimit - llLimit <= 0.:
+            msg = "Lower left optimization limit must be less " \
+                + "than lower right optimization limit."
+            QMessageBox.critical(self, "Error", msg)
+            return False
+        return True
 
 
 class InitializationSettingsDialog(QDialog):

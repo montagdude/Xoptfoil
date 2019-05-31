@@ -84,6 +84,14 @@ class OptimizationSettings(Settings):
                                 datatype=float))
         self.addSetting(Setting(name="minBumpWidth", default=0.1, writeformat="{:.4f}",
                                 datatype=float))
+        self.addSetting(Setting(name="topLeftLimit", default=0.0, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="topRightLimit", default=1.0, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="bottomLeftLimit", default=0.0, writeformat="{:.4f}",
+                                datatype=float))
+        self.addSetting(Setting(name="bottomRightLimit", default=1.0, writeformat="{:.4f}",
+                                datatype=float))
         self.addSetting(Setting(name="autosaveFrequency", default=100, writeformat="{:d}",
                                 datatype=int))
         self.addSetting(Setting(name="autosaveBasename", default="optfoil", writeformat="{:s}",
