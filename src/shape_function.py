@@ -23,9 +23,11 @@ class ShapeFunction:
         self.ridx = domainidx[1]
 
         # Rescale x so that modified portion is in the range [0,1]
+        # Since the shape function is supposed to be identically 0 at xscale=0 and 1,
+        #   leave those points out of xscale.
         xl = self.x[self.lidx]
         xr = self.x[self.ridx]
-        self.xscale = (self.x[self.lidx:self.ridx+1] - xl)/(xr - xl)
+        self.xscale = (self.x[self.lidx+1:self.ridx] - xl)/(xr - xl)
 
     def createShape(self, st, t1, t2):
         '''Creates Hicks-Henne shape function from parameters
@@ -49,4 +51,4 @@ class ShapeFunction:
 
         # Create shape function
         power1 = log10(0.5)/log10(t1)
-        self.shape[self.lidx:self.ridx+1] = st*np.sin(pi*self.xscale**power1)**t2
+        self.shape[self.lidx+1:self.ridx] = st*np.sin(pi*self.xscale**power1)**t2
