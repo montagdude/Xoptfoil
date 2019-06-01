@@ -9,13 +9,13 @@ import numpy as np
 cwd = os.getcwd()
 sys.path.append(os.path.join(cwd, '..'))
 
-from airfoil import Airfoil, SeedAirfoil
+from airfoil import SeedAirfoil
 import data
 
 class TestAirfoil(unittest.TestCase):
 
     def test_readFromFile(self):
-        airfoil = Airfoil()
+        airfoil = SeedAirfoil()
 
         # Try to read non-existent file
         retval, errmsg = airfoil.readFromFile("nonsense.dat")

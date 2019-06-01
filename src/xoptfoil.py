@@ -20,6 +20,7 @@ from constraints_dialog import ConstraintsDialog
 from constraints import constraints
 from data import data
 import methods
+from settings import optimizationsettings
 
 class XoptfoilMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -110,11 +111,12 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         retval, errmsg = data.readSeedAirfoil(fname)
         if not retval:
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
-        self.ui.mplwidget.plotAirfoils()
+        else:
+            self.ui.mplwidget.plotAirfoils()
 
-        # Enable optimization if possible
-        if methods.can_optimize():
-            self.setOptimizationEnabled(True)
+            # Enable optimization if possible
+            if methods.can_optimize():
+                self.setOptimizationEnabled(True)
 
     # Generates a NACA seed airfoil
     def generateNACA(self):
@@ -127,12 +129,12 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
                 retval = data.generate5DigitAirfoil(self.naca_dialog.designation())
             if retval:
                 self.ui.mplwidget.plotAirfoils()
+
+                # Enable optimization if possible
+                if methods.can_optimize():
+                    self.setOptimizationEnabled(True)
             else:
                 QtWidgets.QMessageBox.critical(self, "Error", "Unsupported 5-digit designation.")
-
-            # Enable optimization if possible
-            if methods.can_optimize():
-                self.setOptimizationEnabled(True)
 
     def showOptimizationSettings(self):
         dialog = OptimizationSettingsDialog()
@@ -215,8 +217,29 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         # Update plot to reflect seed airfoil transformation
         self.ui.mplwidget.plotAirfoils()
 
+        # Set optimization limits
+        domaint = [optimizationsettings.value("topLeftLimit"),
+                   optimizationsettings.value("topRightLimit")]
+        domainb = [optimizationsettings.value("bottomLeftLimit"),
+                   optimizationsettings.value("bottomRightLimit")]
+        retval, errmsg = data.seed_airfoil.setOptimizationLimits(domaint, domainb)
+        if not retval:
+            QtWidgets.QMessageBox.critical(self, "Error", errmsg)
+            return
+
         # Split seed airfoil
-        data.seed_airfoil.split(constraints.value("symmetrical"))
+        retval, errmsg = data.seed_airfoil.split(constraints.value("symmetrical"))
+        if not retval:
+            QtWidgets.QMessageBox.critical(self, "Error", errmsg)
+            return
+
+        # Setup shape functions
+        nshapest = optimizationsettings.value("nfunctionsTop")
+        nshapesb = optimizationsettings.value("nfunctionsBot")
+        retval, errmsg = data.seed_airfoil.setupShapeFunctions(nshapest, nshapesb)
+        if not retval:
+            QtWidgets.QMessageBox.critical(self, "Error", errmsg)
+            return
 
     def pause(self):
         # Enable/disable actions

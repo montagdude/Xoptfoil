@@ -67,6 +67,7 @@ class MatplotlibWidget(Canvas):
         self.setupAxes()
         self.ax.set_xlabel("x")
         self.ax.set_ylabel("y")
+        # FIXME: respect show seed airfoil setting
         self.ax.plot(xseed, yseed, color=plotsettings.value("seedColor"), label='Seed airfoil')
         if data.current_airfoil is not None:
             self.ax.plot(xcurr, ycurr, color=plotsettings.value("currentColor"),

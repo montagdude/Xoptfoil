@@ -1,14 +1,31 @@
-from math import pi, log10
+from math import sin, pi, log10
 import numpy as np
+import sys
 
 class ShapeFunction:
     '''Hicks-Henne shape function'''
 
-    def __init__(self, x, domain=[0.,1.]):
+    def __init__(self, x, domainidx=None):
         self.x = x
         npt = x.shape[0]
         self.shape = np.zeros((npt))
-        self.domain = domain            # Optimization limits
+
+        # Optimization limits
+        if domainidx == None:
+            self.domainidx = [0, npt-1]
+        elif domainidx[1] - domainidx[0] < 0:
+            sys.stderr.write("Shape function domain must be positive.\n")
+            sys.exit(1)
+        elif (domainidx[0] < 0) or (domainidx[1] >= npt):
+            sys.stderr.write("Shape function domain is not valid.\n")
+            sys.exit(1)
+        self.lidx = domainidx[0]
+        self.ridx = domainidx[1]
+
+        # Rescale x so that modified portion is in the range [0,1]
+        xl = self.x[self.lidx]
+        xr = self.x[self.ridx]
+        self.xscale = (self.x[self.lidx:self.ridx+1] - xl)/(xr - xl)
 
     def createShape(self, st, t1, t2):
         '''Creates Hicks-Henne shape function from parameters
@@ -23,15 +40,13 @@ class ShapeFunction:
         '''
 
         # Enforce side constraints on bumps
-        if t1 <= self.domain[0]:
-            t1 = self.domain[0] + 0.001
-        if t1 >= self.domain[1]:
-            t1 = self.domain[1] - 0.001
-        if t1 - 0.5*t2 < self.domain[0]:
-            t2 = 2.*(t1 - self.domain[0])
-        if t1 + 0.5*t2 > self.domain[1]:
-            t2 = 2.*(self.domain[1] - t1)
+        if t1 <= 0.:
+            t1 = 0.001
+        if t1 >= 1.:
+            t1 = 0.099
+        if t2 <= 0.:
+            t2 = 0.001
 
         # Create shape function
         power1 = log10(0.5)/log10(t1)
-        self.shape = st*np.sin(pi*self.x**power1)**t2
+        self.shape[self.lidx:self.ridx+1] = st*np.sin(pi*self.xscale**power1)**t2

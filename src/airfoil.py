@@ -3,23 +3,125 @@ import numpy as np
 import xml.etree.ElementTree as ET
 import libxfoil_wrap as lxf
 from libxfoil import xfoil_data_group
+from shape_function import ShapeFunction
 
 class Airfoil:
-
-    npointside = 100
-
-    def __init__(self):
-        self.x = np.zeros((0))
-        self.y = np.zeros((0))
+    def __init__(self, npt=0):
+        self.x = np.zeros((npt))
+        self.y = np.zeros((npt))
         self.xdg = xfoil_data_group()
         lxf.xfoil_init(self.xdg)
-        self.source_data = {"source": None, "camber": None, "xcamber": None,
-                            "thickness": None, "designation": None, "file": None}
         self.xle = None
         self.yle = None
 
     def numPoints(self):
         return self.x.shape[0]
+
+    def smoothPaneling(self, xfoilpanelingsettings):
+        '''Smooths airfoil using libxfoil routine
+        
+        Inputs:
+            xfoilpanelingsettings: what the name implies
+        
+        Returns:
+            retval: True on success, False on error
+            errmsg: Error message text
+        '''
+
+        errmsg = "Success"
+        if self.numPoints() < 3:
+            errmsg = "Cannot smooth paneling. Airfoil must have at least 3 points."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+
+        lxf.xfoil_set_buffer_airfoil(self.xdg, self.x, self.y, self.numPoints())
+        lxf.xfoil_set_paneling(self.xdg, xfoilpanelingsettings.toXfoilGeomOpts())
+        if lxf.xfoil_smooth_paneling(self.xdg) != 0:
+            errmsg = "Error in xfoil_smooth_paneling. Please report this issue."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+
+        x, y, stat = lxf.xfoil_get_current_airfoil(self.xdg, xfoilpanelingsettings.value("npan"))
+        if stat != 0:
+            errmsg = "Error in xfoil_get_current_airfoil. Please report this issue."
+            sys.stderr.write(errmsg+"\n")
+            return False, errmsg
+        self.x = np.array(x)
+        self.y = np.array(y)
+
+        return True, errmsg
+
+    def findLE(self):
+        '''Finds leading edge
+        
+        Returns:
+            retval: True on success, False on error
+            errmsg: message describing the error
+        '''
+        retval = True
+        errmsg = "Success"
+        if self.numPoints() < 3:
+            errmsg = "Airfoil must have at least 3 points."
+            return False, errmsg
+        s, xs, ys = lxf.xfoil_spline_coordinates(self.x, self.y, self.numPoints())
+        _, self.xle, self.yle = lxf.xfoil_lefind(self.x, self.y, s, xs, ys, self.numPoints())
+
+        return retval, errmsg
+
+    def chord(self):
+        '''Computes chord. findLE must be called first.
+
+        Returns:
+            chord: airfoil chord
+            stat: True on success, False on error
+            errmsg: message describing the error
+        '''
+        errmsg = "Success"
+        if self.numPoints() < 2:
+            errmsg = "Airfoil must have at least 2 points."
+            return 0., False, errmsg
+        if self.xle is None or self.yle is None:
+            errmsg = "findLE must be called first."
+            return 0., False, errmsg
+        xte = 0.5*(self.x[0] + self.x[self.numPoints()-1])
+
+        return xte - self.xle, True, errmsg
+
+    def translate(self, dx, dy):
+        '''Translates airfoil'''
+        self.x += dx
+        self.y += dy
+        self.xle += dx
+        self.yle += dy
+
+    def scale(self, xscale, yscale):
+        '''Scales airfoil by factors in x and y'''
+        self.x *= xscale
+        self.y *= yscale
+        self.xle *= xscale
+        self.yle *= yscale
+
+
+class SeedAirfoil(Airfoil):
+
+    npointside = 100
+
+    def __init__(self):
+        super(SeedAirfoil, self).__init__()
+        self.leidx = None
+        self.addpoint_loc = None
+        self.xt = np.zeros((0))
+        self.yt = np.zeros((0))
+        self.xb = np.zeros((0))
+        self.yb = np.zeros((0))
+        self.source_data = {"source": None, "camber": None, "xcamber": None,
+                            "thickness": None, "designation": None, "file": None}
+        self.domaint = [0.,1.]
+        self.domainb = [0.,1.]
+        self.domainidxt = None
+        self.domainidxb = None
+        self.shapest = []
+        self.shapesb = []
 
     def readFromFile(self, fname):
         """Reads airfoil from file.
@@ -114,99 +216,6 @@ class Airfoil:
             self.source_data["designation"] = designation
             return True
 
-    def smoothPaneling(self, xfoilpanelingsettings):
-        '''Smooths airfoil using libxfoil routine
-        
-        Inputs:
-            xfoilpanelingsettings: what the name implies
-        
-        Returns:
-            retval: True on success, False on error
-            errmsg: Error message text
-        '''
-
-        errmsg = "Success"
-        if self.numPoints() < 3:
-            errmsg = "Cannot smooth paneling. Airfoil must have at least 3 points."
-            sys.stderr.write(errmsg+"\n")
-            return False, errmsg
-
-        lxf.xfoil_set_buffer_airfoil(self.xdg, self.x, self.y, self.numPoints())
-        lxf.xfoil_set_paneling(self.xdg, xfoilpanelingsettings.toXfoilGeomOpts())
-        if lxf.xfoil_smooth_paneling(self.xdg) != 0:
-            errmsg = "Error in xfoil_smooth_paneling. Please report this issue."
-            sys.stderr.write(errmsg+"\n")
-            return False, errmsg
-
-        x, y, stat = lxf.xfoil_get_current_airfoil(self.xdg, xfoilpanelingsettings.value("npan"))
-        if stat != 0:
-            errmsg = "Error in xfoil_get_current_airfoil. Please report this issue."
-            sys.stderr.write(errmsg+"\n")
-            return False, errmsg
-        self.x = np.array(x)
-        self.y = np.array(y)
-
-        return True, errmsg
-
-    def findLE(self):
-        '''Finds leading edge
-        
-        Returns:
-            retval: True on success, False on error
-            errmsg: message describing the error
-        '''
-        retval = True
-        errmsg = "Success"
-        if self.numPoints() < 3:
-            errmsg = "Airfoil must have at least 3 points."
-            return False, errmsg
-        s, xs, ys = lxf.xfoil_spline_coordinates(self.x, self.y, self.numPoints())
-        _, self.xle, self.yle = lxf.xfoil_lefind(self.x, self.y, s, xs, ys, self.numPoints())
-
-        return retval, errmsg
-
-    def chord(self):
-        '''Computes chord. findLE must be called first.
-
-        Returns:
-            chord: airfoil chord
-            stat: True on success, False on error
-            errmsg: message describing the error
-        '''
-        errmsg = "Success"
-        if self.numPoints() < 2:
-            errmsg = "Airfoil must have at least 2 points."
-            return 0., False, errmsg
-        if self.xle is None or self.yle is None:
-            errmsg = "findLE must be called first."
-            return 0., False, errmsg
-        xte = 0.5*(self.x[0] + self.x[self.numPoints()-1])
-
-        return xte - self.xle, True, errmsg
-
-    def translate(self, dx, dy):
-        '''Translates airfoil'''
-        self.x += dx
-        self.y += dy
-        self.xle += dx
-        self.yle += dy
-
-    def scale(self, xscale, yscale):
-        '''Scales airfoil by factors in x and y'''
-        self.x *= xscale
-        self.y *= yscale
-
-
-class SeedAirfoil(Airfoil):
-    def __init__(self):
-        super(SeedAirfoil, self).__init__()
-        self.leidx = None
-        self.addpoint_loc = None
-        self.xt = np.zeros((0))
-        self.yt = np.zeros((0))
-        self.xb = np.zeros((0))
-        self.yb = np.zeros((0))
-
     def sourceAsXML(self, elemname):
         '''Saves airfoil source data in XML format
         
@@ -281,7 +290,6 @@ class SeedAirfoil(Airfoil):
 
         return retval, errmsg
 
-
     def findLE(self):
         '''Finds leading edge as well as point location and where to split
         
@@ -333,8 +341,39 @@ class SeedAirfoil(Airfoil):
 
         return retval, errmsg
 
+    def setOptimizationLimits(self, domaint, domainb):
+        '''Sets optimization limits on top and bottom surfaces
+
+        Inputs:
+            domaint, domainb: upper and lower surface optimization domains
+
+        Returns:
+            retval: True on success, False on error
+            errmsg: message describing the error
+        '''
+        errmsg = "Success"
+        for domain in [domaint, domainb]:
+            if domain[1] - domain[0] < 0.:
+                errmsg = "Optimization domain must be positive."
+                return False, errmsg
+            elif domain[0] < 0.:
+                errmsg = "Optimization lower limit cannot be less than 0."
+                return False, errmsg
+            elif domain[1] > 1.:
+                errmsg = "Optimization uppwer limit cannot be greater than 1."
+                return False, errmsg
+        self.domaint = domaint
+        self.domainb = domainb
+        retval, errmsg = self.setDomainIdx()
+
+        return retval, errmsg
+
     def split(self, symmetrical=False):
-        '''Splits between upper and lower half'''
+        '''Splits between upper and lower half
+        
+        Returns:
+            retval: True on success, False on error
+            errmsg: message describing the error'''
 
         # Determine number of points on upper and lower halves
         if self.addpoint_loc == 0:
@@ -376,3 +415,115 @@ class SeedAirfoil(Airfoil):
             for i in range(pointsb-1):
                 self.xb[i+1] = self.xt[i+1]
                 self.yb[i+1] = -self.yt[i+1]
+
+        retval, errmsg = self.setDomainIdx()
+        return retval, errmsg
+
+    def setDomainIdx(self):
+        '''Sets upper and lower optimization domain indices
+
+        Returns:
+            retval: True on success, False on error
+            errmsg: message describing the error
+        '''
+        errmsg = "Success"
+
+        # If airfoil hasn't been split yet, return as success. Will be set later when airfoil
+        # is split.
+        nptt = self.xt.shape[0] 
+        nptb = self.xb.shape[0] 
+        if (nptt == 0) and (nptb == 0):
+            return True, errmsg
+        elif (nptt == 0) or (nptb == 0):
+            errmsg = "Airfoil split is not valid."
+            return False, errmsg
+
+        self.domainidxt = [0, 0]
+        for i in range(nptt):
+            xl = self.xt[self.domainidxt[0]]
+            xr = self.xt[self.domainidxt[1]]
+            if (self.xt[i] >= self.domaint[0]) and (xl < self.domaint[0]):
+                self.domainidxt[0] = i
+            if (self.xt[i] <= self.domaint[1]) and (xr < self.xt[i]):
+                self.domainidxt[1] = i
+
+        self.domainidxb = [0, 0]
+        for i in range(nptb):
+            xl = self.xb[self.domainidxb[0]]
+            xr = self.xb[self.domainidxb[1]]
+            if (self.xb[i] >= self.domainb[0]) and (xl < self.domainb[0]):
+                self.domainidxb[0] = i
+            if (self.xb[i] <= self.domainb[1]) and (xr < self.xb[i]):
+                self.domainidxb[1] = i
+
+        return True, errmsg
+
+    def setupShapeFunctions(self, nshapest, nshapesb):
+        '''Creates shape functions
+
+        Inputs:
+            nshapest, nshapesb: number of shape functions on top and bottom surfaces
+
+        Returns:
+            retval: True on success, False on error
+            errmsg: Message describing the error
+        '''
+        errmsg = "Success"
+        nptt = self.xt.shape[0]
+        nptb = self.xb.shape[0]
+        if (nptt == 0) or (nptb == 0):
+            errmsg = "Airfoil must be split into upper and lower surfaces first."
+            return False, errmsg
+
+        if (self.domainidxt is None) or (self.domainidxb is None):
+            errmsg = "Airfoil must have optimization limits set first."
+            return False, errmsg
+
+        self.shapest = []
+        for i in range(nshapest):
+            self.shapest.append(ShapeFunction(self.xt, self.domainidxt))
+        self.shapesb = []
+        for i in range(nshapesb):
+            self.shapesb.append(ShapeFunction(self.xb, self.domainidxb))
+
+        return True, errmsg
+
+    def createPerturbedAirfoil(self, modest, modesb, t1fact, t2fact, symmetrical):
+        '''Creates an airfoil using Hicks-Henne shape functions as perturbation
+
+        Inputs:
+            modest: design variables to define top surface shape functions
+            modesb: design variables to define bottom surface shape functions
+            t1fact: scaling factor for t1 design variable
+            t2fact: scaling factor for t2 design variable
+            symmetrical: whether the airfoil is symmetrical
+
+        Returns:
+            foil: perturbed airfoil
+        '''
+
+        # Account for scaling factors and create top surface
+        yt = np.zeros((self.xt.shape[0]))
+        for i, shape in enumerate(self.shapest):
+            st = modest[3*i]
+            t1 = modest[3*i+1]/t1fact
+            t2 = modest[3*i+2]/t2fact
+            self.shapest[i].createShape(st, t1, t2)
+            yt += self.shapest[i].shape
+
+        # Account for scaling factors and create bottom surface
+        yb = np.zeros((self.xb.shape[0]))
+        for i, shape in enumerate(self.shapesb):
+            st = modesb[3*i]
+            t1 = modesb[3*i+1]/t1fact
+            t2 = modesb[3*i+2]/t2fact
+            self.shapesb[i].createShape(st, t1, t2)
+            yb += self.shapesb[i].shape
+
+        # Create airfoil from top and bottom surfaces
+        npt = self.xt.shape[0] + self.xb.shape[0] - 1
+        foil = Airfoil(npt)
+        foil.x = np.append(self.xt[::-1], self.xb[1:])
+        foil.y = np.append(yt[::-1], yb[1:])
+
+        return foil
