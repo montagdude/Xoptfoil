@@ -197,7 +197,7 @@ class SeedAirfoil(Airfoil):
         return True, errmsg
 
     def generate4Digit(self, camber, xcamber, thickness):
-        x, y, _ = lxf.naca_4_digit(camber, xcamber, thickness, Airfoil.npointside)
+        x, y, _ = lxf.naca_4_digit(camber, xcamber, thickness, SeedAirfoil.npointside)
         self.x = np.array(x)
         self.y = np.array(y)
         self.source_data["source"] = "4-digit"
@@ -206,7 +206,7 @@ class SeedAirfoil(Airfoil):
         self.source_data["thickness"] = thickness
 
     def generate5Digit(self, designation):
-        x, y, _, stat = lxf.naca_5_digit(designation, Airfoil.npointside)
+        x, y, _, stat = lxf.naca_5_digit(designation, SeedAirfoil.npointside)
         if stat != 0:
             return False
         else:
@@ -458,11 +458,12 @@ class SeedAirfoil(Airfoil):
 
         return True, errmsg
 
-    def setupShapeFunctions(self, nshapest, nshapesb):
+    def setupShapeFunctions(self, nshapest, nshapesb, shapetype):
         '''Creates shape functions
 
         Inputs:
             nshapest, nshapesb: number of shape functions on top and bottom surfaces
+            shapetype: Hicks-Henne or NACA
 
         Returns:
             retval: True on success, False on error
@@ -482,43 +483,70 @@ class SeedAirfoil(Airfoil):
         self.shapest = []
         for i in range(nshapest):
             self.shapest.append(ShapeFunction(self.xt, self.domainidxt))
+
+            # NACA shape functions can be precalculated
+            if shapetype == "NACA":
+                self.shapest[i].createNACA(i+1)
+
         self.shapesb = []
         for i in range(nshapesb):
             self.shapesb.append(ShapeFunction(self.xb, self.domainidxb))
 
+            # NACA shape functions can be precalculated
+            if shapetype == "NACA":
+                self.shapesb[i].createNACA(i+1)
+
         return True, errmsg
 
-    def createPerturbedAirfoil(self, modest, modesb, t1fact, t2fact, symmetrical):
+    def createPerturbedAirfoil(self, modest, modesb, shapetype, t1fact, t2fact,
+                               symmetrical=False):
         '''Creates an airfoil using Hicks-Henne shape functions as perturbation
 
         Inputs:
             modest: design variables to define top surface shape functions
             modesb: design variables to define bottom surface shape functions
-            t1fact: scaling factor for t1 design variable
-            t2fact: scaling factor for t2 design variable
+            shapetype: Hicks-Henne or NACA
+            t1fact: scaling factor for t1 design variable (only used for Hicks-Henne)
+            t2fact: scaling factor for t2 design variable (only used for Hicks-Henne)
             symmetrical: whether the airfoil is symmetrical
 
         Returns:
             foil: perturbed airfoil
         '''
 
-        # Account for scaling factors and create top surface
-        yt = np.zeros((self.xt.shape[0]))
-        for i, shape in enumerate(self.shapest):
-            st = modest[3*i]
-            t1 = modest[3*i+1]/t1fact
-            t2 = modest[3*i+2]/t2fact
-            self.shapest[i].createShape(st, t1, t2)
-            yt += self.shapest[i].shape
+        if shapetype == "Hicks-Henne":
+            # Account for scaling factors and create top surface
+            yt = np.zeros((self.xt.shape[0]))
+            for i, shape in enumerate(self.shapest):
+                st = modest[3*i]
+                t1 = modest[3*i+1]/t1fact
+                t2 = modest[3*i+2]/t2fact
+                shape.createHicksHenne(st, t1, t2)
+                yt += shape
 
-        # Account for scaling factors and create bottom surface
-        yb = np.zeros((self.xb.shape[0]))
-        for i, shape in enumerate(self.shapesb):
-            st = modesb[3*i]
-            t1 = modesb[3*i+1]/t1fact
-            t2 = modesb[3*i+2]/t2fact
-            self.shapesb[i].createShape(st, t1, t2)
-            yb += self.shapesb[i].shape
+            if not symmetrical:
+                # Account for scaling factors and create bottom surface
+                yb = np.zeros((self.xb.shape[0]))
+                for i, shape in enumerate(self.shapesb):
+                    st = modesb[3*i]
+                    t1 = modesb[3*i+1]/t1fact
+                    t2 = modesb[3*i+2]/t2fact
+                    shape.createHicksHenne(st, t1, t2)
+                    yb += shape
+
+        elif shapetype == "NACA":
+            yt = np.zeros((self.xt.shape[0]))
+            for i, shape in enumerate(self.shapest):
+                yt += modest[i]*shape
+
+            if not symmetrical:
+                yb = np.zeros((self.xb.shape[0]))
+                for i, shape in enumerate(self.shapesb):
+                    yb += modesb[i]*shape
+
+        # For symmetrical airfoils, just mirror the top surface
+        if symmetrical:
+            yb = -yt
 
         # Create airfoil from top and bottom surfaces
         npt = self.xt.shape[0] + self.xb.shape[0] - 1

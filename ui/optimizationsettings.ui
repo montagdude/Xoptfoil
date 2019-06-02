@@ -93,6 +93,11 @@
          <string>Hicks-Henne</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>NACA</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="4" column="0">

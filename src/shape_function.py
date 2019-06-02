@@ -3,7 +3,7 @@ import numpy as np
 import sys
 
 class ShapeFunction:
-    '''Hicks-Henne shape function'''
+    '''Hicks-Henne or NACA shape function'''
 
     def __init__(self, x, domainidx=None):
         self.x = x
@@ -29,7 +29,7 @@ class ShapeFunction:
         xr = self.x[self.ridx]
         self.xscale = (self.x[self.lidx+1:self.ridx] - xl)/(xr - xl)
 
-    def createShape(self, st, t1, t2):
+    def createHicksHenne(self, st, t1, t2):
         '''Creates Hicks-Henne shape function from parameters
         
         Inputs:
@@ -52,3 +52,23 @@ class ShapeFunction:
         # Create shape function
         power1 = log10(0.5)/log10(t1)
         self.shape[self.lidx+1:self.ridx] = st*np.sin(pi*self.xscale**power1)**t2
+
+    def createNACA(self, shapenum):
+        '''Creates NACA shape function given a shape index.'''
+
+        # First mode
+        if shapenum == 1:
+            self.shape[self.lidx+1:self.ridx] = np.sqrt(self.xscale) - self.xscale
+        # Whole powered modes
+        elif shapenum%2 == 0:
+            power = float(shapenum)/2.
+            self.shape[self.lidx+1:self.ridx] = self.xscale**power(1. - self.xscale)
+        # Fractional powered modes
+        else:
+            power1 = float(shapenum-1)/2. + 2.
+            power2 = power1 - 1.
+            self.shape[self.lidx+1:self.ridx] = self.xscale**power1 - self.xscale**power2
+
+        # Normalize
+        maxval = np.max(abs(self.shape[self.lidx+1:self.ridx]))
+        self.shape /= maxval
