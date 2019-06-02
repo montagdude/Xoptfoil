@@ -236,7 +236,8 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
         # Setup shape functions
         nshapest = optimizationsettings.value("nfunctionsTop")
         nshapesb = optimizationsettings.value("nfunctionsBot")
-        retval, errmsg = data.seed_airfoil.setupShapeFunctions(nshapest, nshapesb)
+        shapetype = optimizationsettings.value("shapeFunctions")
+        retval, errmsg = data.seed_airfoil.setupShapeFunctions(nshapest, nshapesb, shapetype)
         if not retval:
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
             return

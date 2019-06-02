@@ -62,7 +62,7 @@ class ShapeFunction:
         # Whole powered modes
         elif shapenum%2 == 0:
             power = float(shapenum)/2.
-            self.shape[self.lidx+1:self.ridx] = self.xscale**power(1. - self.xscale)
+            self.shape[self.lidx+1:self.ridx] = self.xscale**power*(1. - self.xscale)
         # Fractional powered modes
         else:
             power1 = float(shapenum-1)/2. + 2.
