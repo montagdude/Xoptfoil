@@ -1,12 +1,18 @@
 FC=gfortran
 OBJ=xfoil_inc.o my_equivalence.o blpar_inc.o xbl_inc.o xfoil_math.o xfoil_geom.o xfoil_bl.o xfoil_aero.o vardef.o math_deps.o xfoil_driver.o parametrization.o memory_util.o airfoil_operations.o
 
-all: test_airfoil
+all: test_airfoil test_hickshenne test_nacaparam
 
 modules: $(OBJ)
 
 test_airfoil: modules test_airfoil.f90
 	$(FC) -o test_airfoil test_airfoil.f90 $(OBJ)
+
+test_hickshenne: modules test_hickshenne.f90
+	$(FC) -o test_hickshenne test_hickshenne.f90 $(OBJ)
+
+test_nacaparam: modules test_nacaparam.f90
+	$(FC) -o test_nacaparam test_nacaparam.f90 $(OBJ)
 
 clean:
 	rm -f *.mod *.o

@@ -42,7 +42,7 @@ program test_airfoil
     write(13, "(2E21.12)") xseedt(i), zseedt(i)
   end do
   write(13, "(I8)") pointsb
-  do i = 1, pointst
+  do i = 1, pointsb
     write(13, "(2E21.12)") xseedb(i), zseedb(i)
   end do
   close(13)

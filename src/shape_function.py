@@ -45,7 +45,7 @@ class ShapeFunction:
         if t1 <= 0.:
             t1 = 0.001
         if t1 >= 1.:
-            t1 = 0.099
+            t1 = 0.999
         if t2 <= 0.:
             t2 = 0.001
 
@@ -65,8 +65,8 @@ class ShapeFunction:
             self.shape[self.lidx+1:self.ridx] = self.xscale**power*(1. - self.xscale)
         # Fractional powered modes
         else:
-            power1 = float(shapenum-1)/2. + 2.
-            power2 = power1 - 1.
+            power1 = 1./(float(shapenum-1)/2. + 2.)
+            power2 = 1./(float(shapenum-1)/2. + 1.)
             self.shape[self.lidx+1:self.ridx] = self.xscale**power1 - self.xscale**power2
 
         # Normalize
