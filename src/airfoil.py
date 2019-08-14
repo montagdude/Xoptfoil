@@ -1,9 +1,11 @@
 import sys
 import numpy as np
 import xml.etree.ElementTree as ET
+from math import atan, pi
 import libxfoil_wrap as lxf
 from libxfoil import xfoil_data_group
 from shape_function import ShapeFunction
+import geometry as geo
 
 class Airfoil:
     def __init__(self, npt=0):
@@ -13,6 +15,10 @@ class Airfoil:
         lxf.xfoil_init(self.xdg)
         self.xle = None
         self.yle = None
+        self.xt = np.zeros((0))
+        self.xb = np.zeros((0))
+        self.yt = np.zeros((0))
+        self.yb = np.zeros((0))
 
     def numPoints(self):
         return self.x.shape[0]
@@ -101,6 +107,186 @@ class Airfoil:
         self.xle *= xscale
         self.yle *= yscale
 
+    def checkGeometry(self, constraints, xoffset, foilscale, seed=None):
+        '''Checks geometry for feasibility
+
+        Inputs:
+            constraints: optimization constraints
+            xoffset, foilscale: translation and scaling parameters
+            seed: seed airfoil. If None, it is assumed that this is the seed airfoil,
+              and various quantities will be stored. If not None, then the stored
+              quantities from the seed airfoil will be used to determine feasibility
+              of a new design.
+
+        Returns:
+            penalty: penalty value indicating geometric feasbility.
+            failures: list of failed constraints (for seed airfoil only; will be
+                empty if seed is not None)
+        '''
+        failures = []
+
+        # Panel growth rates
+        penalty = self.checkGrowth(seed)
+
+        # LE angle
+        pen, fail = self.checkLE(seed)
+        penalty += pen
+        failures.extend(fail)
+
+        # Interpolate top or bottom surface to x locations for thickness
+        nptt = self.xt.shape[0]
+        nptb = self.xb.shape[0]
+        if nptt < nptb:
+            xinterp = self.xb
+            ytinterp = np.interp(xinterp, self.xt, self.yt)
+            thickness = ytinterp - self.yb
+        else:
+            xinterp = self.xt
+            ybinterp = np.interp(xinterp, self.xb, self.yb)
+            thickness = self.yt - ybinterp
+
+        # Check trailing edge angle
+        pen, fail = self.checkTEAngle(xinterp, thickness, constraints.value("minTEAngle"),
+                                      xoffset, foilscale, seed)
+        penalty += pen
+        failures.extend(fail)
+
+        # Check additional thickness constraints
+        pen, fail = self.checkAdditionalThickness(xinterp, thickness, constraints.addThickX,
+                                                  constraints.addThickMin,
+                                                  constraints.addThickMax, xoffset,
+                                                  foilscale, seed)
+        penalty += pen
+        failures.extend(fail)
+
+        # Check min and max thickness
+        pen, fail = self.checkThickness(thickness, constraints.value("minThickness"),
+                                        constraints.value("maxThickness"), seed)
+        penalty += pen
+        failures.extend(fail)
+
+        # Check curvature violations
+        if constraints.value("checkCurvature"):
+            pen, fail = self.checkCurvature(constraints.value("maxReverseTop"),
+                                            constraints.value("maxReverseBot"),
+                                            constraints.value("curveThreshold"), xoffset,
+                                            foilscale, seed)
+            penalty += pen
+            failures.extend(fail)
+
+        return penalty, failures
+
+    def checkGrowth(self, seed=None):
+        '''Returns penalty value due to too large panel growth rates'''
+        maxgrowth = geo.growth_rate(self.x, self.y)
+        if seed is None:
+            self.maxgrowth = maxgrowth
+            return 0.
+        else:
+            return max(0.,1.5*seed.maxgrowth-growth_allowed)
+
+    def checkLE(self, seed=None):
+        '''Checks for too blunt or sharp trailing edge'''
+        failures = []
+        penalty = 0.
+
+        leang = geo.le_angle(self.xt, self.yt, self.xb, self.yb)
+        if leang > 179.99:
+            if seed is None:
+                failures.append("LE angle {:.3f} is too blunt.".format(leang))
+            else:
+                penalty += (leang - 179.99)/0.01
+        elif leang < 20.:
+            if seed is None:
+                failures.append("LE angle {:.1f} degrees is too sharp.".format(leang))
+            else:
+                penalty += (20. - leang)/5.
+
+        return penalty, failures
+
+    def checkTEAngle(self, xinterp, thickness, minTEAngle, xoffset, foilscale, seed=None):
+        '''Checks for TE angle below allowable'''
+        failures = []
+        penalty = 0.
+
+        idx = geo.check_te_angle(xinterp, thickness, 0.5, minTEAngle)
+        if idx > 0:
+            if seed is None:
+                xtrans = xinterp[idx]/foilscale - xoffset
+                failures = ["Below allowable TE angle at x={:.2f}.".format(xtrans)]
+            else:
+                dx = xinterp[-1] - xinterp[idx]
+                angle = 2.*atan(0.5*thickness[i]/dx)*180./pi
+                penalty = angle - minTEAngle
+
+        return penalty, failures
+
+    def checkAdditionalThickness(self, xinterp, thickness, addThickX, addThickMin,
+                                 addThickMax, xoffset, foilscale, seed=None):
+        '''Checks for violations of additional thickness constraints'''
+        failures = []
+        penalty = 0.
+
+        addThickVec = np.interp(addThickX, xinterp, thickness)
+        for i, thick in enumerate(addThickVec):
+            if (thick < addThickMin[i]) or (thick > addThickMax[i]):
+                if seed is None:
+                    xtrans = addThickX[i]/foilscale - xoffset
+                    failures.append("Thickness constraint violated at x={:.2f}.".format(xtrans))
+                else:
+                    penalty += max(0.,addThickMin[i]-thick)/0.1
+                    penalty += max(0.,thick-addThickMax[i])/0.1
+
+        return penalty, failures
+
+    def checkThickness(self, thickness, minThickness, maxThickness, seed=None):
+        '''Checks for max thickness too low or high'''
+        failures = []
+        thin_penalty = 0.
+        thick_penalty = 0.
+
+        maxthick = np.max(thickness)
+        thin_penalty = max(0.,minThickness-maxthick)/0.1
+        thick_penalty = max(0.,maxthick-maxThickness)/0.1
+        penalty = thin_penalty + thick_penalty
+        if seed is None:
+            if thin_penalty > 0.:
+                failures.append("Minimum thickness constraint violated.")
+            if thick_penalty > 0.:
+                failures.append("Maximum thickness constraint violated.")
+
+        return penalty, failures
+
+    def checkCurvature(self, maxReverseTop, maxReverseBot, curveThreshold, xoffset,
+                       foilscale, seed=None):
+        '''Checks for curvature reversals'''
+        failures = []
+        penalty = 0.
+
+        curvt = geo.curvature(self.xt, self.yt)
+        reversalsxt = geo.curvature_reversals(self.xt, curvt, curveThreshold)
+        nreversalst = len(reversalsxt)
+        if nreversalst > maxReverseTop:
+            if seed is None:
+                for x in reversalsxt:
+                    xtrans = x/foilscale - xoffset
+                    failures.append("Top surface reversal near x={:.2f}".format(xtrans))
+            else:
+                penalty += max(0.,float(nreversalst-maxReverseTop))
+
+        curvb = geo.curvature(self.xb, self.yb)
+        reversalsxb = geo.curvature_reversals(self.xb, curvb, curveThreshold)
+        nreversalsb = len(reversalsxb)
+        if nreversalsb > maxReverseBot:
+            if seed is None:
+                for x in reversalsxb:
+                    xtrans = x/foilscale - xoffset
+                    failures.append("Bottom surface reversal near x={:.2f}".format(xtrans))
+            else:
+                penalty += max(0.,float(nreversalsb-maxReverseBot))
+
+        return penalty, failures
+
 
 class SeedAirfoil(Airfoil):
 
@@ -110,10 +296,6 @@ class SeedAirfoil(Airfoil):
         super(SeedAirfoil, self).__init__()
         self.leidx = None
         self.addpoint_loc = None
-        self.xt = np.zeros((0))
-        self.yt = np.zeros((0))
-        self.xb = np.zeros((0))
-        self.yb = np.zeros((0))
         self.source_data = {"source": None, "camber": None, "xcamber": None,
                             "thickness": None, "designation": None, "file": None}
         self.domaint = [0.,1.]
@@ -122,6 +304,7 @@ class SeedAirfoil(Airfoil):
         self.domainidxb = None
         self.shapest = []
         self.shapesb = []
+        self.maxgrowth = None
 
     def readFromFile(self, fname):
         """Reads airfoil from file.
@@ -561,12 +744,25 @@ class SeedAirfoil(Airfoil):
         npt = self.xt.shape[0] + self.xb.shape[0] - 1
         foil = Airfoil(npt)
         foil.x = np.append(self.xt[::-1], self.xb[1:])
+        foil.xt = self.xt
+        foil.xb = self.xb
         foil.y = np.append(ytnew[::-1], ybnew[1:])
+        foil.yt = ytnew
+        foil.yb = ybnew
 
         # Remove scaling and offset
         foil.x /= foilscale
         foil.x -= xoffset
+        foil.xt /= foilscale
+        foil.xt -= xoffset
+        foil.xb /= foilscale
+        foil.xb -= xoffset
+
         foil.y /= foilscale
         foil.y -= yoffset
+        foil.yt /= foilscale
+        foil.yt -= yoffset
+        foil.yb /= foilscale
+        foil.yb -= yoffset
 
         return foil

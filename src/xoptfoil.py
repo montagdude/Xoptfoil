@@ -242,6 +242,20 @@ class XoptfoilMainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.critical(self, "Error", errmsg)
             return
 
+        # Check that seed airfoil passes constraints
+        _, failures = data.seed_airfoil.checkGeometry(constraints, data.xoffset, data.foilscale)
+        if len(failures) > 0:
+            msg = "Seed airfoil violates the following constraints:\n"
+            for failure in failures:
+                msg += "    " + failure + "\n"
+            msg += "\nContinue optimizing anyway?"
+            reply = QtWidgets.QMessageBox.question(self, "Seed airfoil constraint violations",
+                                                   msg, QtWidgets.QMessageBox.Yes |
+                                                        QtWidgets.QMessageBox.No,
+                                                        QtWidgets.QMessageBox.No)
+            if reply == QtWidgets.QMessageBox.No:
+                return
+
     def pause(self):
         # Enable/disable actions
         self.ui.pauseButton.setEnabled(False)
