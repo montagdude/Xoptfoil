@@ -186,7 +186,7 @@ class Airfoil:
             return max(0.,1.5*seed.maxgrowth-growth_allowed)
 
     def checkLE(self, seed=None):
-        '''Checks for too blunt or sharp trailing edge'''
+        '''Checks for too blunt or sharp leading edge'''
         failures = []
         penalty = 0.
 

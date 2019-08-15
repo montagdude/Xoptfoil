@@ -45,7 +45,7 @@ double le_angle(const std::vector<double> & xt, const std::vector<double> & yt,
     angt = atan((yt[1]-yt[0])/(xt[1]-xt[0]));
     angb = atan((yb[0]-yb[1])/(xb[1]-xb[0]));
 
-    return (angt-angb)*180./M_PI;
+    return (angt+angb)*180./M_PI;
 }
 
 int check_te_angle(const std::vector<double> & x,
@@ -195,6 +195,7 @@ std::vector<double> curvature_reversals(const std::vector<double> & x,
         if (std::abs(curvature[i]) >= threshold) {
             curv2 = curvature[i];
             if (curv2*curv1 < 0.) { reversalsx.push_back(x[i]); }
+            curv1 = curv2;
         }
     }
 
