@@ -22,14 +22,16 @@ double growth_rate(const std::vector<double> & x, const std::vector<double> & y)
     npt = x.size();
     maxgrowth = 0.;
     len1 = sqrt(pow(x[1]-x[0], 2.) + pow(y[1]-y[0], 2.));
-    for ( i = 1; i < npt; i++ )
+    for ( i = 1; i < npt-1; i++ )
     {
-        len2 = sqrt(std::pow(x[i+1]-x[1], 2.) + std::pow(y[i+1]-y[i], 2.));
+        len2 = sqrt(std::pow(x[i+1]-x[i], 2.) + std::pow(y[i+1]-y[i], 2.));
         growth1 = len2/len1;
+        growth2 = len1/len2;
         thismaxgrowth = max(growth1, growth2);
         if (thismaxgrowth > maxgrowth) { 
             maxgrowth = thismaxgrowth;
         }
+        len1 = len2;
     }
 
     return maxgrowth;
@@ -168,7 +170,7 @@ std::vector<double> curvature(const std::vector<double> & x, const std::vector<d
         xs = xe/se;
         ys = ye/se;
         xs2 = (xe2 - se2/se*xe)/std::pow(se,2.);
-        ys2 = (ye2 - ye2/se*ye)/std::pow(se,2.);
+        ys2 = (ye2 - se2/se*ye)/std::pow(se,2.);
 
         // Curvature
         curv[i] = (xs*ys2 - ys*xs2) / std::pow(std::pow(xs,2.) + std::pow(ys,2.), 1.5);
