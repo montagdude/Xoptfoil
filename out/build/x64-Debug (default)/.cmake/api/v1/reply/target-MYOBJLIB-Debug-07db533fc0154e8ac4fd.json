@@ -1,0 +1,392 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/airfoil_evaluation.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/airfoil_operations.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/genetic_algorithm.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/input_output.F90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/input_sanity.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/math_deps.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/memory_util.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/naca.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/optimization_driver.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/optimization_util.F90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/parametrization.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/particle_swarm.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/simplex_search.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/vardef.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_deps/blpar_inc.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_deps/my_equivalence.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_deps/xbl_inc.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_driver.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_inc.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/naca456_deps/epspsi.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/naca456_deps/nacax.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/naca456_deps/splprocs.f90.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_deps/xfoil_aero.f.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_deps/xfoil_bl.f.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_deps/xfoil_geom.f.obj"
+		},
+		{
+			"path" : "CMakeFiles/MYOBJLIB.dir/./src/fortran/xfoil_deps/xfoil_math.f.obj"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"add_definitions"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 64,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 50,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -Wall -fopenmp  "
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "PACKAGE_VERSION=\"1.11.1\""
+				}
+			],
+			"language" : "Fortran",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -Wall -fopenmp  "
+				},
+				{
+					"fragment" : "-fdefault-real-8"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "PACKAGE_VERSION=\"1.11.1\""
+				}
+			],
+			"language" : "Fortran",
+			"sourceIndexes" : 
+			[
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25
+			]
+		}
+	],
+	"id" : "MYOBJLIB::@6890427a1f51a3e7e1df",
+	"name" : "MYOBJLIB",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				4,
+				5,
+				6,
+				7,
+				8,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25
+			]
+		},
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				3,
+				9
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/airfoil_evaluation.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/airfoil_operations.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/genetic_algorithm.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/input_output.F90",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/input_sanity.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/math_deps.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/memory_util.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/naca.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/optimization_driver.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/optimization_util.F90",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/parametrization.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/particle_swarm.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/simplex_search.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/vardef.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/xfoil_deps/blpar_inc.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/xfoil_deps/my_equivalence.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/xfoil_deps/xbl_inc.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/xfoil_driver.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/xfoil_inc.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/fortran/naca456_deps/epspsi.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/fortran/naca456_deps/nacax.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/fortran/naca456_deps/splprocs.f90",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/fortran/xfoil_deps/xfoil_aero.f",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/fortran/xfoil_deps/xfoil_bl.f",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/fortran/xfoil_deps/xfoil_geom.f",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "src/fortran/xfoil_deps/xfoil_math.f",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "OBJECT_LIBRARY"
+}

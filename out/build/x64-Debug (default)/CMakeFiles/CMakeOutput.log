@@ -1,0 +1,420 @@
+The system is: Windows - 10.0.18362 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.26.28801/bin/HostX64/x64/cl.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+CMakeCCompilerId.c
+Microsoft (R) Incremental Linker Version 14.26.28806.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:CMakeCCompilerId.exe 
+CMakeCCompilerId.obj 
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.exe"
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.obj"
+
+The C compiler identification is MSVC, found in "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/3.17.20032601-MSVC_2/CompilerIdC/CMakeCCompilerId.exe"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.26.28801/bin/HostX64/x64/cl.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+CMakeCXXCompilerId.cpp
+Microsoft (R) Incremental Linker Version 14.26.28806.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:CMakeCXXCompilerId.exe 
+CMakeCXXCompilerId.obj 
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.obj"
+
+The CXX compiler identification is MSVC, found in "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/3.17.20032601-MSVC_2/CompilerIdCXX/CMakeCXXCompilerId.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_e96d1 && [1/2] Building C object CMakeFiles\cmTC_e96d1.dir\testCCompiler.c.obj
+[2/2] Linking C executable cmTC_e96d1.exe
+
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_1dbdb && [1/2] Building C object CMakeFiles\cmTC_1dbdb.dir\CMakeCCompilerABI.c.obj
+[2/2] Linking C executable cmTC_1dbdb.exe
+
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_91600 && [1/2] Building CXX object CMakeFiles\cmTC_91600.dir\testCXXCompiler.cxx.obj
+[2/2] Linking CXX executable cmTC_91600.exe
+
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_73f3c && [1/2] Building CXX object CMakeFiles\cmTC_73f3c.dir\CMakeCXXCompilerABI.cpp.obj
+[2/2] Linking CXX executable cmTC_73f3c.exe
+
+
+
+Compiling the Fortran compiler identification source file "CMakeFortranCompilerId.F" succeeded.
+Compiler: C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/gfortran.exe 
+Build flags: 
+Id flags: -v 
+
+The output was:
+0
+Driving: C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/gfortran.exe -v CMakeFortranCompilerId.F -l gfortran -shared-libgcc
+Using built-in specs.
+COLLECT_GCC=C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/gfortran.exe
+COLLECT_LTO_WRAPPER=C:/Program\ Files\ (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/lto-wrapper.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.1.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --with-sysroot=/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 --enable-shared --enable-static --enable-targets=all --enable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-sjlj-exceptions --disable-libstdcxx-pch --disable-libstdcxx-debug --enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch-32=i686 --with-arch-64=nocona --with-tune-32=generic --with-tune-64=core2 --with-libiconv --with-system-zlib --with-gmp=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpc=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-isl=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-sjlj-rev0, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/lib -L/c/mingw810/prerequisites/x86_64-zlib-static/lib -L/c/mingw810/prerequisites/x86_64-w64-mingw32-static/lib '
+Thread model: posix
+gcc version 8.1.0 (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) 
+COLLECT_GCC_OPTIONS='-v' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+ C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/f951.exe CMakeFortranCompilerId.F -ffixed-form -cpp=C:\Users\Ricardo\AppData\Local\Temp\ccIhFiko.f90 -quiet -v -iprefix C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/ -D_REENTRANT CMakeFortranCompilerId.F -quiet -dumpbase CMakeFortranCompilerId.F -mtune=core2 -march=nocona -auxbase CMakeFortranCompilerId -version -fintrinsic-modules-path C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/finclude -o C:\Users\Ricardo\AppData\Local\Temp\cckXSLpC.s
+GNU Fortran (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) version 8.1.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 8.1.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/include"
+ignoring nonexistent directory "C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../include"
+ignoring duplicate directory "C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed"
+ignoring duplicate directory "C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"
+ignoring nonexistent directory "C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/mingw/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/finclude
+ C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include
+ C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed
+ C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include
+End of search list.
+GNU Fortran2008 (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) version 8.1.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 8.1.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+COLLECT_GCC_OPTIONS='-v' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+ C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/as.exe -v -o C:\Users\Ricardo\AppData\Local\Temp\ccQD8yNc.o C:\Users\Ricardo\AppData\Local\Temp\cckXSLpC.s
+GNU assembler version 2.30 (x86_64-w64-mingw32) using BFD version (GNU Binutils) 2.30
+Reading specs from C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/libgfortran.spec
+rename spec lib to liborig
+COLLECT_GCC_OPTIONS='-v' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+COMPILER_PATH=C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib/;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../
+COLLECT_GCC_OPTIONS='-v' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+ C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/collect2.exe -plugin C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/liblto_plugin-0.dll -plugin-opt=C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/lto-wrapper.exe -plugin-opt=-fresolution=C:\Users\Ricardo\AppData\Local\Temp\ccaGULzZ.res -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lquadmath -plugin-opt=-pass-through=-lm -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-ladvapi32 -plugin-opt=-pass-through=-lshell32 -plugin-opt=-pass-through=-luser32 -plugin-opt=-pass-through=-lkernel32 -plugin-opt=-pass-through=-liconv -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt --sysroot=C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 -m i386pep -Bdynamic C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/crt2.o C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtbegin.o -LC:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0 -LC:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc -LC:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib -LC:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib -LC:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib -LC:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../.. C:\Users\Ricardo\AppData\Local\Temp\ccQD8yNc.o -lgfortran -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lquadmath -lm -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -liconv -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtend.o
+COLLECT_GCC_OPTIONS='-v' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+
+
+Compilation of the Fortran compiler identification source "CMakeFortranCompilerId.F" produced "a.exe"
+
+The Fortran compiler identification is GNU, found in "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/3.17.20032601-MSVC_2/CompilerIdFortran/a.exe"
+
+Determining if the Fortran compiler works passed with the following output:
+Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_b6f65 && [1/4] Building Fortran preprocessed CMakeFiles/cmTC_b6f65.dir/testFortranCompiler.f-pp.f
+[2/4] Generating Fortran dyndep file CMakeFiles/cmTC_b6f65.dir/Fortran.dd
+[3/4] Building Fortran object CMakeFiles/cmTC_b6f65.dir/testFortranCompiler.f.obj
+[4/4] Linking Fortran executable cmTC_b6f65.exe
+
+
+
+Detecting Fortran compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_3bf19 && [1/4] Building Fortran preprocessed CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f
+Using built-in specs.
+COLLECT_GCC=C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.1.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --with-sysroot=/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 --enable-shared --enable-static --enable-targets=all --enable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-sjlj-exceptions --disable-libstdcxx-pch --disable-libstdcxx-debug --enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch-32=i686 --with-arch-64=nocona --with-tune-32=generic --with-tune-64=core2 --with-libiconv --with-system-zlib --with-gmp=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpc=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-isl=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-sjlj-rev0, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/lib -L/c/mingw810/prerequisites/x86_64-zlib-static/lib -L/c/mingw810/prerequisites/x86_64-w64-mingw32-static/lib '
+Thread model: posix
+gcc version 8.1.0 (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) 
+COLLECT_GCC_OPTIONS='-cpp' '-v' '-E' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f' '-mtune=core2' '-march=nocona'
+ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/f951.exe C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.17/Modules/CMakeFortranCompilerABI.F -ffixed-form -cpp=C:\Users\Ricardo\AppData\Local\Temp\ccYByDrx.f90 -E -quiet -v -iprefix C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/ -D_REENTRANT C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.17/Modules/CMakeFortranCompilerABI.F -o CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f -mtune=core2 -march=nocona -fsyntax-only
+ignoring duplicate directory "C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/include"
+ignoring nonexistent directory "C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../include"
+ignoring duplicate directory "C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed"
+ignoring duplicate directory "C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"
+ignoring nonexistent directory "C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/mingw/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include
+ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed
+ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include
+End of search list.
+COMPILER_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../
+COLLECT_GCC_OPTIONS='-cpp' '-v' '-E' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f' '-mtune=core2' '-march=nocona'
+[2/4] Generating Fortran dyndep file CMakeFiles/cmTC_3bf19.dir/Fortran.dd
+[3/4] Building Fortran object CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj
+Using built-in specs.
+COLLECT_GCC=C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.1.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --with-sysroot=/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 --enable-shared --enable-static --enable-targets=all --enable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-sjlj-exceptions --disable-libstdcxx-pch --disable-libstdcxx-debug --enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch-32=i686 --with-arch-64=nocona --with-tune-32=generic --with-tune-64=core2 --with-libiconv --with-system-zlib --with-gmp=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpc=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-isl=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-sjlj-rev0, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/lib -L/c/mingw810/prerequisites/x86_64-zlib-static/lib -L/c/mingw810/prerequisites/x86_64-w64-mingw32-static/lib '
+Thread model: posix
+gcc version 8.1.0 (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) 
+COLLECT_GCC_OPTIONS='-I' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules' '-v' '-fpreprocessed' '-c' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj' '-mtune=core2' '-march=nocona'
+ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/f951.exe CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f -ffixed-form -I C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules -quiet -dumpbase CMakeFortranCompilerABI.F-pp.f -mtune=core2 -march=nocona -auxbase-strip CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj -version -fpreprocessed -fintrinsic-modules-path C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/finclude -o C:\Users\Ricardo\AppData\Local\Temp\cconmPAM.s
+GNU Fortran (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) version 8.1.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 8.1.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+GNU Fortran2008 (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) version 8.1.0 (x86_64-w64-mingw32)
+	compiled by GNU C version 8.1.0, GMP version 6.1.2, MPFR version 4.0.1, MPC version 1.1.0, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+COLLECT_GCC_OPTIONS='-I' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules' '-v' '-fpreprocessed' '-c' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj' '-mtune=core2' '-march=nocona'
+ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/as.exe -v -I C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules -o CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj C:\Users\Ricardo\AppData\Local\Temp\cconmPAM.s
+GNU assembler version 2.30 (x86_64-w64-mingw32) using BFD version (GNU Binutils) 2.30
+COMPILER_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../
+COLLECT_GCC_OPTIONS='-I' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules' '-v' '-fpreprocessed' '-c' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj' '-mtune=core2' '-march=nocona'
+[4/4] Linking Fortran executable cmTC_3bf19.exe
+Driving: C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe -v CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj -o cmTC_3bf19.exe -Wl,--out-implib,libcmTC_3bf19.dll.a -Wl,--major-image-version,0,--minor-image-version,0 -l gfortran -shared-libgcc
+Using built-in specs.
+COLLECT_GCC=C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe
+COLLECT_LTO_WRAPPER=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/lto-wrapper.exe
+Target: x86_64-w64-mingw32
+Configured with: ../../../src/gcc-8.1.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --with-sysroot=/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 --enable-shared --enable-static --enable-targets=all --enable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-sjlj-exceptions --disable-libstdcxx-pch --disable-libstdcxx-debug --enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch-32=i686 --with-arch-64=nocona --with-tune-32=generic --with-tune-64=core2 --with-libiconv --with-system-zlib --with-gmp=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpc=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-isl=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-sjlj-rev0, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/lib -L/c/mingw810/prerequisites/x86_64-zlib-static/lib -L/c/mingw810/prerequisites/x86_64-w64-mingw32-static/lib '
+Thread model: posix
+gcc version 8.1.0 (x86_64-posix-sjlj-rev0, Built by MinGW-W64 project) 
+Reading specs from C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/libgfortran.spec
+rename spec lib to liborig
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_3bf19.exe' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+COMPILER_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/
+LIBRARY_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/;C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_3bf19.exe' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/collect2.exe -plugin C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/liblto_plugin-0.dll -plugin-opt=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/lto-wrapper.exe -plugin-opt=-fresolution=C:\Users\Ricardo\AppData\Local\Temp\ccyEGGRZ.res -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lquadmath -plugin-opt=-pass-through=-lm -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-ladvapi32 -plugin-opt=-pass-through=-lshell32 -plugin-opt=-pass-through=-luser32 -plugin-opt=-pass-through=-lkernel32 -plugin-opt=-pass-through=-liconv -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt --sysroot=C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 -m i386pep -Bdynamic -o cmTC_3bf19.exe C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/crt2.o C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtbegin.o -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0 -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../.. CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj --out-implib libcmTC_3bf19.dll.a --major-image-version 0 --minor-image-version 0 -lgfortran -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lquadmath -lm -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -liconv -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtend.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_3bf19.exe' '-shared-libgcc' '-mtune=core2' '-march=nocona'
+
+
+
+Parsed Fortran implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include]
+    add: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed]
+    add: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include]
+  end of search list found
+  collapse include dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/x86_64-w64-mingw32/8.1.0/include]
+  collapse include dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed]
+  collapse include dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/x86_64-w64-mingw32/include]
+  implicit include dirs: [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/x86_64-w64-mingw32/8.1.0/include;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/x86_64-w64-mingw32/include]
+
+
+Parsed Fortran implicit link information from above output:
+  link line regex: [^( *|.*[/\])(link\.exe|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_3bf19 && [1/4] Building Fortran preprocessed CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe]
+  ignore line: [Target: x86_64-w64-mingw32]
+  ignore line: [Configured with: ../../../src/gcc-8.1.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --with-sysroot=/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 --enable-shared --enable-static --enable-targets=all --enable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-sjlj-exceptions --disable-libstdcxx-pch --disable-libstdcxx-debug --enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch-32=i686 --with-arch-64=nocona --with-tune-32=generic --with-tune-64=core2 --with-libiconv --with-system-zlib --with-gmp=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpc=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-isl=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-sjlj-rev0, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/lib -L/c/mingw810/prerequisites/x86_64-zlib-static/lib -L/c/mingw810/prerequisites/x86_64-w64-mingw32-static/lib ']
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 8.1.0 (x86_64-posix-sjlj-rev0  Built by MinGW-W64 project) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-cpp' '-v' '-E' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f' '-mtune=core2' '-march=nocona']
+  ignore line: [ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/f951.exe C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.17/Modules/CMakeFortranCompilerABI.F -ffixed-form -cpp=C:\Users\Ricardo\AppData\Local\Temp\ccYByDrx.f90 -E -quiet -v -iprefix C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/ -D_REENTRANT C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.17/Modules/CMakeFortranCompilerABI.F -o CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f -mtune=core2 -march=nocona -fsyntax-only]
+  ignore line: [ignoring duplicate directory "C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/include"]
+  ignore line: [ignoring nonexistent directory "C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../include"]
+  ignore line: [ignoring duplicate directory "C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed"]
+  ignore line: [ignoring duplicate directory "C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/../../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include"]
+  ignore line: [ignoring nonexistent directory "C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/mingw/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include]
+  ignore line: [ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed]
+  ignore line: [ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/include]
+  ignore line: [End of search list.]
+  ignore line: [COMPILER_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/]
+  ignore line: [LIBRARY_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-cpp' '-v' '-E' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f' '-mtune=core2' '-march=nocona']
+  ignore line: [[2/4] Generating Fortran dyndep file CMakeFiles/cmTC_3bf19.dir/Fortran.dd]
+  ignore line: [[3/4] Building Fortran object CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe]
+  ignore line: [Target: x86_64-w64-mingw32]
+  ignore line: [Configured with: ../../../src/gcc-8.1.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --with-sysroot=/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 --enable-shared --enable-static --enable-targets=all --enable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-sjlj-exceptions --disable-libstdcxx-pch --disable-libstdcxx-debug --enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch-32=i686 --with-arch-64=nocona --with-tune-32=generic --with-tune-64=core2 --with-libiconv --with-system-zlib --with-gmp=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpc=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-isl=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-sjlj-rev0, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/lib -L/c/mingw810/prerequisites/x86_64-zlib-static/lib -L/c/mingw810/prerequisites/x86_64-w64-mingw32-static/lib ']
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 8.1.0 (x86_64-posix-sjlj-rev0  Built by MinGW-W64 project) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-I' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules' '-v' '-fpreprocessed' '-c' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj' '-mtune=core2' '-march=nocona']
+  ignore line: [ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/f951.exe CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F-pp.f -ffixed-form -I C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules -quiet -dumpbase CMakeFortranCompilerABI.F-pp.f -mtune=core2 -march=nocona -auxbase-strip CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj -version -fpreprocessed -fintrinsic-modules-path C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/finclude -o C:\Users\Ricardo\AppData\Local\Temp\cconmPAM.s]
+  ignore line: [GNU Fortran (x86_64-posix-sjlj-rev0  Built by MinGW-W64 project) version 8.1.0 (x86_64-w64-mingw32)]
+  ignore line: [	compiled by GNU C version 8.1.0  GMP version 6.1.2  MPFR version 4.0.1  MPC version 1.1.0  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [GNU Fortran2008 (x86_64-posix-sjlj-rev0  Built by MinGW-W64 project) version 8.1.0 (x86_64-w64-mingw32)]
+  ignore line: [	compiled by GNU C version 8.1.0  GMP version 6.1.2  MPFR version 4.0.1  MPC version 1.1.0  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [COLLECT_GCC_OPTIONS='-I' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules' '-v' '-fpreprocessed' '-c' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj' '-mtune=core2' '-march=nocona']
+  ignore line: [ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/as.exe -v -I C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules -o CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj C:\Users\Ricardo\AppData\Local\Temp\cconmPAM.s]
+  ignore line: [GNU assembler version 2.30 (x86_64-w64-mingw32) using BFD version (GNU Binutils) 2.30]
+  ignore line: [COMPILER_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/]
+  ignore line: [LIBRARY_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-I' 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\share\cmake-3.17\Modules' '-v' '-fpreprocessed' '-c' '-o' 'CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj' '-mtune=core2' '-march=nocona']
+  ignore line: [[4/4] Linking Fortran executable cmTC_3bf19.exe]
+  ignore line: [Driving: C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe -v CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj -o cmTC_3bf19.exe -Wl --out-implib libcmTC_3bf19.dll.a -Wl --major-image-version 0 --minor-image-version 0 -l gfortran -shared-libgcc]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=C:\PROGRA~2\mingw-w64\x86_64-8.1.0-release-posix-seh-rt_v6-rev0\bin\gfortran.exe]
+  ignore line: [COLLECT_LTO_WRAPPER=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/lto-wrapper.exe]
+  ignore line: [Target: x86_64-w64-mingw32]
+  ignore line: [Configured with: ../../../src/gcc-8.1.0/configure --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --target=x86_64-w64-mingw32 --prefix=/mingw64 --with-sysroot=/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 --enable-shared --enable-static --enable-targets=all --enable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-time=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable-version-specific-runtime-libs --enable-sjlj-exceptions --disable-libstdcxx-pch --disable-libstdcxx-debug --enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disable-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch-32=i686 --with-arch-64=nocona --with-tune-32=generic --with-tune-64=core2 --with-libiconv --with-system-zlib --with-gmp=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpfr=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-mpc=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-isl=/c/mingw810/prerequisites/x86_64-w64-mingw32-static --with-pkgversion='x86_64-posix-sjlj-rev0, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CXXFLAGS='-O2 -pipe -fno-ident -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/include -I/c/mingw810/prerequisites/x86_64-zlib-static/include -I/c/mingw810/prerequisites/x86_64-w64-mingw32-static/include' LDFLAGS='-pipe -fno-ident -L/c/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64/opt/lib -L/c/mingw810/prerequisites/x86_64-zlib-static/lib -L/c/mingw810/prerequisites/x86_64-w64-mingw32-static/lib ']
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 8.1.0 (x86_64-posix-sjlj-rev0  Built by MinGW-W64 project) ]
+  ignore line: [Reading specs from C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/libgfortran.spec]
+  ignore line: [rename spec lib to liborig]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_3bf19.exe' '-shared-libgcc' '-mtune=core2' '-march=nocona']
+  ignore line: [COMPILER_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/]
+  ignore line: [LIBRARY_PATH=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/]
+  ignore line: [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_3bf19.exe' '-shared-libgcc' '-mtune=core2' '-march=nocona']
+  link line: [ C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/collect2.exe -plugin C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/liblto_plugin-0.dll -plugin-opt=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/lto-wrapper.exe -plugin-opt=-fresolution=C:\Users\Ricardo\AppData\Local\Temp\ccyEGGRZ.res -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lquadmath -plugin-opt=-pass-through=-lm -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-ladvapi32 -plugin-opt=-pass-through=-lshell32 -plugin-opt=-pass-through=-luser32 -plugin-opt=-pass-through=-lkernel32 -plugin-opt=-pass-through=-liconv -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt --sysroot=C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64 -m i386pep -Bdynamic -o cmTC_3bf19.exe C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/crt2.o C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtbegin.o -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0 -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib -LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../.. CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj --out-implib libcmTC_3bf19.dll.a --major-image-version 0 --minor-image-version 0 -lgfortran -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lquadmath -lm -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -liconv -lmingw32 -lgcc_s -lgcc -lmoldname -lmingwex -lmsvcrt C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtend.o]
+    arg [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/collect2.exe] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/liblto_plugin-0.dll] ==> ignore
+    arg [-plugin-opt=C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../libexec/gcc/x86_64-w64-mingw32/8.1.0/lto-wrapper.exe] ==> ignore
+    arg [-plugin-opt=-fresolution=C:\Users\Ricardo\AppData\Local\Temp\ccyEGGRZ.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmingw32] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmoldname] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmingwex] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmsvcrt] ==> ignore
+    arg [-plugin-opt=-pass-through=-lquadmath] ==> ignore
+    arg [-plugin-opt=-pass-through=-lm] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmingw32] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmoldname] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmingwex] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmsvcrt] ==> ignore
+    arg [-plugin-opt=-pass-through=-lpthread] ==> ignore
+    arg [-plugin-opt=-pass-through=-ladvapi32] ==> ignore
+    arg [-plugin-opt=-pass-through=-lshell32] ==> ignore
+    arg [-plugin-opt=-pass-through=-luser32] ==> ignore
+    arg [-plugin-opt=-pass-through=-lkernel32] ==> ignore
+    arg [-plugin-opt=-pass-through=-liconv] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmingw32] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmoldname] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmingwex] ==> ignore
+    arg [-plugin-opt=-pass-through=-lmsvcrt] ==> ignore
+    arg [--sysroot=C:/mingw810/x86_64-810-posix-sjlj-rt_v6-rev0/mingw64] ==> ignore
+    arg [-m] ==> ignore
+    arg [i386pep] ==> ignore
+    arg [-Bdynamic] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_3bf19.exe] ==> ignore
+    arg [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib/crt2.o] ==> ignore
+    arg [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtbegin.o] ==> ignore
+    arg [-LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0] ==> dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0]
+    arg [-LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc] ==> dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc]
+    arg [-LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib] ==> dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib]
+    arg [-LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib] ==> dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib]
+    arg [-LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib] ==> dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib]
+    arg [-LC:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../..] ==> dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../..]
+    arg [CMakeFiles/cmTC_3bf19.dir/CMakeFortranCompilerABI.F.obj] ==> ignore
+    arg [--out-implib] ==> ignore
+    arg [libcmTC_3bf19.dll.a] ==> ignore
+    arg [--major-image-version] ==> ignore
+    arg [0] ==> ignore
+    arg [--minor-image-version] ==> ignore
+    arg [0] ==> ignore
+    arg [-lgfortran] ==> lib [gfortran]
+    arg [-lmingw32] ==> lib [mingw32]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lmoldname] ==> lib [moldname]
+    arg [-lmingwex] ==> lib [mingwex]
+    arg [-lmsvcrt] ==> lib [msvcrt]
+    arg [-lquadmath] ==> lib [quadmath]
+    arg [-lm] ==> lib [m]
+    arg [-lmingw32] ==> lib [mingw32]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lmoldname] ==> lib [moldname]
+    arg [-lmingwex] ==> lib [mingwex]
+    arg [-lmsvcrt] ==> lib [msvcrt]
+    arg [-lpthread] ==> lib [pthread]
+    arg [-ladvapi32] ==> lib [advapi32]
+    arg [-lshell32] ==> lib [shell32]
+    arg [-luser32] ==> lib [user32]
+    arg [-lkernel32] ==> lib [kernel32]
+    arg [-liconv] ==> lib [iconv]
+    arg [-lmingw32] ==> lib [mingw32]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lmoldname] ==> lib [moldname]
+    arg [-lmingwex] ==> lib [mingwex]
+    arg [-lmsvcrt] ==> lib [msvcrt]
+    arg [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/crtend.o] ==> ignore
+  remove lib [msvcrt]
+  remove lib [msvcrt]
+  remove lib [msvcrt]
+  collapse library dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/x86_64-w64-mingw32/8.1.0]
+  collapse library dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc]
+  collapse library dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib/../lib] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/x86_64-w64-mingw32/lib]
+  collapse library dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../lib] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib]
+  collapse library dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/lib] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/x86_64-w64-mingw32/lib]
+  collapse library dir [C:/PROGRA~2/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../..] ==> [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib]
+  implicit libs: [gfortran;mingw32;gcc_s;gcc;moldname;mingwex;quadmath;m;mingw32;gcc_s;gcc;moldname;mingwex;pthread;advapi32;shell32;user32;kernel32;iconv;mingw32;gcc_s;gcc;moldname;mingwex]
+  implicit dirs: [C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc/x86_64-w64-mingw32/8.1.0;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib/gcc;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/x86_64-w64-mingw32/lib;C:/Program Files (x86)/mingw-w64/x86_64-8.1.0-release-posix-seh-rt_v6-rev0/lib]
+  implicit fwks: []
+
+
+Determining if the Fortran compiler supports Fortran 90 passed with the following output:
+Change Dir: C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_dd29a && [1/4] Building Fortran preprocessed CMakeFiles/cmTC_dd29a.dir/testFortranCompilerF90.f90-pp.f90
+[2/4] Generating Fortran dyndep file CMakeFiles/cmTC_dd29a.dir/Fortran.dd
+[3/4] Building Fortran object CMakeFiles/cmTC_dd29a.dir/testFortranCompilerF90.f90.obj
+[4/4] Linking Fortran executable cmTC_dd29a.exe
+
+
+

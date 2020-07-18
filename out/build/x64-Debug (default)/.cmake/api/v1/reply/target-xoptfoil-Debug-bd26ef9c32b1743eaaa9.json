@@ -1,0 +1,323 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "xoptfoil.exe"
+		},
+		{
+			"path" : "xoptfoil.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"install",
+			"add_definitions"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 67,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 71,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 50,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -Wall -fopenmp  "
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 3,
+					"define" : "PACKAGE_VERSION=\"1.11.1\""
+				}
+			],
+			"language" : "Fortran",
+			"sourceIndexes" : 
+			[
+				26
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"id" : "MYOBJLIB::@6890427a1f51a3e7e1df"
+		}
+	],
+	"id" : "xoptfoil::@6890427a1f51a3e7e1df",
+	"install" : 
+	{
+		"destinations" : 
+		[
+			{
+				"backtrace" : 2,
+				"path" : "bin"
+			}
+		],
+		"prefix" : 
+		{
+			"path" : "C:/Users/Ricardo/Source/Repos/RicardoPalmeira/Xoptfoil/out/install/x64-Debug (default)"
+		}
+	},
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow -Wall -fopenmp",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /debug /INCREMENTAL /subsystem:console",
+				"role" : "flags"
+			}
+		],
+		"language" : "Fortran"
+	},
+	"name" : "xoptfoil",
+	"nameOnDisk" : "xoptfoil.exe",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Object Libraries",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25
+			]
+		},
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				26
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/airfoil_evaluation.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/airfoil_operations.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/genetic_algorithm.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/input_output.F90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/input_sanity.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/math_deps.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/memory_util.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/naca.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/optimization_driver.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/optimization_util.F90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/parametrization.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/particle_swarm.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/simplex_search.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/vardef.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_deps/blpar_inc.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_deps/my_equivalence.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_deps/xbl_inc.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_driver.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_inc.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/naca456_deps/epspsi.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/naca456_deps/nacax.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/naca456_deps/splprocs.f90.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_deps/xfoil_aero.f.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_deps/xfoil_bl.f.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_deps/xfoil_geom.f.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir/src/fortran/xfoil_deps/xfoil_math.f.obj",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/fortran/main.f90",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "EXECUTABLE"
+}

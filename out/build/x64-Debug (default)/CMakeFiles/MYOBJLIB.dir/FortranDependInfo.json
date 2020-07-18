@@ -1,0 +1,13 @@
+{
+	"compiler-id" : "GNU",
+	"dir-cur-bld" : "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)",
+	"dir-cur-src" : "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil",
+	"dir-top-bld" : "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)",
+	"dir-top-src" : "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil",
+	"include-dirs" : [],
+	"language" : "Fortran",
+	"linked-target-dirs" : [],
+	"module-dir" : "C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)",
+	"submodule-ext" : ".smod",
+	"submodule-sep" : "@"
+}

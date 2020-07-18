@@ -1,0 +1,9 @@
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/MYOBJLIB.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/list_install_components.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/xoptfoil.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/xfoil_only.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/install/local.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/install.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/edit_cache.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/rebuild_cache.dir
+C:/Users/Ricardo/source/repos/RicardoPalmeira/Xoptfoil/out/build/x64-Debug (default)/CMakeFiles/install/strip.dir
