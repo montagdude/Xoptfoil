@@ -3,6 +3,8 @@ engine.
 
 Copyright 2017-2019 Daniel Prosser.
 
+***NOTE***: I stopped developing this code in 2019. While it should still work fine, you may want to check out the excellent Xoptfoil-JX project, which is a fork of this one. ***NOTE***
+
 Xoptfoil uses the GNU Public License Version 3, a copy of which can be found in the license directory.
 
 Code features:
